@@ -1,5 +1,7 @@
 import type { Section, HeroSection, StatsSection, CardsSection, ContentSection } from "@/lib/content-types";
 import { cn } from "@/lib/utils";
+import { AboutHero } from "@/components/about-hero";
+import { AboutStats } from "@/components/about-stats";
 
 interface SectionRendererProps {
     sections: Section[];
@@ -15,25 +17,45 @@ interface SectionRendererProps {
  * that lets you override or extend the default styling.
  */
 export function SectionRenderer({ sections, markdownContent }: SectionRendererProps) {
+    // Section types that are full-bleed and should not participate in the shared gap
+    const FULL_BLEED = new Set(["about-hero"]);
+
     return (
-        <div className="space-y-16">
+        <div>
             {sections.map((section, index) => {
-                switch (section.type) {
-                    case "hero":
-                        return <HeroBlock key={index} section={section} />;
-                    case "stats":
-                        return <StatsBlock key={index} section={section} />;
-                    case "cards":
-                        return <CardsBlock key={index} section={section} />;
-                    case "content":
-                        return <ContentBlock key={index} section={section} markdownContent={markdownContent} />;
-                    default:
-                        return null;
-                }
+                const isFullBleed = FULL_BLEED.has(section.type);
+                const rendered = (() => {
+                    switch (section.type) {
+                        case "about-hero":
+                            return <AboutHero section={section} />;
+                        case "about-stats":
+                            return <AboutStats section={section} />;
+                        case "hero":
+                            return <HeroBlock section={section} />;
+                        case "stats":
+                            return <StatsBlock section={section} />;
+                        case "cards":
+                            return <CardsBlock section={section} />;
+                        case "content":
+                            return <ContentBlock section={section} markdownContent={markdownContent} />;
+                        default:
+                            return null;
+                    }
+                })();
+
+                return (
+                    <div
+                        key={index}
+                        className={isFullBleed ? "" : index > 0 ? "mt-16" : ""}
+                    >
+                        {rendered}
+                    </div>
+                );
             })}
         </div>
     );
 }
+
 
 // ─── Content Section ──────────────────────────────────────────────────
 

@@ -25,7 +25,9 @@ export type Section =
     | HeroSection
     | ContentSection
     | StatsSection
-    | CardsSection;
+    | CardsSection
+    | AboutHeroSection
+    | AboutStatsSection;
 
 /** Shared base for all section types */
 interface SectionBase {
@@ -67,4 +69,33 @@ export interface CardItem {
     description?: string;
     image?: string;
     href?: string;
+}
+
+/** Full-viewport hero section for the About page */
+export interface AboutHeroSection extends SectionBase {
+    type: "about-hero";
+    heading: string;
+    subheading?: string;
+    /** Path or URL for the team photo background. Falls back to gradient if omitted. */
+    backgroundImage?: string;
+    cta?: { label: string; href: string };
+    /** Secondary CTA link (e.g., "Meet the Team") */
+    secondaryCta?: { label: string; href: string };
+}
+
+/** Animated stats grid for the About page */
+export interface AboutStatsSection extends SectionBase {
+    type: "about-stats";
+    heading?: string;
+    subheading?: string;
+    items: {
+        label: string;
+        /** Numeric value to count up to */
+        value: number;
+        /** Optional suffix appended after the number (e.g., "+", "L", "%") */
+        suffix?: string;
+        /** Optional prefix (e.g., "₹") */
+        prefix?: string;
+    }[];
+    columns?: number;
 }
