@@ -1,4 +1,4 @@
-import ComingSoon from "./coming-soon";
+import ComingSoon from "../coming-soon";
 
 export default function Home() {
     return (

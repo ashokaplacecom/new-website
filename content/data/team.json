@@ -1,0 +1,26 @@
+[
+    {
+        "name": "Aanya Sharma",
+        "role": "Placement Coordinator",
+        "batch": "2026",
+        "image": "/images/team/placeholder.jpg"
+    },
+    {
+        "name": "Rohan Mehta",
+        "role": "Outreach Lead",
+        "batch": "2026",
+        "image": "/images/team/placeholder.jpg"
+    },
+    {
+        "name": "Priya Iyer",
+        "role": "Events & Communications",
+        "batch": "2027",
+        "image": "/images/team/placeholder.jpg"
+    },
+    {
+        "name": "Karan Singh",
+        "role": "Tech & Operations",
+        "batch": "2027",
+        "image": "/images/team/placeholder.jpg"
+    }
+]
