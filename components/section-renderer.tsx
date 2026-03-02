@@ -17,13 +17,18 @@ interface SectionRendererProps {
  * that lets you override or extend the default styling.
  */
 export function SectionRenderer({ sections, markdownContent }: SectionRendererProps) {
-    // Section types that are full-bleed and should not participate in the shared gap
     const FULL_BLEED = new Set(["about-hero"]);
+    // These section types manage their own spacing internally
+    const SELF_SPACED = new Set(["about-stats", "about-hero"]);
 
     return (
         <div>
             {sections.map((section, index) => {
                 const isFullBleed = FULL_BLEED.has(section.type);
+                const prevType = index > 0 ? sections[index - 1].type : null;
+                // No outer gap if this section or the preceding one manages its own spacing
+                const noGap = isFullBleed || SELF_SPACED.has(section.type) || (prevType !== null && SELF_SPACED.has(prevType));
+
                 const rendered = (() => {
                     switch (section.type) {
                         case "about-hero":
@@ -46,7 +51,7 @@ export function SectionRenderer({ sections, markdownContent }: SectionRendererPr
                 return (
                     <div
                         key={index}
-                        className={isFullBleed ? "" : index > 0 ? "mt-16" : ""}
+                        className={noGap ? "" : "mt-16"}
                     >
                         {rendered}
                     </div>
@@ -61,7 +66,7 @@ export function SectionRenderer({ sections, markdownContent }: SectionRendererPr
 
 function ContentBlock({ section, markdownContent }: { section: ContentSection; markdownContent?: React.ReactNode }) {
     return (
-        <div className={cn("max-w-3xl mx-auto", section.className)}>
+        <div className={cn(section.className)}>
             {markdownContent}
         </div>
     );

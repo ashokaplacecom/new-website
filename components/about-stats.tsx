@@ -8,12 +8,9 @@ import type { AboutStatsSection } from "@/lib/content-types";
 import { cn } from "@/lib/utils";
 
 // ── Company logos for the marquee ─────────────────────────────────────────────
-// These are placeholder text-based logos until real SVGs/images are provided.
-// Replace items in `COMPANY_LOGOS` with actual logo <img> tags or SVG components.
 
 interface CompanyLogo {
     name: string;
-    /** Optional logo src — omit to use text fallback */
     src?: string;
 }
 
@@ -60,20 +57,18 @@ interface AboutStatsProps {
 }
 
 /**
- * Animated stats section for the About page.
- * - NumberTicker counts up when scrolled into view
- * - Staggered card reveal via Framer Motion
- * - Company logos marquee below the stats
+ * Animated stats section.
+ * Uses `whileInView` (not `animate`) so animations fire reliably even when
+ * the section is visible on first load.
  */
 export function AboutStats({ section }: AboutStatsProps) {
-    const ref = useRef<HTMLElement>(null);
-    const isInView = useInView(ref, { once: true, margin: "-80px" });
+    const tickerRef = useRef<HTMLDivElement>(null);
+    const tickerInView = useInView(tickerRef, { once: true, margin: "0px" });
     const cols = section.columns ?? Math.min(section.items.length, 4);
 
     return (
         <section
-            ref={ref}
-            className={cn("py-20 px-4", section.className)}
+            className={cn("pt-16 pb-10 px-4", section.className)}
             id="metrics"
             aria-label="PlaceCom metrics"
         >
@@ -82,7 +77,8 @@ export function AboutStats({ section }: AboutStatsProps) {
                 {section.heading && (
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
-                        animate={isInView ? { opacity: 1, y: 0 } : {}}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true, margin: "0px" }}
                         transition={{ duration: 0.6, ease: "easeOut" }}
                         className="text-center mb-4"
                     >
@@ -96,31 +92,30 @@ export function AboutStats({ section }: AboutStatsProps) {
                 {section.subheading && (
                     <motion.p
                         initial={{ opacity: 0, y: 16 }}
-                        animate={isInView ? { opacity: 1, y: 0 } : {}}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true, margin: "0px" }}
                         transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
-                        className="text-center text-muted-foreground text-base md:text-lg max-w-xl mx-auto mb-14"
+                        className="text-center text-muted-foreground text-base md:text-lg max-w-xl mx-auto mb-12"
                     >
                         {section.subheading}
                     </motion.p>
                 )}
 
                 {/* Stats grid — 2-col on mobile, dynamic cols on lg */}
-                <div
-                    className={cn(
-                        "grid grid-cols-2 gap-4 sm:gap-6",
-                        cols === 4 && "lg:grid-cols-4",
-                        cols === 3 && "lg:grid-cols-3",
-                        cols === 2 && "lg:grid-cols-2",
-                    )}
-                >
+                <div ref={tickerRef} className={cn(
+                    "grid grid-cols-2 gap-4 sm:gap-6",
+                    cols === 4 && "lg:grid-cols-4",
+                    cols === 3 && "lg:grid-cols-3",
+                )}>
                     {section.items.map((item, i) => (
                         <motion.div
                             key={i}
                             initial={{ opacity: 0, y: 28, scale: 0.97 }}
-                            animate={isInView ? { opacity: 1, y: 0, scale: 1 } : {}}
+                            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                            viewport={{ once: true, margin: "0px" }}
                             transition={{
                                 duration: 0.55,
-                                delay: 0.15 + i * 0.08,
+                                delay: 0.1 + i * 0.08,
                                 ease: [0.25, 0.1, 0.25, 1],
                             }}
                             className="group relative flex flex-col items-center p-6 md:p-8 rounded-xl bg-card border border-border shadow-sm hover:shadow-md hover:border-primary/20 transition-all duration-300"
@@ -135,7 +130,7 @@ export function AboutStats({ section }: AboutStatsProps) {
                                         {item.prefix}
                                     </span>
                                 )}
-                                {isInView && (
+                                {tickerInView && (
                                     <NumberTicker
                                         value={item.value}
                                         className="text-4xl md:text-5xl font-bold text-primary font-mono tabular-nums"
@@ -160,11 +155,12 @@ export function AboutStats({ section }: AboutStatsProps) {
             {/* ── Recruiter logos marquee ────────────────────────────────── */}
             <motion.div
                 initial={{ opacity: 0 }}
-                animate={isInView ? { opacity: 1 } : {}}
-                transition={{ duration: 0.8, delay: 0.6 }}
-                className="mt-20"
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true, margin: "0px" }}
+                transition={{ duration: 0.8, delay: 0.3 }}
+                className="mt-14"
             >
-                <p className="text-center text-xs tracking-[0.2em] uppercase text-muted-foreground/50 mb-8 font-medium">
+                <p className="text-center text-xs tracking-[0.2em] uppercase text-muted-foreground/50 mb-6 font-medium">
                     Recruiting partners across sectors
                 </p>
                 <div className="relative">

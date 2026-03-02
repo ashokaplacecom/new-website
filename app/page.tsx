@@ -25,8 +25,8 @@ export default function Home() {
                 <SectionRenderer
                     sections={frontmatter.sections}
                     markdownContent={
-                        <div id="about" className="max-w-5xl mx-auto px-4">
-                            <MarkdownRenderer content={content} />
+                        <div id="about" className="max-w-6xl mx-auto px-6 md:px-12 pt-4 pb-12">
+                            <MarkdownRenderer content={content} variant="landing" />
                         </div>
                     }
                 />
@@ -44,7 +44,7 @@ export default function Home() {
                     {frontmatter.description}
                 </p>
             )}
-            <MarkdownRenderer content={content} />
+            <MarkdownRenderer content={content} variant="landing" />
         </main>
     );
 }
