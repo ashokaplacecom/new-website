@@ -1,7 +1,12 @@
 "use client";
 
-import { Users, ChartLine, Menu, Presentation, GraduationCap, BadgeCheck, SheetIcon, ChartBar } from "lucide-react";
+import { Users, ChartLine, Menu, Presentation } from "lucide-react";
 
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
 import {
@@ -33,6 +38,8 @@ interface MenuItem {
   description?: string;
   icon?: React.ReactNode;
   items?: MenuItem[];
+  disabled?: boolean;
+  tooltip?: string;
 }
 
 interface Navbar1Props {
@@ -63,60 +70,28 @@ const Navbar1 = ({
   menu = [
     { title: "Home", url: "/" },
     {
-      title: "About", url: "/about", items: [
+      title: "About",
+      url: "/about",
+      items: [
         {
           title: "The Team",
           url: "/about/team",
           icon: <Users className="size-5 shrink-0" />,
-          description: "Something about the team"
+          description: "Something about the team",
         },
         {
           title: "Progress Reports",
           url: "/about/reports",
           icon: <ChartLine className="size-5 shrink-0" />,
-          description: "Something about progress reports"
+          description: "Something about progress reports",
         },
         {
           title: "Our Projects",
           url: "/about/projects",
           icon: <Presentation className="size-5 shrink-0" />,
-          description: "Projects we've done"
-        }
-      ]
-    },
-    {
-      title: "Resources",
-      url: "/resources",
-    },
-    {
-      title: "Duperset",
-      url: "/duperset",
-      items: [
-        {
-          title: "Major/Minor Change",
-          url: "/duperset/major-minor-change",
-          icon: <GraduationCap className="size-5 shrink-0" />,
-          description: "Raise a major/minor change request"
+          description: "Projects we've done",
         },
-        {
-          title: "Verification",
-          url: "/duperset/verification",
-          icon: <BadgeCheck className="size-5 shrink-0" />,
-          description: "Raise a verification request"
-        },
-        {
-          title: "Requests",
-          url: "/duperset/requests",
-          icon: <SheetIcon className="size-5 shrink-0" />,
-          description: "Get redirected to a sheet containing all active requests"
-        },
-        {
-          title: "Trackers",
-          url: "/duperset/trackers",
-          icon: <ChartBar className="size-5 shrink-0" />,
-          description: "Get redirected to a sheet containing all active trackers"
-        }
-      ]
+      ],
     },
     {
       title: "Podcast",
@@ -124,15 +99,17 @@ const Navbar1 = ({
     },
     {
       title: "Newsletter",
-      url: "/newsletter"
+      url: "/newsletter",
+      disabled: true,
+      tooltip: "Coming soon",
     },
     {
       title: "Contact Us",
-      url: "/contact"
-    }
+      url: "/contact",
+    },
   ],
   auth = {
-    signup: { title: "Sign in", url: "#" },
+    signup: { title: "Enter Toolbox", url: "#" },
   },
   className,
 }: Navbar1Props) => {
@@ -162,11 +139,12 @@ const Navbar1 = ({
             </div>
           </div>
           <div className="flex gap-2">
-            {/* <Button asChild variant="outline" size="sm">
-              <a href={auth.login.url}>{auth.login.title}</a>
-            </Button> */}
-            <Button asChild size="sm">
-              <a href={auth.signup.url}>{auth.signup.title}</a>
+            <Button
+              disabled
+              size="sm"
+              className="bg-primary/5 hover:bg-primary/10 text-primary/80 border-primary/20 border shadow-sm disabled:opacity-100"
+            >
+              {auth.signup.title}
             </Button>
           </div>
         </nav>
@@ -210,11 +188,11 @@ const Navbar1 = ({
                   </Accordion>
 
                   <div className="flex flex-col gap-3">
-                    {/* <Button asChild variant="outline">
-                      <a href={auth.login.url}>{auth.login.title}</a>
-                    </Button> */}
-                    <Button asChild>
-                      <a href={auth.signup.url}>{auth.signup.title}</a>
+                    <Button
+                      disabled
+                      className="bg-primary/5 text-primary/80 border-primary/20 border shadow-sm disabled:opacity-100"
+                    >
+                      {auth.signup.title}
                     </Button>
                   </div>
                 </div>
@@ -243,16 +221,33 @@ const renderMenuItem = (item: MenuItem) => {
     );
   }
 
-  return (
-    <NavigationMenuItem key={item.title}>
-      <NavigationMenuLink
-        href={item.url}
-        className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-muted hover:text-accent-foreground"
-      >
-        {item.title}
-      </NavigationMenuLink>
-    </NavigationMenuItem>
+  const link = (
+    <NavigationMenuLink
+      href={item.disabled ? undefined : item.url}
+      className={cn(
+        "group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-muted hover:text-accent-foreground",
+        item.disabled && "cursor-not-allowed opacity-50"
+      )}
+      onClick={item.disabled ? (e) => e.preventDefault() : undefined}
+    >
+      {item.title}
+    </NavigationMenuLink>
   );
+
+  if (item.tooltip) {
+    return (
+      <NavigationMenuItem key={item.title}>
+        <Tooltip>
+          <TooltipTrigger asChild>{link}</TooltipTrigger>
+          <TooltipContent>
+            <p>{item.tooltip}</p>
+          </TooltipContent>
+        </Tooltip>
+      </NavigationMenuItem>
+    );
+  }
+
+  return <NavigationMenuItem key={item.title}>{link}</NavigationMenuItem>;
 };
 
 const renderMobileMenuItem = (item: MenuItem) => {
@@ -271,11 +266,32 @@ const renderMobileMenuItem = (item: MenuItem) => {
     );
   }
 
-  return (
-    <a key={item.title} href={item.url} className="text-md font-semibold">
+  const link = (
+    <a
+      key={item.title}
+      href={item.disabled ? undefined : item.url}
+      className={cn(
+        "text-md font-semibold",
+        item.disabled && "cursor-not-allowed opacity-50"
+      )}
+      onClick={item.disabled ? (e) => e.preventDefault() : undefined}
+    >
       {item.title}
     </a>
   );
+
+  if (item.tooltip) {
+    return (
+      <Tooltip key={item.title}>
+        <TooltipTrigger asChild>{link}</TooltipTrigger>
+        <TooltipContent>
+          <p>{item.tooltip}</p>
+        </TooltipContent>
+      </Tooltip>
+    );
+  }
+
+  return link;
 };
 
 const SubMenuLink = ({ item }: { item: MenuItem }) => {
