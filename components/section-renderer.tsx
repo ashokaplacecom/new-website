@@ -2,6 +2,8 @@ import type { Section, HeroSection, StatsSection, CardsSection, ContentSection }
 import { cn } from "@/lib/utils";
 import { AboutHero } from "@/components/about-hero";
 import { AboutStats } from "@/components/about-stats";
+import { TeamHero } from "@/components/team-hero";
+import { TeamSectionBlock } from "@/components/team-section";
 
 interface SectionRendererProps {
     sections: Section[];
@@ -17,9 +19,9 @@ interface SectionRendererProps {
  * that lets you override or extend the default styling.
  */
 export function SectionRenderer({ sections, markdownContent }: SectionRendererProps) {
-    const FULL_BLEED = new Set(["about-hero"]);
+    const FULL_BLEED = new Set(["about-hero", "team-hero"]);
     // These section types manage their own spacing internally
-    const SELF_SPACED = new Set(["about-stats", "about-hero"]);
+    const SELF_SPACED = new Set(["about-stats", "about-hero", "team-hero", "team"]);
 
     return (
         <div>
@@ -35,6 +37,10 @@ export function SectionRenderer({ sections, markdownContent }: SectionRendererPr
                             return <AboutHero section={section} />;
                         case "about-stats":
                             return <AboutStats section={section} />;
+                        case "team-hero":
+                            return <TeamHero section={section} />;
+                        case "team":
+                            return <TeamSectionBlock section={section} />;
                         case "hero":
                             return <HeroBlock section={section} />;
                         case "stats":

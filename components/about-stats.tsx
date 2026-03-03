@@ -7,31 +7,13 @@ import { Marquee } from "@/components/ui/marquee";
 import type { AboutStatsSection } from "@/lib/content-types";
 import { cn } from "@/lib/utils";
 
-// ── Company logos for the marquee ─────────────────────────────────────────────
+import COMPANY_LOGOS from "@/content/data/companies.json";
 
 interface CompanyLogo {
     name: string;
+    /** Optional logo src — omit to use text fallback */
     src?: string;
 }
-
-const COMPANY_LOGOS: CompanyLogo[] = [
-    { name: "McKinsey & Company" },
-    { name: "Bain & Company" },
-    { name: "Boston Consulting Group" },
-    { name: "Goldman Sachs" },
-    { name: "JP Morgan" },
-    { name: "Deloitte" },
-    { name: "KPMG" },
-    { name: "EY" },
-    { name: "Teach For India" },
-    { name: "Unilever" },
-    { name: "Procter & Gamble" },
-    { name: "Microsoft" },
-    { name: "Google" },
-    { name: "Amazon" },
-    { name: "Zomato" },
-    { name: "Swiggy" },
-];
 
 function LogoCard({ logo }: { logo: CompanyLogo }) {
     return (

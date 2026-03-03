@@ -27,7 +27,9 @@ export type Section =
     | StatsSection
     | CardsSection
     | AboutHeroSection
-    | AboutStatsSection;
+    | AboutStatsSection
+    | TeamHeroSection
+    | TeamSection;
 
 /** Shared base for all section types */
 interface SectionBase {
@@ -98,4 +100,40 @@ export interface AboutStatsSection extends SectionBase {
         prefix?: string;
     }[];
     columns?: number;
+}
+
+/** Full-viewport hero for the Team page with team photo background */
+export interface TeamHeroSection extends SectionBase {
+    type: "team-hero";
+    heading: string;
+    subheading?: string;
+    /** Path for the team photo. Falls back to gradient placeholder if omitted. */
+    backgroundImage?: string;
+}
+
+/** Signal section — renders all departments from content/data/departments.json */
+export interface TeamSection extends SectionBase {
+    type: "team";
+}
+
+// ─── Department Data Types (loaded from departments.json) ────────────
+
+export interface DepartmentLeader {
+    name: string;
+    role: string;
+    /** Path to headshot image */
+    image: string;
+}
+
+export interface DepartmentMember {
+    name: string;
+    role: string;
+}
+
+export interface Department {
+    id: string;
+    name: string;
+    writeup: string;
+    leaders: DepartmentLeader[];
+    members: DepartmentMember[];
 }
