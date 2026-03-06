@@ -9,7 +9,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useWebHaptics } from "web-haptics/react";
 import {
     ChevronRight,
-    ChevronLeft,
     Loader2,
     CheckCircle2,
     Info,
@@ -30,20 +29,17 @@ const emailSchema = z.object({
         }),
 });
 
-const otpSchema = z.object({
-    otp: z.string().length(4, "Please enter the complete 4-digit OTP"),
-    message: z.string().optional(),
-});
-
-const emergencySchema = z.object({
-    otp: z.string().length(4, "Please enter the complete 4-digit OTP"),
-    company: z.string().min(1, "Company name is required"),
-    reason: z.string().min(1, "Please provide a valid reason"),
+const changeSchema = z.object({
+    email: z.string().email(),
+    ashokaId: z.string().min(1, "Ashoka ID is required"),
+    currentMajor: z.string().optional(),
+    prospectiveMajor: z.string().optional(),
+    currentMinor: z.string().optional(),
+    prospectiveMinor: z.string().optional(),
 });
 
 type EmailValues = z.infer<typeof emailSchema>;
-type OtpValues = z.infer<typeof otpSchema>;
-type EmergencyValues = z.infer<typeof emergencySchema>;
+type ChangeValues = z.infer<typeof changeSchema>;
 
 /* ─── Step Metadata ─── */
 const stepMeta = [
@@ -56,16 +52,15 @@ const stepMeta = [
         description: "We've sent a 4-digit OTP to your email.",
     },
     {
-        title: "Emergency Request",
-        description: "Provide details for your emergency verification.",
+        title: "Major / Minor Change Request",
+        description: "Fill in your current and prospective programme details.",
     },
     {
         title: "Request Submitted",
-        description: "Your verification request has been processed.",
+        description: "Your request has been processed successfully.",
     },
 ];
 
-/* ─── Constants ─── */
 const MOCK_OTP = "1234";
 const RESEND_COOLDOWN = 20;
 
@@ -77,7 +72,7 @@ const slideVariants = {
 };
 
 /* ─── Component ─── */
-export function VerificationForm() {
+export function MajorMinorChangeForm() {
     const [currentStep, setCurrentStep] = useState(0);
     const [direction, setDirection] = useState(1);
     const [ref, bounds] = useMeasure();
@@ -91,7 +86,9 @@ export function VerificationForm() {
     const [resendTimer, setResendTimer] = useState(RESEND_COOLDOWN);
     const [isSuccess, setIsSuccess] = useState(false);
     const [successMessage, setSuccessMessage] = useState("");
+    const [otpVerifying, setOtpVerifying] = useState(false);
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     /* ── Email form ── */
     const emailForm = useForm<EmailValues>({
@@ -99,19 +96,20 @@ export function VerificationForm() {
         defaultValues: { email: "" },
     });
 
-    /* ── OTP form ── */
-    const otpForm = useForm<OtpValues>({
-        resolver: zodResolver(otpSchema),
-        defaultValues: { otp: "", message: "" },
+    /* ── Change form ── */
+    const changeForm = useForm<ChangeValues>({
+        resolver: zodResolver(changeSchema),
+        defaultValues: {
+            email: "",
+            ashokaId: "",
+            currentMajor: "",
+            prospectiveMajor: "",
+            currentMinor: "",
+            prospectiveMinor: "",
+        },
     });
 
-    /* ── Emergency form ── */
-    const emergencyForm = useForm<EmergencyValues>({
-        resolver: zodResolver(emergencySchema),
-        defaultValues: { otp: "", company: "", reason: "" },
-    });
-
-    /* ── Resend timer logic ── */
+    /* ── Resend timer ── */
     const startResendTimer = useCallback(() => {
         setResendTimer(RESEND_COOLDOWN);
         if (timerRef.current) clearInterval(timerRef.current);
@@ -129,10 +127,11 @@ export function VerificationForm() {
     useEffect(() => {
         return () => {
             if (timerRef.current) clearInterval(timerRef.current);
+            if (debounceRef.current) clearTimeout(debounceRef.current);
         };
     }, []);
 
-    /* ── Navigation helpers ── */
+    /* ── Navigation ── */
     const goTo = useCallback((step: number, dir: 1 | -1 = 1) => {
         setDirection(dir);
         setCurrentStep(step);
@@ -146,10 +145,9 @@ export function VerificationForm() {
             setIsLoading(true);
             setApiError(null);
             try {
-                // Mock API call
                 await new Promise((resolve) => setTimeout(resolve, 1500));
-                // Simulate success (could also simulate error)
                 setEmail(values.email);
+                changeForm.setValue("email", values.email);
                 startResendTimer();
                 haptic("success");
                 goTo(1);
@@ -160,60 +158,59 @@ export function VerificationForm() {
                 setIsLoading(false);
             }
         },
-        [goTo, startResendTimer, haptic]
+        [goTo, startResendTimer, changeForm, haptic]
     );
 
-    /* ── Step 1: Verify OTP (normal) ── */
-    const handleOtpSubmit = useCallback(
-        async (values: OtpValues) => {
-            haptic("light");
-            setIsLoading(true);
-            setApiError(null);
-            try {
-                await new Promise((resolve) => setTimeout(resolve, 1000));
-                if (values.otp !== MOCK_OTP) {
+    /* ── Step 1: OTP auto-submit with debounce ── */
+    const handleOtpComplete = useCallback(
+        (otp: string) => {
+            if (otp.length !== 4) return;
+
+            // Clear any existing debounce
+            if (debounceRef.current) clearTimeout(debounceRef.current);
+
+            debounceRef.current = setTimeout(async () => {
+                setOtpVerifying(true);
+                setApiError(null);
+                try {
+                    await new Promise((resolve) => setTimeout(resolve, 1000));
+                    if (otp !== MOCK_OTP) {
+                        haptic("error");
+                        setApiError("Invalid OTP. Please try again.");
+                        setOtpVerifying(false);
+                        return;
+                    }
+                    haptic("success");
+                    setOtpVerifying(false);
+                    goTo(2);
+                } catch {
                     haptic("error");
-                    setApiError("Invalid OTP. Please try again.");
-                    return;
+                    setApiError("Verification failed. Please try again.");
+                    setOtpVerifying(false);
                 }
-                haptic("success");
-                setSuccessMessage(
-                    "Your verification request has been submitted successfully."
-                );
-                setIsSuccess(true);
-                goTo(3);
-            } catch {
-                haptic("error");
-                setApiError("Verification failed. Please try again.");
-            } finally {
-                setIsLoading(false);
-            }
+            }, 2000);
         },
         [goTo, haptic]
     );
 
-    /* ── Step 2: Emergency submit ── */
-    const handleEmergencySubmit = useCallback(
-        async (values: EmergencyValues) => {
+    /* ── Step 2: Submit change request ── */
+    const handleChangeSubmit = useCallback(
+        async (values: ChangeValues) => {
             haptic("light");
             setIsLoading(true);
             setApiError(null);
             try {
-                await new Promise((resolve) => setTimeout(resolve, 1000));
-                if (values.otp !== MOCK_OTP) {
-                    haptic("error");
-                    setApiError("Invalid OTP. Please try again.");
-                    return;
-                }
+                await new Promise((resolve) => setTimeout(resolve, 1500));
+                console.log("Change request submitted:", values);
                 haptic("success");
                 setSuccessMessage(
-                    "Your emergency verification request has been submitted. You will be contacted shortly."
+                    "Your major/minor change request has been submitted successfully. You'll receive a confirmation email shortly."
                 );
                 setIsSuccess(true);
                 goTo(3);
             } catch {
                 haptic("error");
-                setApiError("Emergency request failed. Please try again.");
+                setApiError("Failed to submit request. Please try again.");
             } finally {
                 setIsLoading(false);
             }
@@ -226,14 +223,25 @@ export function VerificationForm() {
         if (resendTimer > 0) return;
         haptic("selection");
         startResendTimer();
-        // Mock resend
     }, [resendTimer, startResendTimer, haptic]);
 
-    /* ── Subscribe to formState so useMemo re-evaluates on validation ── */
+    /* ── Subscribe to formState for reactivity ── */
     const emailErrors = emailForm.formState.errors;
-    const emergencyErrors = emergencyForm.formState.errors;
+    const changeErrors = changeForm.formState.errors;
     const emailSubmitCount = emailForm.formState.submitCount;
-    const emergencySubmitCount = emergencyForm.formState.submitCount;
+    const changeSubmitCount = changeForm.formState.submitCount;
+
+    /* ─── Input class helper ─── */
+    const inputClass = (hasError?: boolean) =>
+        cn(
+            "flex h-12 w-full rounded-xl border bg-background px-4 text-sm",
+            "outline-none transition-all duration-200",
+            "placeholder:text-muted-foreground/50",
+            "focus:border-primary focus:ring-2 focus:ring-primary/20",
+            "disabled:opacity-50 disabled:cursor-not-allowed",
+            hasError &&
+            "border-destructive focus:border-destructive focus:ring-destructive/20"
+        );
 
     /* ── Step Content ── */
     const content = useMemo(() => {
@@ -247,34 +255,26 @@ export function VerificationForm() {
                     >
                         <div className="space-y-2">
                             <label
-                                htmlFor="email"
+                                htmlFor="mm-email"
                                 className="text-sm font-medium text-foreground"
                             >
                                 Student Email
                             </label>
                             <input
-                                id="email"
+                                id="mm-email"
                                 type="email"
                                 placeholder="yourname@ashoka.edu.in"
                                 {...emailForm.register("email")}
                                 disabled={isLoading}
-                                className={cn(
-                                    "flex h-12 w-full rounded-xl border bg-background px-4 text-sm",
-                                    "outline-none transition-all duration-200",
-                                    "placeholder:text-muted-foreground/50",
-                                    "focus:border-primary focus:ring-2 focus:ring-primary/20",
-                                    "disabled:opacity-50 disabled:cursor-not-allowed",
-                                    emailForm.formState.errors.email &&
-                                    "border-destructive focus:border-destructive focus:ring-destructive/20"
-                                )}
+                                className={inputClass(!!emailErrors.email)}
                             />
-                            {emailForm.formState.errors.email && (
+                            {emailErrors.email && (
                                 <motion.p
                                     initial={{ opacity: 0, y: -4 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     className="text-sm text-destructive"
                                 >
-                                    {emailForm.formState.errors.email.message}
+                                    {emailErrors.email.message}
                                 </motion.p>
                             )}
                         </div>
@@ -308,7 +308,7 @@ export function VerificationForm() {
                     </form>
                 );
 
-            /* ───── STEP 1: OTP + Message ───── */
+            /* ───── STEP 1: OTP only, auto-submit ───── */
             case 1:
                 return (
                     <div className="space-y-5 py-4">
@@ -322,21 +322,6 @@ export function VerificationForm() {
                             OTP sent to {email}
                         </motion.div>
 
-                        {/* Info banner */}
-                        <div className="rounded-xl border border-amber-200/60 bg-amber-50/50 p-4 text-[13px] leading-relaxed text-amber-900/80 dark:border-amber-800/30 dark:bg-amber-950/20 dark:text-amber-200/80">
-                            <div className="flex gap-2">
-                                <Info className="h-4 w-4 shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" />
-                                <div>
-                                    <span className="font-semibold">IMP:</span> You can
-                                    raise UPTO 3 emergency requests (per semester) to
-                                    expedite the verification process. Ensure details are
-                                    accurate; rejected requests still count towards your
-                                    limit. Once a request is raised, further insistence may
-                                    be penalized.
-                                </div>
-                            </div>
-                        </div>
-
                         {/* OTP Input */}
                         <div className="space-y-2">
                             <label className="text-sm font-medium text-foreground">
@@ -346,37 +331,31 @@ export function VerificationForm() {
                                 value={otpValue}
                                 onChange={(val) => {
                                     setOtpValue(val);
-                                    otpForm.setValue("otp", val);
-                                    emergencyForm.setValue("otp", val);
+                                    setApiError(null);
+                                    handleOtpComplete(val);
                                 }}
                                 error={!!apiError}
+                                disabled={otpVerifying}
                             />
                         </div>
 
-                        {/* Message to PoC */}
-                        <div className="space-y-2">
-                            <label
-                                htmlFor="message"
-                                className="text-sm font-medium text-foreground"
+                        {/* Auto-submit indicator */}
+                        {otpValue.length === 4 && !apiError && (
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                className="flex items-center justify-center gap-2 text-sm text-muted-foreground"
                             >
-                                Message to PoC{" "}
-                                <span className="text-muted-foreground font-normal">
-                                    (optional)
-                                </span>
-                            </label>
-                            <textarea
-                                id="message"
-                                placeholder="Add a message for your PoC (optional)"
-                                {...otpForm.register("message")}
-                                rows={3}
-                                className={cn(
-                                    "flex w-full rounded-xl border bg-background px-4 py-3 text-sm",
-                                    "outline-none transition-all duration-200 resize-none",
-                                    "placeholder:text-muted-foreground/50",
-                                    "focus:border-primary focus:ring-2 focus:ring-primary/20"
+                                {otpVerifying ? (
+                                    <>
+                                        <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                                        Verifying…
+                                    </>
+                                ) : (
+                                    "Verifying in a moment…"
                                 )}
-                            />
-                        </div>
+                            </motion.div>
+                        )}
 
                         {apiError && (
                             <motion.div
@@ -388,41 +367,6 @@ export function VerificationForm() {
                                 {apiError}
                             </motion.div>
                         )}
-
-                        {/* Actions */}
-                        <div className="flex flex-col gap-3">
-                            <Button
-                                type="button"
-                                variant="destructive"
-                                onClick={() => {
-                                    haptic("light");
-                                    emergencyForm.setValue("otp", otpValue);
-                                    setApiError(null);
-                                    goTo(2);
-                                }}
-                                className="w-full h-12 rounded-xl text-sm font-semibold"
-                            >
-                                Submit as Emergency
-                            </Button>
-                            <Button
-                                type="button"
-                                disabled={isLoading}
-                                onClick={() => {
-                                    otpForm.setValue("otp", otpValue);
-                                    otpForm.handleSubmit(handleOtpSubmit)();
-                                }}
-                                className="w-full h-12 rounded-xl text-sm font-semibold"
-                            >
-                                {isLoading ? (
-                                    <>
-                                        <Loader2 className="h-4 w-4 animate-spin" />
-                                        Verifying…
-                                    </>
-                                ) : (
-                                    "Verify & Submit"
-                                )}
-                            </Button>
-                        </div>
 
                         {/* Resend */}
                         <div className="text-center text-sm text-muted-foreground">
@@ -444,114 +388,153 @@ export function VerificationForm() {
                     </div>
                 );
 
-            /* ───── STEP 2: Emergency ───── */
+            /* ───── STEP 2: Change Request Form ───── */
             case 2:
                 return (
                     <form
-                        onSubmit={emergencyForm.handleSubmit(handleEmergencySubmit, () => haptic("error"))}
+                        onSubmit={changeForm.handleSubmit(handleChangeSubmit, () => haptic("error"))}
                         className="space-y-5 py-4"
                     >
-                        {/* Info banner */}
-                        <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-4 text-[13px] leading-relaxed text-destructive dark:border-destructive/30">
+                        {/* Info alert */}
+                        <div className="rounded-xl border border-primary/15 bg-primary/5 p-4 text-[13px] leading-relaxed text-primary/80">
                             <div className="flex gap-2">
-                                <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
+                                <Info className="h-4 w-4 shrink-0 mt-0.5 text-primary/60" />
                                 <div>
-                                    Emergency requests are limited. Only use this if you
-                                    have a genuine, time-sensitive need.
+                                    Changes to your major or minor are subject to
+                                    approval by the relevant academic departments.
+                                    Please ensure your selections are accurate before
+                                    submitting.
                                 </div>
                             </div>
                         </div>
 
-                        {/* OTP display (read-only hint) */}
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-foreground">
-                                OTP Code
-                            </label>
-                            <OtpInput
-                                value={otpValue}
-                                onChange={(val) => {
-                                    setOtpValue(val);
-                                    emergencyForm.setValue("otp", val);
-                                }}
-                                error={
-                                    !!emergencyForm.formState.errors.otp || !!apiError
-                                }
-                            />
-                            {emergencyForm.formState.errors.otp && (
-                                <motion.p
-                                    initial={{ opacity: 0, y: -4 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    className="text-sm text-destructive"
-                                >
-                                    {emergencyForm.formState.errors.otp.message}
-                                </motion.p>
-                            )}
-                        </div>
-
-                        {/* Company */}
+                        {/* Email (auto-filled, read-only) */}
                         <div className="space-y-2">
                             <label
-                                htmlFor="company"
+                                htmlFor="change-email"
                                 className="text-sm font-medium text-foreground"
                             >
-                                Company of Application
+                                Email{" "}
+                                <span className="text-destructive">*</span>
                             </label>
                             <input
-                                id="company"
-                                type="text"
-                                placeholder="e.g. Google, McKinsey"
-                                {...emergencyForm.register("company")}
-                                className={cn(
-                                    "flex h-12 w-full rounded-xl border bg-background px-4 text-sm",
-                                    "outline-none transition-all duration-200",
-                                    "placeholder:text-muted-foreground/50",
-                                    "focus:border-primary focus:ring-2 focus:ring-primary/20",
-                                    emergencyForm.formState.errors.company &&
-                                    "border-destructive focus:border-destructive focus:ring-destructive/20"
-                                )}
+                                id="change-email"
+                                type="email"
+                                value={email}
+                                readOnly
+                                disabled
+                                className={cn(inputClass(), "bg-muted/50 cursor-not-allowed")}
                             />
-                            {emergencyForm.formState.errors.company && (
+                        </div>
+
+                        {/* Ashoka ID */}
+                        <div className="space-y-2">
+                            <label
+                                htmlFor="ashoka-id"
+                                className="text-sm font-medium text-foreground"
+                            >
+                                Ashoka ID{" "}
+                                <span className="text-destructive">*</span>
+                            </label>
+                            <input
+                                id="ashoka-id"
+                                type="text"
+                                placeholder="e.g. 10202XXXXX"
+                                {...changeForm.register("ashokaId")}
+                                className={inputClass(!!changeErrors.ashokaId)}
+                            />
+                            {changeErrors.ashokaId && (
                                 <motion.p
                                     initial={{ opacity: 0, y: -4 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     className="text-sm text-destructive"
                                 >
-                                    {emergencyForm.formState.errors.company.message}
+                                    {changeErrors.ashokaId.message}
                                 </motion.p>
                             )}
                         </div>
 
-                        {/* Reason */}
+                        {/* Optional fields alert */}
+                        <div className="rounded-xl border border-amber-200/60 bg-amber-50/50 p-3 text-[13px] leading-relaxed text-amber-900/80 dark:border-amber-800/30 dark:bg-amber-950/20 dark:text-amber-200/80">
+                            <div className="flex gap-2">
+                                <Info className="h-4 w-4 shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" />
+                                <div>
+                                    Fill all relevant fields. Leave blank if not
+                                    applicable.
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Current Major */}
                         <div className="space-y-2">
                             <label
-                                htmlFor="reason"
+                                htmlFor="current-major"
                                 className="text-sm font-medium text-foreground"
                             >
-                                Valid Reason for Emergency
+                                Current Major
                             </label>
-                            <textarea
-                                id="reason"
-                                placeholder="Explain why this is urgent…"
-                                {...emergencyForm.register("reason")}
-                                rows={3}
-                                className={cn(
-                                    "flex w-full rounded-xl border bg-background px-4 py-3 text-sm",
-                                    "outline-none transition-all duration-200 resize-none",
-                                    "placeholder:text-muted-foreground/50",
-                                    "focus:border-primary focus:ring-2 focus:ring-primary/20",
-                                    emergencyForm.formState.errors.reason &&
-                                    "border-destructive focus:border-destructive focus:ring-destructive/20"
-                                )}
+                            <input
+                                id="current-major"
+                                type="text"
+                                placeholder="Current major"
+                                {...changeForm.register("currentMajor")}
+                                className={inputClass()}
                             />
-                            {emergencyForm.formState.errors.reason && (
-                                <motion.p
-                                    initial={{ opacity: 0, y: -4 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    className="text-sm text-destructive"
-                                >
-                                    {emergencyForm.formState.errors.reason.message}
-                                </motion.p>
-                            )}
+                        </div>
+
+                        {/* Prospective Major */}
+                        <div className="space-y-2">
+                            <label
+                                htmlFor="prospective-major"
+                                className="text-sm font-medium text-foreground"
+                            >
+                                Prospective Major
+                            </label>
+                            <input
+                                id="prospective-major"
+                                type="text"
+                                placeholder="Prospective major"
+                                {...changeForm.register("prospectiveMajor")}
+                                className={inputClass()}
+                            />
+                        </div>
+
+                        {/* Current Minor */}
+                        <div className="space-y-2">
+                            <label
+                                htmlFor="current-minor"
+                                className="text-sm font-medium text-foreground"
+                            >
+                                Current Minor
+                            </label>
+                            <input
+                                id="current-minor"
+                                type="text"
+                                placeholder="Current minor"
+                                {...changeForm.register("currentMinor")}
+                                className={inputClass()}
+                            />
+                            <p className="text-[13px] text-muted-foreground/70 italic">
+                                If you are declaring a minor for the first time, please
+                                write <span className="font-semibold not-italic">NA</span> in this box.
+                            </p>
+                        </div>
+
+                        {/* Prospective Minor */}
+                        <div className="space-y-2">
+                            <label
+                                htmlFor="prospective-minor"
+                                className="text-sm font-medium text-foreground"
+                            >
+                                Prospective Minor
+                            </label>
+                            <input
+                                id="prospective-minor"
+                                type="text"
+                                placeholder="Prospective minor"
+                                {...changeForm.register("prospectiveMinor")}
+                                className={inputClass()}
+                            />
                         </div>
 
                         {apiError && (
@@ -565,32 +548,24 @@ export function VerificationForm() {
                             </motion.div>
                         )}
 
-                        <div className="flex flex-col gap-3">
-                            <Button
-                                type="submit"
-                                variant="destructive"
-                                disabled={isLoading}
-                                className="w-full h-12 rounded-xl text-sm font-semibold"
-                            >
-                                {isLoading ? (
-                                    <>
-                                        <Loader2 className="h-4 w-4 animate-spin" />
-                                        Submitting…
-                                    </>
-                                ) : (
-                                    "Submit Emergency Request"
-                                )}
-                            </Button>
-                            <Button
-                                type="button"
-                                variant="ghost"
-                                onClick={() => { haptic("selection"); goTo(1, -1); }}
-                                className="w-full h-10 rounded-xl text-sm font-medium text-muted-foreground"
-                            >
-                                <ChevronLeft className="h-4 w-4" />
-                                Back to regular submission
-                            </Button>
-                        </div>
+                        <Button
+                            type="submit"
+                            disabled={isLoading}
+                            className="w-full h-12 rounded-xl text-sm font-semibold"
+                        >
+                            {isLoading ? (
+                                <>
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                    Submitting…
+                                </>
+                            ) : (
+                                "Submit Request"
+                            )}
+                        </Button>
+
+                        <p className="text-center text-[13px] text-muted-foreground/60 italic">
+                            Fill all relevant fields. Leave blank if not applicable.
+                        </p>
                     </form>
                 );
 
@@ -643,28 +618,27 @@ export function VerificationForm() {
     }, [
         currentStep,
         emailForm,
-        otpForm,
-        emergencyForm,
+        changeForm,
         emailErrors,
-        emergencyErrors,
+        changeErrors,
         emailSubmitCount,
-        emergencySubmitCount,
+        changeSubmitCount,
         isLoading,
         apiError,
         email,
         otpValue,
+        otpVerifying,
         resendTimer,
         isSuccess,
         successMessage,
         handleEmailSubmit,
-        handleOtpSubmit,
-        handleEmergencySubmit,
+        handleOtpComplete,
+        handleChangeSubmit,
         handleResend,
-        goTo,
+        inputClass,
     ]);
 
-    /* ── Progress indicators for steps 0-2 (not shown on success) ── */
-    const totalSteps = 3; // 0, 1, 2 visible; 3 = success
+    const totalSteps = 3;
     const progressStep = Math.min(currentStep, 2);
 
     return (

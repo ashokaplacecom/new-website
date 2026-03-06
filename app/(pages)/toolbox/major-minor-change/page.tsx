@@ -1,4 +1,5 @@
 import { ToolboxPageShell } from "@/components/toolbox-page-shell";
+import { MajorMinorChangeForm } from "@/components/major-minor-change-form";
 import { GraduationCap } from "lucide-react";
 
 export const metadata = { title: "Major / Minor Change – Toolbox" };
@@ -9,6 +10,8 @@ export default function MajorMinorChangePage() {
             icon={GraduationCap}
             title="Major / Minor Change"
             description="Raise a request related to your major or minor programme change."
-        />
+        >
+            <MajorMinorChangeForm />
+        </ToolboxPageShell>
     );
 }
