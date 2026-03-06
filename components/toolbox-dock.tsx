@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, LayoutGroup } from "motion/react";
+import { useWebHaptics } from "web-haptics/react";
 import {
     BadgeCheck,
     Briefcase,
@@ -60,6 +61,7 @@ const dockItems = [
 
 export function ToolboxDock() {
     const pathname = usePathname();
+    const { trigger: haptic } = useWebHaptics();
 
     return (
         <LayoutGroup>
@@ -84,7 +86,12 @@ export function ToolboxDock() {
                             key={item.href}
                             className="cursor-pointer"
                         >
-                            <Link href={item.href} className="absolute inset-0 z-10" aria-label={item.title} />
+                            <Link
+                                href={item.href}
+                                className="absolute inset-0 z-10"
+                                aria-label={item.title}
+                                onClick={() => haptic("light")}
+                            />
                             <DockLabel>{item.title}</DockLabel>
                             <DockIcon>
                                 <div
