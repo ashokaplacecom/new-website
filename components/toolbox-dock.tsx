@@ -1,7 +1,8 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
-import { useWebHaptics } from "web-haptics/react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { motion, LayoutGroup } from "motion/react";
 import {
     BadgeCheck,
     Briefcase,
@@ -59,48 +60,60 @@ const dockItems = [
 
 export function ToolboxDock() {
     const pathname = usePathname();
-    const router = useRouter();
-    const { trigger: triggerHaptic } = useWebHaptics();
-
-    const handleNavigate = (href: string) => {
-        // Trigger a light selection haptic on mobile
-        triggerHaptic?.("selection");
-        router.push(href);
-    };
 
     return (
-        <Dock
-            className="border border-border/50 shadow-lg shadow-black/10 backdrop-blur-xl bg-background/80"
-            panelHeight={64}
-            magnification={72}
-            distance={140}
-        >
-            {dockItems.map((item) => {
-                const isActive = pathname === item.href;
-                const Icon = item.icon;
-                return (
-                    <DockItem
-                        key={item.href}
-                        onClick={() => handleNavigate(item.href)}
-                        className="cursor-pointer"
-                    >
-                        <DockLabel>{item.title}</DockLabel>
-                        <DockIcon>
-                            <div
-                                className={cn(
-                                    "flex items-center justify-center rounded-xl transition-all duration-200",
-                                    "w-full h-full",
-                                    isActive
-                                        ? "bg-primary text-primary-foreground shadow-sm"
-                                        : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
-                                )}
-                            >
-                                <Icon className="w-5 h-5 shrink-0" />
-                            </div>
-                        </DockIcon>
-                    </DockItem>
-                );
-            })}
-        </Dock>
+        <LayoutGroup>
+            <Dock
+                className={cn(
+                    "border border-white/30 dark:border-white/15",
+                    "shadow-[0_8px_32px_rgba(0,0,0,0.12),inset_0_1px_0_rgba(255,255,255,0.4)]",
+                    "dark:shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.08)]",
+                    "backdrop-blur-2xl backdrop-saturate-[1.8]",
+                    "bg-white/50 dark:bg-neutral-900/50",
+                    "ring-1 ring-white/20 dark:ring-white/5"
+                )}
+                panelHeight={64}
+                magnification={72}
+                distance={140}
+            >
+                {dockItems.map((item) => {
+                    const isActive = pathname === item.href;
+                    const Icon = item.icon;
+                    return (
+                        <DockItem
+                            key={item.href}
+                            className="cursor-pointer"
+                        >
+                            <Link href={item.href} className="absolute inset-0 z-10" aria-label={item.title} />
+                            <DockLabel>{item.title}</DockLabel>
+                            <DockIcon>
+                                <div
+                                    className={cn(
+                                        "relative flex items-center justify-center rounded-full transition-colors duration-200",
+                                        "aspect-square w-full p-2",
+                                        isActive
+                                            ? "text-primary-foreground"
+                                            : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
+                                    )}
+                                >
+                                    {isActive && (
+                                        <motion.div
+                                            layoutId="toolbox-active-indicator"
+                                            className="absolute inset-0 rounded-full bg-primary shadow-sm"
+                                            transition={{
+                                                type: "spring",
+                                                stiffness: 350,
+                                                damping: 30,
+                                            }}
+                                        />
+                                    )}
+                                    <Icon className="w-5 h-5 shrink-0 relative z-[1]" />
+                                </div>
+                            </DockIcon>
+                        </DockItem>
+                    );
+                })}
+            </Dock>
+        </LayoutGroup>
     );
 }

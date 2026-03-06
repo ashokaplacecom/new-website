@@ -1,6 +1,7 @@
 "use client";
 
 import { Users, ChartLine, Menu, Presentation } from "lucide-react";
+import Link from "next/link";
 
 import {
   Tooltip,
@@ -140,11 +141,11 @@ const Navbar1 = ({
           </div>
           <div className="flex gap-2">
             <Button
-              disabled
               size="sm"
               className="bg-primary/5 hover:bg-primary/10 text-primary/80 border-primary/20 border shadow-sm disabled:opacity-100"
             >
-              {auth.signup.title}
+              {/* {auth.signup.title} */}
+              <Link href="/toolbox">Enter Toolbox</Link>
             </Button>
           </div>
         </nav>
