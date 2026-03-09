@@ -1,0 +1,327 @@
+[
+    {
+        "id": "folder-resume",
+        "name": "Resume & CV",
+        "type": "folder",
+        "children": [
+            {
+                "id": "file-resume-template-1",
+                "name": "ATS-Friendly Resume Template",
+                "type": "file",
+                "fileType": "document",
+                "url": "https://example.com/ats-resume-template",
+                "description": "A clean, single-column resume template optimised for ATS parsers.",
+                "badges": [
+                    {
+                        "label": "Template",
+                        "variant": "default"
+                    },
+                    {
+                        "label": "ATS",
+                        "variant": "secondary"
+                    },
+                    {
+                        "label": "Beginner",
+                        "variant": "outline"
+                    }
+                ]
+            },
+            {
+                "id": "file-resume-template-2",
+                "name": "Two-Column Resume Template",
+                "type": "file",
+                "fileType": "document",
+                "url": "https://example.com/two-col-resume",
+                "description": "A visually appealing two-column layout for experienced candidates.",
+                "badges": [
+                    {
+                        "label": "Template",
+                        "variant": "default"
+                    },
+                    {
+                        "label": "Design",
+                        "variant": "secondary"
+                    }
+                ]
+            },
+            {
+                "id": "file-resume-tips",
+                "name": "Resume Tips & Best Practices",
+                "type": "file",
+                "fileType": "presentation",
+                "url": "https://example.com/resume-tips",
+                "description": "Slides covering common resume mistakes and how to fix them.",
+                "badges": [
+                    {
+                        "label": "Guide",
+                        "variant": "outline"
+                    },
+                    {
+                        "label": "Curated by Placecom",
+                        "variant": "default"
+                    }
+                ]
+            },
+            {
+                "id": "file-resume-tracker",
+                "name": "Application Tracker Sheet",
+                "type": "file",
+                "fileType": "spreadsheet",
+                "url": "https://example.com/application-tracker",
+                "description": "Track internship and job applications — status, contacts, deadlines.",
+                "badges": [
+                    {
+                        "label": "Tracker",
+                        "variant": "secondary"
+                    },
+                    {
+                        "label": "Essential",
+                        "variant": "default"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": "folder-interview",
+        "name": "Interview Preparation",
+        "type": "folder",
+        "children": [
+            {
+                "id": "folder-interview-hr",
+                "name": "HR Rounds",
+                "type": "folder",
+                "children": [
+                    {
+                        "id": "file-hr-questions",
+                        "name": "Top 50 HR Interview Questions",
+                        "type": "file",
+                        "fileType": "document",
+                        "url": "https://example.com/hr-questions",
+                        "description": "Commonly asked behavioural and situational interview questions with model answers.",
+                        "badges": [
+                            {
+                                "label": "HR",
+                                "variant": "default"
+                            },
+                            {
+                                "label": "Must-Read",
+                                "variant": "secondary"
+                            }
+                        ]
+                    },
+                    {
+                        "id": "file-star-method",
+                        "name": "STAR Method Guide",
+                        "type": "file",
+                        "fileType": "document",
+                        "url": "https://example.com/star-method",
+                        "description": "Learn to structure your behavioural answers using the STAR framework.",
+                        "badges": [
+                            {
+                                "label": "Framework",
+                                "variant": "outline"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": "folder-interview-case",
+                "name": "Case Interviews",
+                "type": "folder",
+                "children": [
+                    {
+                        "id": "file-case-prep",
+                        "name": "Case Interview Prep Pack",
+                        "type": "file",
+                        "fileType": "presentation",
+                        "url": "https://example.com/case-prep",
+                        "description": "Structured deck covering frameworks, sample cases, and scoring rubrics.",
+                        "badges": [
+                            {
+                                "label": "Consulting",
+                                "variant": "default"
+                            },
+                            {
+                                "label": "Case Study",
+                                "variant": "secondary"
+                            }
+                        ]
+                    },
+                    {
+                        "id": "file-guesstimate",
+                        "name": "Guesstimate Question Bank",
+                        "type": "file",
+                        "fileType": "spreadsheet",
+                        "url": "https://example.com/guesstimate",
+                        "description": "50+ market sizing and estimation questions with worked solutions.",
+                        "badges": [
+                            {
+                                "label": "Quant",
+                                "variant": "secondary"
+                            },
+                            {
+                                "label": "Practice",
+                                "variant": "outline"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": "file-interview-checklist",
+                "name": "Day-of Interview Checklist",
+                "type": "file",
+                "fileType": "document",
+                "url": "https://example.com/interview-checklist",
+                "description": "Quick checklist to review the night before and morning of your interview.",
+                "badges": [
+                    {
+                        "label": "Checklist",
+                        "variant": "outline"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": "folder-sectors",
+        "name": "Sector Guides",
+        "type": "folder",
+        "children": [
+            {
+                "id": "file-finance-guide",
+                "name": "Finance & Banking Overview",
+                "type": "file",
+                "fileType": "presentation",
+                "url": "https://example.com/finance-guide",
+                "description": "Overview of roles, skills required, and recruitment timelines for the finance sector.",
+                "badges": [
+                    {
+                        "label": "Finance",
+                        "variant": "default"
+                    },
+                    {
+                        "label": "Sector Guide",
+                        "variant": "secondary"
+                    }
+                ]
+            },
+            {
+                "id": "file-tech-guide",
+                "name": "Tech & Product Roles Guide",
+                "type": "file",
+                "fileType": "presentation",
+                "url": "https://example.com/tech-guide",
+                "description": "Breakdown of SWE, PM, and data roles, plus tips for tech interviews.",
+                "badges": [
+                    {
+                        "label": "Tech",
+                        "variant": "default"
+                    },
+                    {
+                        "label": "Sector Guide",
+                        "variant": "secondary"
+                    }
+                ]
+            },
+            {
+                "id": "file-consulting-guide",
+                "name": "Management Consulting Guide",
+                "type": "file",
+                "fileType": "presentation",
+                "url": "https://example.com/consulting-guide",
+                "description": "From tier-1 to boutique firms — how to position yourself and crack the case.",
+                "badges": [
+                    {
+                        "label": "Consulting",
+                        "variant": "default"
+                    },
+                    {
+                        "label": "Sector Guide",
+                        "variant": "secondary"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": "folder-cover-letters",
+        "name": "Cover Letters & Emails",
+        "type": "folder",
+        "children": [
+            {
+                "id": "file-cover-letter-template",
+                "name": "Generic Cover Letter Template",
+                "type": "file",
+                "fileType": "document",
+                "url": "https://example.com/cover-letter-template",
+                "description": "A professional cover letter template adaptable for any role.",
+                "badges": [
+                    {
+                        "label": "Template",
+                        "variant": "default"
+                    }
+                ]
+            },
+            {
+                "id": "file-cold-email",
+                "name": "Cold Email Templates",
+                "type": "file",
+                "fileType": "document",
+                "url": "https://example.com/cold-email-templates",
+                "description": "Proven cold email formats for reaching out to professionals for referrals or informational interviews.",
+                "badges": [
+                    {
+                        "label": "Networking",
+                        "variant": "secondary"
+                    },
+                    {
+                        "label": "Template",
+                        "variant": "outline"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": "folder-media",
+        "name": "Branding & Media",
+        "type": "folder",
+        "children": [
+            {
+                "id": "file-linkedin-banner",
+                "name": "LinkedIn Banner Template",
+                "type": "file",
+                "fileType": "image",
+                "url": "https://example.com/linkedin-banner",
+                "description": "Customisable LinkedIn banner template to stand out on professional networks.",
+                "badges": [
+                    {
+                        "label": "Design",
+                        "variant": "secondary"
+                    },
+                    {
+                        "label": "LinkedIn",
+                        "variant": "outline"
+                    }
+                ]
+            },
+            {
+                "id": "file-headshot-guide",
+                "name": "Professional Headshot Tips",
+                "type": "file",
+                "fileType": "image",
+                "url": "https://example.com/headshot-tips",
+                "description": "Simple tips for getting a professional-looking headshot without a studio.",
+                "badges": [
+                    {
+                        "label": "Branding",
+                        "variant": "outline"
+                    }
+                ]
+            }
+        ]
+    }
+]
