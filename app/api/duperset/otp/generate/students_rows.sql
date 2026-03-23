@@ -1,1 +1,0 @@
-INSERT INTO "public"."students" ("id", "name", "email", "program", "emergencies_remaining", "poc", "otp", "otp_expiry") VALUES ('1020231635', 'Soham Tulsyan', 'soham.tulsyan_ug2023@ashoka.edu.in', 'UG2023', '2', null, null, null);
