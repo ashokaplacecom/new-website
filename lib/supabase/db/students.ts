@@ -56,3 +56,11 @@ export async function clearStudentOTP(studentId: number) {
 
     if (error) throw new Error(`clearStudentOTP: ${error.message}`)
 }
+
+export async function decrementEmergencies(studentId: number): Promise<void> {
+    const supabase = createAdminClient()
+
+    const { error } = await supabase.rpc('decrement_emergencies', { student_id: studentId })
+
+    if (error) throw new Error(`decrementEmergencies: ${error.message}`)
+}
