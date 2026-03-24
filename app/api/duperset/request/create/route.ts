@@ -90,17 +90,18 @@ export async function POST(req: NextRequest) {
             await decrementEmergencies(student.id)
         }
 
+        // Calculate deadline
+        const deadlineHours = isEmergency ? 24 : 48
+        const deadline = new Date(Date.now() + deadlineHours * 60 * 60 * 1000)
+        const deadlineStr = formatDeadline(deadline)
+
         // Create the request row
         const request = await createRequest({
             studentId: student.id,
             studentMessage,
             isEmergency,
+            deadline,
         })
-
-        // Calculate deadline
-        const deadlineHours = isEmergency ? 24 : 48
-        const deadline = new Date(Date.now() + deadlineHours * 60 * 60 * 1000)
-        const deadlineStr = formatDeadline(deadline)
 
         // Fetch POC details
         const poc = await getPOCByStudentId(student.id)

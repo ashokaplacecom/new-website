@@ -19,6 +19,7 @@ export interface CreateRequestPayload {
     studentId: number
     studentMessage: string
     isEmergency: boolean
+    deadline: Date
 }
 
 export interface CreatedRequest {
@@ -41,6 +42,7 @@ export async function createRequest(payload: CreateRequestPayload): Promise<Crea
             student_message: payload.studentMessage,
             is_emergency: payload.isEmergency,
             status: 'pending',
+            deadline: payload.deadline.toISOString()
         })
         .select()
         .single()
