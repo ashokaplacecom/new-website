@@ -50,3 +50,53 @@ export async function createRequest(payload: CreateRequestPayload): Promise<Crea
     if (error) throw new Error(`createRequest: ${error.message}`)
     return data
 }
+
+
+export type RequestStatus = 'approved' | 'rejected'  // matches DB enum exactly (lowercase)
+
+export interface ModifyRequestPayload {
+    requestId: number
+    status: RequestStatus
+    pocNote: string
+    pocId: number      // FK to verifications.pocs.id — who is taking this action
+}
+
+export async function getRequestById(requestId: number) {
+    const supabase = createAdminClient()
+
+    const { data, error } = await supabase
+        .schema('verifications')
+        .from('requests')
+        .select(`
+      id,
+      status,
+      is_emergency,
+      student_message,
+      student,
+      poc_note,
+      modified_by
+    `)
+        .eq('id', requestId)
+        .single()
+
+    if (error) throw new Error(`getRequestById: ${error.message}`)
+    return data
+}
+
+export async function modifyRequest(payload: ModifyRequestPayload): Promise<void> {
+    const supabase = createAdminClient()
+
+    const { error } = await supabase
+        .schema('verifications')
+        .from('requests')
+        .update({
+            status: payload.status,
+            poc_note: payload.pocNote,
+            modified_at: new Date().toISOString(),
+            modified_by: payload.pocId,
+        })
+        .eq('id', payload.requestId)
+        .eq('status', 'pending')  // safety: only modify if still pending, never overwrite a closed request
+
+    if (error) throw new Error(`modifyRequest: ${error.message}`)
+}

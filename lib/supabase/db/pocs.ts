@@ -36,3 +36,17 @@ export async function getPOCByStudentId(studentId: number): Promise<POC | null> 
 
     return poc as POC
 }
+
+export async function getPOCById(pocId: number): Promise<POC | null> {
+    const supabase = createAdminClient()
+
+    const { data, error } = await supabase
+        .schema('verifications')
+        .from('pocs')
+        .select('id, poc_name, email')
+        .eq('id', pocId)
+        .single()
+
+    if (error) return null
+    return data
+}
