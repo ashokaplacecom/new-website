@@ -85,19 +85,7 @@ export async function POST(req: NextRequest) {
             pocId,
         })
 
-        // Fetch student details for the email
-        const student = await getStudentById(request.student)
-
-        // Send email to student
-        if (student) {
-            const template = method === 'approved'
-                ? majorMinorApprovedStudentEmail({ name: student.name, pocNote: pocNote.trim() })
-                : majorMinorRejectedStudentEmail({ name: student.name, pocNote: pocNote.trim() })
-
-            await sendMail({ to: student.email, template })
-        }
-
-        // Log audit trail
+        // Log audit trail immediately after DB update
         try {
             await logAuditTrail(
                 request.student, // User who this request belongs to
@@ -111,6 +99,18 @@ export async function POST(req: NextRequest) {
             )
         } catch (auditErr) {
             console.error('[POST /api/duperset/major-minor-change/modify] Failed to log audit trail:', auditErr)
+        }
+
+        // Fetch student details for the email
+        const student = await getStudentById(request.student)
+
+        // Send email to student
+        if (student) {
+            const template = method === 'approved'
+                ? majorMinorApprovedStudentEmail({ name: student.name, pocNote: pocNote.trim() })
+                : majorMinorRejectedStudentEmail({ name: student.name, pocNote: pocNote.trim() })
+
+            await sendMail({ to: student.email, template })
         }
 
         return NextResponse.json({

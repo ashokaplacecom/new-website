@@ -96,6 +96,17 @@ export async function POST(req: NextRequest) {
         // Decrement change count only after the request is successfully created
         await decrementMajorMinorCount(student.id)
 
+        // Log audit trail immediately after success in DB, before slow mailer calls
+        try {
+            await logAuditTrail(
+                student.id,
+                'MAJOR_MINOR_REQUEST_GENERATED',
+                { requestId: request.id, email: student.email, currentMajor, currentMinor, prospectiveMajor, prospectiveMinor }
+            )
+        } catch (auditErr) {
+            console.error('[POST /api/duperset/major-minor-change/create] Failed to log audit trail:', auditErr)
+        }
+
         // Fetch Leadership POCs
         const leadershipPOCs = await getLeadershipPOCs()
 
@@ -132,17 +143,6 @@ export async function POST(req: NextRequest) {
             )
         } else {
              console.error(`[POST /api/duperset/major-minor-change/create] No leadership POCs found! Emails to leadership not sent.`)
-        }
-
-        // Log audit trail
-        try {
-            await logAuditTrail(
-                student.id,
-                'MAJOR_MINOR_REQUEST_GENERATED',
-                { requestId: request.id, email: student.email }
-            )
-        } catch (auditErr) {
-            console.error('[POST /api/duperset/major-minor-change/create] Failed to log audit trail:', auditErr)
         }
 
         return NextResponse.json({
