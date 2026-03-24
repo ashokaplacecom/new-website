@@ -100,3 +100,50 @@ export async function modifyRequest(payload: ModifyRequestPayload): Promise<void
 
     if (error) throw new Error(`modifyRequest: ${error.message}`)
 }
+
+export async function getLatestRequest(studentId: number) {
+    const supabase = createAdminClient()
+
+    const { data, error } = await supabase
+        .schema('requests')
+        .from('verifications')
+        .select(`
+            request_at,
+            modified_at,
+            modified_by,
+            status,
+            student_message,
+            poc_note,
+            is_emergency
+        `)
+        .eq('student', studentId)
+        .order('request_at', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+
+    if (error) throw new Error(`getLatestRequest: ${error.message}`)
+    return data
+}
+
+export async function getArchivedRequests(studentId: number) {
+    const supabase = createAdminClient()
+
+    const { data, error } = await supabase
+        .schema('requests')
+        .from('verifications')
+        .select(`
+            request_at,
+            modified_at,
+            modified_by,
+            status,
+            student_message,
+            poc_note,
+            is_emergency
+        `)
+        .eq('student', studentId)
+        .order('request_at', { ascending: false })
+        .limit(10)
+
+    if (error) throw new Error(`getArchivedRequests: ${error.message}`)
+    return data || []
+}

@@ -110,3 +110,54 @@ export async function modifyMajorMinorRequest(payload: ModifyMajorMinorRequestPa
 
     if (error) throw new Error(`modifyMajorMinorRequest: ${error.message}`)
 }
+
+export async function getLatestMajorMinorRequest(studentId: number) {
+    const supabase = createAdminClient()
+
+    const { data, error } = await supabase
+        .schema('requests')
+        .from('major-minor-change')
+        .select(`
+            created_at,
+            modified_at,
+            modified_by,
+            status,
+            current_major,
+            current_minor,
+            prospective_major,
+            prospective_minor,
+            poc_note
+        `)
+        .eq('student', studentId)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+
+    if (error) throw new Error(`getLatestMajorMinorRequest: ${error.message}`)
+    return data
+}
+
+export async function getArchivedMajorMinorRequests(studentId: number) {
+    const supabase = createAdminClient()
+
+    const { data, error } = await supabase
+        .schema('requests')
+        .from('major-minor-change')
+        .select(`
+            created_at,
+            modified_at,
+            modified_by,
+            status,
+            current_major,
+            current_minor,
+            prospective_major,
+            prospective_minor,
+            poc_note
+        `)
+        .eq('student', studentId)
+        .order('created_at', { ascending: false })
+        .limit(10)
+
+    if (error) throw new Error(`getArchivedMajorMinorRequests: ${error.message}`)
+    return data || []
+}
