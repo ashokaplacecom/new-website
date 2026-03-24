@@ -28,6 +28,34 @@ export async function getStudentByEmail(email: string) {
     return data
 }
 
+export async function getStudentById(id: number) {
+    const supabase = await createAdminClient()
+
+    const { data, error } = await supabase
+        .from('students')
+        .select(`
+      id,
+      name,
+      email,
+      emergencies_remaining,
+      "major-minor-change-count",
+      poc,
+      otp,
+      otp_expiry
+    `)
+        .eq('id', id)
+        .single()
+
+    if (error) {
+        if (error.code === 'PGRST116') {
+            return null 
+        }
+        console.error('getStudentById error:', error)
+        throw new Error(error.message)
+    }
+    return data
+}
+
 // Write OTP and expiry onto the student row
 export async function setStudentOTP(studentId: number, otp: string) {
     const supabase = createAdminClient()
@@ -63,4 +91,12 @@ export async function decrementEmergencies(studentId: number): Promise<void> {
     const { error } = await supabase.rpc('decrement_emergencies', { student_id: studentId })
 
     if (error) throw new Error(`decrementEmergencies: ${error.message}`)
+}
+
+export async function decrementMajorMinorCount(studentId: number): Promise<void> {
+    const supabase = createAdminClient()
+
+    const { error } = await supabase.rpc('decrement_major_minor_count', { student_id: studentId })
+
+    if (error) throw new Error(`decrementMajorMinorCount: ${error.message}`)
 }

@@ -50,3 +50,20 @@ export async function getPOCById(pocId: number): Promise<POC | null> {
     if (error) return null
     return data
 }
+
+export async function getLeadershipPOCs(): Promise<POC[]> {
+    const supabase = createAdminClient()
+
+    const { data, error } = await supabase
+        .schema('requests')
+        .from('pocs')
+        .select('id, poc_name, email')
+        .eq('role', 'leadership')
+
+    if (error) {
+        console.error('getLeadershipPOCs error:', error)
+        return []
+    }
+    
+    return data as POC[]
+}
