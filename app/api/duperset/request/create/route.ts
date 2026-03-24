@@ -7,6 +7,7 @@ import { requestStudentEmail } from '@/content/emails/templates/student_request'
 import { requestStudentEmergencyEmail } from '@/content/emails/templates/student_request_emergency'
 import { requestPOCEmail } from '@/content/emails/templates/poc_request'
 import { requestPOCEmergencyEmail } from '@/content/emails/templates/poc_request_emergency'
+import { logAuditTrail } from '@/lib/supabase/db/audit'
 
 const PORTAL_LINK = process.env.PORTAL_LINK ?? 'https://your-portal-url.com'
 
@@ -145,6 +146,17 @@ export async function POST(req: NextRequest) {
                 })
 
             await sendMail({ to: poc.email, template: pocTemplate })
+        }
+
+        // Log audit trail
+        try {
+            await logAuditTrail(
+                student.id,
+                isEmergency ? 'EMERGENCY_REQUEST_GENERATED' : 'REGULAR_REQUEST_GENERATED',
+                { requestId: request.id, email: student.email }
+            )
+        } catch (auditErr) {
+            console.error('[POST /api/duperset/request/create] Failed to log audit trail:', auditErr)
         }
 
         return NextResponse.json({
