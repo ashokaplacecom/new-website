@@ -4,8 +4,8 @@ export async function hasPendingRequest(studentId: number): Promise<boolean> {
     const supabase = createAdminClient()
 
     const { data, error } = await supabase
-        .schema('verifications')
-        .from('requests')
+        .schema('requests')
+        .from('verifications')
         .select('id')
         .eq('student', studentId)
         .eq('status', 'pending')
@@ -35,8 +35,8 @@ export async function createRequest(payload: CreateRequestPayload): Promise<Crea
     const supabase = createAdminClient()
 
     const { data, error } = await supabase
-        .schema('verifications')
-        .from('requests')
+        .schema('requests')
+        .from('verifications')
         .insert({
             student: payload.studentId,
             student_message: payload.studentMessage,
@@ -65,8 +65,8 @@ export async function getRequestById(requestId: number) {
     const supabase = createAdminClient()
 
     const { data, error } = await supabase
-        .schema('verifications')
-        .from('requests')
+        .schema('requests')
+        .from('verifications')
         .select(`
       id,
       status,
@@ -87,8 +87,8 @@ export async function modifyRequest(payload: ModifyRequestPayload): Promise<void
     const supabase = createAdminClient()
 
     const { error } = await supabase
-        .schema('verifications')
-        .from('requests')
+        .schema('requests')
+        .from('verifications')
         .update({
             status: payload.status,
             poc_note: payload.pocNote,

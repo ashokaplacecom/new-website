@@ -23,7 +23,7 @@ export async function getPOCByStudentId(studentId: number): Promise<POC | null> 
 
     // 2. Get the POC details from the pocs table in verifications schema
     const { data: poc, error: pocError } = await supabase
-        .schema('verifications')
+        .schema('requests')
         .from('pocs')
         .select('id, poc_name, email')
         .eq('id', student.poc)
@@ -41,7 +41,7 @@ export async function getPOCById(pocId: number): Promise<POC | null> {
     const supabase = createAdminClient()
 
     const { data, error } = await supabase
-        .schema('verifications')
+        .schema('requests')
         .from('pocs')
         .select('id, poc_name, email')
         .eq('id', pocId)
