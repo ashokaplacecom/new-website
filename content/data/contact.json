@@ -1,0 +1,18 @@
+{
+  "emails": [
+    {
+      "label": "General Enquiries",
+      "address": "placements@ashoka.edu.in"
+    },
+    {
+      "label": "Student Support",
+      "address": "placements.support@ashoka.edu.in"
+    }
+  ],
+  "phones": [
+    {
+      "label": "Office",
+      "number": "+91 11 4130 4500"
+    }
+  ]
+}
