@@ -101,6 +101,8 @@ const Navbar1 = ({
     {
       title: "List an Opportunity",
       url: "/list-opportunities",
+      disabled: true,
+      tooltip: "You need to be authenticated to access this!",
       description: "Share an opportunity with us to provide to Ashokan students!",
     },
     {
