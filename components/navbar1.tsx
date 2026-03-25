@@ -85,13 +85,7 @@ const Navbar1 = ({
           url: "/about/reports",
           icon: <ChartLine className="size-5 shrink-0" />,
           description: "Something about progress reports",
-        },
-        {
-          title: "Our Projects",
-          url: "/about/projects",
-          icon: <Presentation className="size-5 shrink-0" />,
-          description: "Projects we've done",
-        },
+        }
       ],
     },
     {
@@ -103,6 +97,11 @@ const Navbar1 = ({
       url: "/newsletter",
       disabled: true,
       tooltip: "Coming soon",
+    },
+    {
+      title: "List an Opportunity",
+      url: "/list-opportunities",
+      description: "Share an opportunity with us to provide to Ashokan students!",
     },
     {
       title: "Contact Us",
