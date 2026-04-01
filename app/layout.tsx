@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Navbar1 } from "@/components/navbar1";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import Footer from "@/components/shadcn-studio/blocks/footer-component-01/footer-component-01";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,6 +33,7 @@ export default function RootLayout({
         <TooltipProvider>
           <Navbar1 />
           {children}
+          <Footer />
         </TooltipProvider>
       </body>
     </html>
