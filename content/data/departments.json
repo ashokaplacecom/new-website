@@ -1,141 +1,92 @@
-[
-    {
-        "id": "outreach",
-        "name": "Outreach",
-        "writeup": "Building and nurturing relationships with top-tier organisations across consulting, finance, technology, and the social sector. The Outreach team is the first point of contact for every recruiting partner — ensuring PlaceCom is visible, trusted, and valued in the professional world.",
-        "leaders": [
-            {
-                "name": "Arjun Kapoor",
-                "role": "Head of Outreach",
-                "image": "/images/team/placeholder.jpg"
-            },
-            {
-                "name": "Meera Pillai",
-                "role": "Deputy Head, Outreach",
-                "image": "/images/team/placeholder.jpg"
-            }
-        ],
-        "members": [
-            {
-                "name": "Vikram Nair",
-                "role": "Associate"
-            },
-            {
-                "name": "Aditi Rao",
-                "role": "Associate"
-            },
-            {
-                "name": "Siddharth Roy",
-                "role": "Associate"
-            },
-            {
-                "name": "Nisha Agarwal",
-                "role": "Associate"
-            },
-            {
-                "name": "Rahul Bose",
-                "role": "Associate"
-            }
-        ]
-    },
-    {
-        "id": "resources",
-        "name": "Resources",
-        "writeup": "Empowering students with every tool they need to succeed — from polished résumé workshops and mock interviews to industry-specific mentorship sessions and curated placement guides. The Resources team believes that preparation is the competitive advantage.",
-        "leaders": [
-            {
-                "name": "Priya Iyer",
-                "role": "Head of Resources",
-                "image": "/images/team/placeholder.jpg"
-            },
-            {
-                "name": "Karan Mehta",
-                "role": "Deputy Head, Resources",
-                "image": "/images/team/placeholder.jpg"
-            }
-        ],
-        "members": [
-            {
-                "name": "Sneha Gupta",
-                "role": "Associate"
-            },
-            {
-                "name": "Ankit Sharma",
-                "role": "Associate"
-            },
-            {
-                "name": "Divya Menon",
-                "role": "Associate"
-            },
-            {
-                "name": "Rohan Das",
-                "role": "Associate"
-            }
-        ]
-    },
-    {
-        "id": "logistics",
-        "name": "Logistics",
-        "writeup": "The engine behind every seamless recruitment drive. The Logistics team coordinates on-campus and virtual placements end-to-end — managing schedules, venues, digital infrastructure, and candidate communication so that every interaction between students and recruiters runs without a hitch.",
-        "leaders": [
-            {
-                "name": "Aanya Sharma",
-                "role": "Head of Logistics",
-                "image": "/images/team/placeholder.jpg"
-            },
-            {
-                "name": "Rishi Verma",
-                "role": "Deputy Head, Logistics",
-                "image": "/images/team/placeholder.jpg"
-            }
-        ],
-        "members": [
-            {
-                "name": "Pooja Singh",
-                "role": "Associate"
-            },
-            {
-                "name": "Abhishek Nair",
-                "role": "Associate"
-            },
-            {
-                "name": "Ritika Joshi",
-                "role": "Associate"
-            },
-            {
-                "name": "Sameer Khan",
-                "role": "Associate"
-            },
-            {
-                "name": "Tanvi Reddy",
-                "role": "Associate"
-            }
-        ]
-    },
-    {
-        "id": "tech-ops",
-        "name": "Tech & Operations",
-        "writeup": "Building the digital backbone of PlaceCom. From the placement portal and data dashboards to automation workflows and this very website — Tech & Ops keeps the committee running efficiently at scale while continuously improving the student and recruiter experience.",
-        "leaders": [
-            {
-                "name": "Dev Patel",
-                "role": "Head of Tech & Operations",
-                "image": "/images/team/placeholder.jpg"
-            }
-        ],
-        "members": [
-            {
-                "name": "Ishaan Sethi",
-                "role": "Developer"
-            },
-            {
-                "name": "Kavya Nambiar",
-                "role": "Developer"
-            },
-            {
-                "name": "Mihir Desai",
-                "role": "Analyst"
-            }
-        ]
-    }
-]
+{
+    "departments": [
+        {
+            "id": "outreach",
+            "name": "Outreach",
+            "writeup": "Building and nurturing relationships with top-tier organisations across consulting, finance, technology, and the social sector. The Outreach team is the first point of contact for every recruiting partner — ensuring PlaceCom is visible, trusted, and valued in the professional world.",
+            "leaders": [
+                {
+                    "name": "Arjun Kapoor",
+                    "role": "Head of Outreach",
+                    "image": "/images/team/placeholder.jpg"
+                },
+                {
+                    "name": "Meera Pillai",
+                    "role": "Deputy Head, Outreach",
+                    "image": "/images/team/placeholder.jpg"
+                }
+            ],
+            "members": [
+                { "name": "Vikram Nair", "role": "Associate" },
+                { "name": "Aditi Rao", "role": "Associate" },
+                { "name": "Siddharth Roy", "role": "Associate" },
+                { "name": "Nisha Agarwal", "role": "Associate" },
+                { "name": "Rahul Bose", "role": "Associate" }
+            ]
+        },
+        {
+            "id": "resources",
+            "name": "Resources",
+            "writeup": "Empowering students with every tool they need to succeed — from polished résumé workshops and mock interviews to industry-specific mentorship sessions and curated placement guides. The Resources team believes that preparation is the competitive advantage.",
+            "leaders": [
+                {
+                    "name": "Priya Iyer",
+                    "role": "Head of Resources",
+                    "image": "/images/team/placeholder.jpg"
+                },
+                {
+                    "name": "Karan Mehta",
+                    "role": "Deputy Head, Resources",
+                    "image": "/images/team/placeholder.jpg"
+                }
+            ],
+            "members": [
+                { "name": "Sneha Gupta", "role": "Associate" },
+                { "name": "Ankit Sharma", "role": "Associate" },
+                { "name": "Divya Menon", "role": "Associate" },
+                { "name": "Rohan Das", "role": "Associate" }
+            ]
+        },
+        {
+            "id": "logistics",
+            "name": "Logistics",
+            "writeup": "The engine behind every seamless recruitment drive. The Logistics team coordinates on-campus and virtual placements end-to-end — managing schedules, venues, digital infrastructure, and candidate communication so that every interaction between students and recruiters runs without a hitch.",
+            "leaders": [
+                {
+                    "name": "Aanya Sharma",
+                    "role": "Head of Logistics",
+                    "image": "/images/team/placeholder.jpg"
+                },
+                {
+                    "name": "Rishi Verma",
+                    "role": "Deputy Head, Logistics",
+                    "image": "/images/team/placeholder.jpg"
+                }
+            ],
+            "members": [
+                { "name": "Pooja Singh", "role": "Associate" },
+                { "name": "Abhishek Nair", "role": "Associate" },
+                { "name": "Ritika Joshi", "role": "Associate" },
+                { "name": "Sameer Khan", "role": "Associate" },
+                { "name": "Tanvi Reddy", "role": "Associate" }
+            ]
+        },
+        {
+            "id": "tech-ops",
+            "name": "Tech & Operations",
+            "writeup": "Building the digital backbone of PlaceCom. From the placement portal and data dashboards to automation workflows and this very website — Tech & Ops keeps the committee running efficiently at scale while continuously improving the student and recruiter experience.",
+            "leaders": [
+                {
+                    "name": "Dev Patel",
+                    "role": "Head of Tech & Operations",
+                    "image": "/images/team/placeholder.jpg"
+                }
+            ],
+            "members": [
+                { "name": "Ishaan Sethi", "role": "Developer" },
+                { "name": "Kavya Nambiar", "role": "Developer" },
+                { "name": "Mihir Desai", "role": "Analyst" }
+            ]
+        }
+    ]
+}

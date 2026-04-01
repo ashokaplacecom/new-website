@@ -1,13 +1,13 @@
 import { Library } from "lucide-react";
 import { ResourceBrowser } from "@/components/resources/resource-browser";
 import type { ResourceNode } from "@/types/resources";
-import rawData from "@/content/resources.json";
+import resourcesData from "@/content/resources.json";
 
 export const metadata = { title: "Resources – Toolbox" };
 
 export default function ResourcesPage() {
     // Cast JSON to typed nodes — JSON is validated at usage, errors surface in sidebar/browser
-    const nodes = rawData as ResourceNode[];
+    const nodes = resourcesData.resources as ResourceNode[];
 
     return (
         <div className="container max-w-7xl py-10 px-4 mx-auto font-[family-name:var(--font-geist-sans)]">

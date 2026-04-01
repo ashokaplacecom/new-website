@@ -1,4 +1,5 @@
-[
+{
+    "resources": [
     {
         "id": "folder-resume",
         "name": "Resume & CV",
@@ -324,4 +325,5 @@
             }
         ]
     }
-]
+    ]
+}

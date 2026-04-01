@@ -1,0 +1,204 @@
+backend:
+  name: github
+  repo: ashokaplacecom/new-website
+  branch: main
+
+# Enables local proxy server for development — run `npx decap-server` alongside `npm run dev`
+local_backend: true
+
+media_folder: public/images/uploads
+public_folder: /images/uploads
+
+collections:
+  # ─── Markdown Pages ───────────────────────────────────────────────────────────
+  - name: pages
+    label: Pages
+    label_singular: Page
+    folder: content/pages
+    extension: md
+    format: frontmatter
+    create: false
+    editor:
+      preview: false
+    fields:
+      - { label: Title, name: title, widget: string }
+      - { label: Description, name: description, widget: string, required: false }
+      - label: Sections
+        name: sections
+        widget: list
+        required: false
+        fields:
+          - { label: Type, name: type, widget: string }
+          - { label: Heading, name: heading, widget: string, required: false }
+          - { label: Subheading, name: subheading, widget: string, required: false }
+          - { label: Background Image, name: backgroundImage, widget: string, required: false }
+      - { label: Body, name: body, widget: markdown }
+
+  # ─── JSON Data Files ──────────────────────────────────────────────────────────
+  - name: data
+    label: Data
+    editor:
+      preview: false
+    files:
+
+      # ── Contact ──────────────────────────────────────────────────────────────
+      - name: contact
+        label: Contact Information
+        file: content/data/contact.json
+        fields:
+          - label: Emails
+            name: emails
+            widget: list
+            fields:
+              - { label: Label, name: label, widget: string }
+              - { label: Email Address, name: address, widget: string }
+          - label: Phone Numbers
+            name: phones
+            widget: list
+            fields:
+              - { label: Label, name: label, widget: string }
+              - { label: Number, name: number, widget: string }
+
+      # ── Companies / Recruiter Logos ───────────────────────────────────────────
+      - name: companies
+        label: Recruiting Partners
+        file: content/data/companies.json
+        fields:
+          - label: Companies
+            name: companies
+            widget: list
+            fields:
+              - { label: Company Name, name: name, widget: string }
+              - { label: Logo URL, name: src, widget: string, required: false, hint: "Leave blank to show company name as text" }
+
+      # ── Podcast Episodes ──────────────────────────────────────────────────────
+      - name: podcast
+        label: Podcast Episodes
+        file: content/data/podcast.json
+        fields:
+          - label: Episodes
+            name: episodes
+            widget: list
+            fields:
+              - { label: ID, name: id, widget: string }
+              - { label: Title, name: title, widget: string }
+              - { label: Spotify Embed URL, name: spotifyEmbedUrl, widget: string }
+              - { label: Description, name: description, widget: text }
+
+      # ── Monthly Reports ───────────────────────────────────────────────────────
+      - name: reports
+        label: Monthly Reports
+        file: content/data/reports.json
+        fields:
+          - label: Entries
+            name: entries
+            widget: list
+            fields:
+              - { label: ID, name: id, widget: string, hint: "URL-safe slug, e.g. march-2024" }
+              - { label: Month Label, name: month, widget: string, hint: e.g. March 2024 }
+              - { label: One-liner Summary, name: oneLiner, widget: text }
+              - { label: PDF Embed URL, name: pdfEmbedUrl, widget: string, hint: "Google Drive preview link — .../file/d/FILE_ID/preview" }
+
+      # ── Team Members ─────────────────────────────────────────────────────────
+      - name: team
+        label: Team Members
+        file: content/data/team.json
+        fields:
+          - label: Members
+            name: members
+            widget: list
+            fields:
+              - { label: Full Name, name: name, widget: string }
+              - { label: Role, name: role, widget: string }
+              - { label: Batch Year, name: batch, widget: string }
+              - { label: Photo, name: image, widget: image, required: false }
+
+      # ── Departments ───────────────────────────────────────────────────────────
+      - name: departments
+        label: Departments
+        file: content/data/departments.json
+        fields:
+          - label: Departments
+            name: departments
+            widget: list
+            fields:
+              - { label: ID (slug), name: id, widget: string }
+              - { label: Department Name, name: name, widget: string }
+              - { label: Writeup, name: writeup, widget: text }
+              - label: Leaders
+                name: leaders
+                widget: list
+                fields:
+                  - { label: Name, name: name, widget: string }
+                  - { label: Role, name: role, widget: string }
+                  - { label: Photo, name: image, widget: image, required: false }
+              - label: Members
+                name: members
+                widget: list
+                fields:
+                  - { label: Name, name: name, widget: string }
+                  - { label: Role, name: role, widget: string }
+
+      # ── Resources (raw JSON editor) ───────────────────────────────────────────
+      - name: resources
+        label: Resources Library
+        file: content/resources.json
+        fields:
+          - label: Resources
+            name: resources
+            widget: list
+            hint: "Top-level folders — each can contain files or more nested folders."
+            fields:
+              - { label: ID, name: id, widget: string }
+              - { label: Name, name: name, widget: string }
+              - { label: Type, name: type, widget: select, options: [folder, file] }
+              - label: File Type
+                name: fileType
+                widget: select
+                required: false
+                options: [document, presentation, spreadsheet, image, link]
+              - { label: URL, name: url, widget: string, required: false }
+              - { label: Description, name: description, widget: text, required: false }
+              - label: Badges
+                name: badges
+                widget: list
+                required: false
+                fields:
+                  - { label: Label, name: label, widget: string }
+                  - { label: Variant, name: variant, widget: select, options: [default, secondary, outline, destructive] }
+              - label: Children (nested files/folders)
+                name: children
+                widget: list
+                required: false
+                fields:
+                  - { label: ID, name: id, widget: string }
+                  - { label: Name, name: name, widget: string }
+                  - { label: Type, name: type, widget: select, options: [folder, file] }
+                  - { label: File Type, name: fileType, widget: select, required: false, options: [document, presentation, spreadsheet, image, link] }
+                  - { label: URL, name: url, widget: string, required: false }
+                  - { label: Description, name: description, widget: text, required: false }
+                  - label: Badges
+                    name: badges
+                    widget: list
+                    required: false
+                    fields:
+                      - { label: Label, name: label, widget: string }
+                      - { label: Variant, name: variant, widget: select, options: [default, secondary, outline, destructive] }
+                  - label: Children (2nd level nesting)
+                    name: children
+                    widget: list
+                    required: false
+                    fields:
+                      - { label: ID, name: id, widget: string }
+                      - { label: Name, name: name, widget: string }
+                      - { label: Type, name: type, widget: select, options: [folder, file] }
+                      - { label: File Type, name: fileType, widget: select, required: false, options: [document, presentation, spreadsheet, image, link] }
+                      - { label: URL, name: url, widget: string, required: false }
+                      - { label: Description, name: description, widget: text, required: false }
+                      - label: Badges
+                        name: badges
+                        widget: list
+                        required: false
+                        fields:
+                          - { label: Label, name: label, widget: string }
+                          - { label: Variant, name: variant, widget: select, options: [default, secondary, outline, destructive] }

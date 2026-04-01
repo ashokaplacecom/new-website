@@ -28,7 +28,7 @@ interface TeamSectionProps {
  * Animations are handled by the DepartmentAnimWrapper client boundary.
  */
 export function TeamSectionBlock({ section }: TeamSectionProps) {
-    const departments = getJsonData<Department[]>("departments");
+    const { departments } = getJsonData<{ departments: Department[] }>("departments");
 
     return (
         <section

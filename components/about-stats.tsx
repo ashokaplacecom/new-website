@@ -7,7 +7,8 @@ import { Marquee } from "@/components/ui/marquee";
 import type { AboutStatsSection } from "@/lib/content-types";
 import { cn } from "@/lib/utils";
 
-import COMPANY_LOGOS from "@/content/data/companies.json";
+import COMPANIES_DATA from "@/content/data/companies.json";
+const COMPANY_LOGOS = COMPANIES_DATA.companies;
 
 interface CompanyLogo {
     name: string;
