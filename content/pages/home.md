@@ -1,6 +1,7 @@
 ---
 title: Connect PlaceCom — Ashoka University
-description: Connecting Ashoka's brightest minds with the world's best opportunities.
+description: Connecting Ashoka's brightest minds with the world's best
+  opportunities. Or something like that
 sections:
   - type: about-hero
     heading: The Placement Committee
