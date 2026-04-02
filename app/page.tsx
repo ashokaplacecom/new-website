@@ -9,6 +9,8 @@ export const metadata: Metadata = {
         "The official placement portal for Ashoka University — connecting students with the professional world.",
 };
 
+export const revalidate = 0;
+
 /**
  * Landing Page — powered by the content pipeline (home.md).
  */

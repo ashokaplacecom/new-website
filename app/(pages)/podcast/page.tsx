@@ -20,6 +20,8 @@ interface PodcastData {
     episodes: PodcastEpisode[];
 }
 
+export const revalidate = 0;
+
 /* ─── Page (Server Component) ─── */
 export default function PodcastPage() {
     const { frontmatter, content } = getPageContent("podcast");

@@ -9,6 +9,8 @@ export const metadata: Metadata = {
         "Learn about the Placement Committee of Ashoka University — our mission, metrics, and how we bridge students with the professional world.",
 };
 
+export const revalidate = 0;
+
 /**
  * About page — powered by the content pipeline.
  *

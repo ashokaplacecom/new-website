@@ -38,23 +38,28 @@ sections:
         description: We coordinate end-to-end campus recruitment drives, connecting top
           employers with Ashoka talent across sectors — consulting, finance,
           tech, development, and more.
+        text: Something something
       - title: Career Resources
         description: Resume reviews, mock interviews, SOP guides, and workshops to help
           every student put their best foot forward — regardless of their
           academic background.
+        text: Hoga kuch
       - title: Industry Connects
         description: Curated speaker sessions, panel discussions, and networking events
           with professionals across industries, bringing real-world perspectives
           to campus.
+        text: Idk
       - title: Verification & Documentation
         description: We handle offer letter verifications, degree attestations, and all
           documentation support students need during the placement process.
+        text: IDek what ts is
+    columns: 50012
 ---
 ## About Us
 
 The **Placement Committee** of Ashoka University is a student-run body dedicated to facilitating career opportunities for the graduating class. We partner closely with the Office of Career Services to ensure every student — across disciplines — has access to meaningful, high-quality opportunities.
 
-We believe that a great education doesn't end at campus gates. Our work bridges the classroom and the boardroom: whether that means crafting the perfect resume, preparing for a case interview, or landing a role at a dream company. **~~`Testing testing.`~~**
+We believe that a great education doesn't end at campus gates. Our work bridges the classroom and the boardroom: whether that means crafting the perfect resume, preparing for a case interview, or landing a role at a dream company. Testing whether this is back on? Perhaps it is.
 
 ## Our Approach
 

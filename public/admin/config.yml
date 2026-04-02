@@ -13,26 +13,104 @@ collections:
   # ─── Markdown Pages ───────────────────────────────────────────────────────────
   - name: pages
     label: Pages
-    label_singular: Page
-    folder: content/pages
-    extension: md
-    format: frontmatter
-    create: false
-    editor:
-      preview: false
-    fields:
-      - { label: Title, name: title, widget: string }
-      - { label: Description, name: description, widget: string, required: false }
-      - label: Sections
-        name: sections
-        widget: list
-        required: false
+    files:
+      - name: home
+        label: Landing Page
+        file: content/pages/home.md
         fields:
-          - { label: Type, name: type, widget: string }
-          - { label: Heading, name: heading, widget: string, required: false }
-          - { label: Subheading, name: subheading, widget: string, required: false }
-          - { label: Background Image, name: backgroundImage, widget: string, required: false }
-      - { label: Body, name: body, widget: markdown }
+          - { label: Title, name: title, widget: string }
+          - { label: Description, name: description, widget: string, required: false }
+          - label: Sections
+            name: sections
+            widget: list
+            required: false
+            types:
+              - label: About Hero
+                name: about-hero
+                widget: object
+                fields:
+                  - { label: Type, name: type, widget: hidden, default: about-hero }
+                  - { label: Heading, name: heading, widget: string }
+                  - { label: Subheading, name: subheading, widget: string, required: false }
+                  - { label: Background Image, name: backgroundImage, widget: image, required: false }
+                  - label: Primary CTA
+                    name: cta
+                    widget: object
+                    required: false
+                    fields:
+                      - { label: Label, name: label, widget: string }
+                      - { label: URL, name: href, widget: string }
+                  - label: Secondary CTA
+                    name: secondaryCta
+                    widget: object
+                    required: false
+                    fields:
+                      - { label: Label, name: label, widget: string }
+                      - { label: URL, name: href, widget: string }
+              - label: About Stats
+                name: about-stats
+                widget: object
+                fields:
+                  - { label: Type, name: type, widget: hidden, default: about-stats }
+                  - { label: Heading, name: heading, widget: string }
+                  - { label: Subheading, name: subheading, widget: string, required: false }
+                  - { label: Columns, name: columns, widget: number, default: 4, min: 1, max: 4 }
+                  - label: Stat Items
+                    name: items
+                    widget: list
+                    fields:
+                      - { label: Label, name: label, widget: string }
+                      - { label: Value, name: value, widget: string }
+                      - { label: Prefix, name: prefix, widget: string, required: false }
+                      - { label: Suffix, name: suffix, widget: string, required: false }
+              - label: Cards Block
+                name: cards
+                widget: object
+                fields:
+                  - { label: Type, name: type, widget: hidden, default: cards }
+                  - { label: Heading, name: heading, widget: string }
+                  - { label: Columns, name: columns, widget: number, default: 2 }
+                  - label: Card Items
+                    name: items
+                    widget: list
+                    fields:
+                      - { label: Title, name: title, widget: string }
+                      - { label: Description, name: text, widget: text }
+                      - { label: Image, name: image, widget: image, required: false }
+                      - { label: Link URL, name: href, widget: string, required: false }
+              - label: Content Block
+                name: content
+                widget: object
+                fields:
+                  - { label: Type, name: type, widget: hidden, default: content }
+          - { label: Body, name: body, widget: markdown }
+
+      - name: about
+        label: About Page
+        file: content/pages/about.md
+        fields: &page_fields
+          - { label: Title, name: title, widget: string }
+          - { label: Description, name: description, widget: string, required: false }
+          - label: Sections
+            name: sections
+            widget: list
+            required: false
+            fields:
+              - { label: Type, name: type, widget: string }
+              - { label: Heading, name: heading, widget: string, required: false }
+              - { label: Subheading, name: subheading, widget: string, required: false }
+              - { label: Background Image, name: backgroundImage, widget: string, required: false }
+          - { label: Body, name: body, widget: markdown }
+
+      - name: podcast
+        label: Podcast Page
+        file: content/pages/podcast.md
+        fields: *page_fields
+
+      - name: team
+        label: Team Page
+        file: content/pages/team.md
+        fields: *page_fields
 
   # ─── JSON Data Files ──────────────────────────────────────────────────────────
   - name: data
