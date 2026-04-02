@@ -52,9 +52,9 @@ sections:
 ---
 ## About Us
 
-The **Placement Committee** of Ashoka University is a student-run body dedicated to facilitating career opportunities for the graduating class. We partner closely with the Office of Career Services to ensure every student — across disciplines — has access to meaningful, high-quality opportunities.
+The **Placement Committee** of Ashoka University is a student-run body dedicated to facilitating career opportunities for the graduating class. We partner closely with the Office of Career Services to ensure every student — across disciplines — has access to meaningful, high-quality opportunities. This shit is quite need to use. 
 
-We believe that a great education doesn't end at campus gates. Our work bridges the classroom and the boardroom: whether that means crafting the perfect resume, preparing for a case interview, or landing a role at a dream company. **~~`Testing testing.`~~**
+We believe that a great education doesn't end at campus gates. Our work bridges the classroom and the boardroom: whether that means crafting the perfect resume, preparing for a case interview, or landing a role at a dream company. 
 
 ## Our Approach
 
