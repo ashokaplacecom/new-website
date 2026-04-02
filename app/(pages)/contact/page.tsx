@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Mail, Phone, Loader2, CheckCircle2, AlertTriangle, Send } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { sendContactEmail } from "./actions";
 
 import contactData from "@/content/data/contact.json";
 
@@ -66,13 +67,15 @@ export default function ContactPage() {
         setIsLoading(true);
         setApiError(null);
         try {
-            // Simulate API call — replace with actual endpoint
-            await new Promise((resolve) => setTimeout(resolve, 1800));
-            console.log("Contact form submitted:", values);
-            setIsSuccess(true);
-            form.reset();
+            const result = await sendContactEmail(values);
+            if (result.status === "success") {
+                setIsSuccess(true);
+                form.reset();
+            } else if (result.status === "error") {
+                setApiError(result.message ?? "Failed to send your message. Please try again.");
+            }
         } catch {
-            setApiError("Failed to send your message. Please try again.");
+            setApiError("Unexpected error. Please try again later.");
         } finally {
             setIsLoading(false);
         }
