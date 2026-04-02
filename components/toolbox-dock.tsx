@@ -12,6 +12,7 @@ import {
     Library,
     CircleHelp,
     CircleUserRound,
+    Users,
 } from "lucide-react";
 import {
     Dock,
@@ -22,6 +23,11 @@ import {
 import { cn } from "@/lib/utils";
 
 const dockItems = [
+    {
+        title: "POC Dashboard",
+        icon: Users,
+        href: "/toolbox/pocs",
+    },
     {
         title: "Verifications",
         icon: BadgeCheck,
