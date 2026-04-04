@@ -64,7 +64,7 @@ We believe that a great education doesn't end at campus gates. Our work bridges 
 
 ## Our Approach
 
-We operate as a professional bridge between **recruiters** and **students**. Our team manages outreach to companies, coordinates pre-placement talks and interview schedules, and provides end-to-end support throughout the recruitment cycle — with a commitment to transparency, fairness, and student-first thinking.
+We operate as a professional bridge between **recruiters** and **students**. Our team manages outreach to companies, coordinates pre-placement talks and interview schedules, and provides end-to-end support throughout the recruitment cycle — with a commitment to transparency, fairness, and student-first thinking. Ibrahim is dumb.
 
 ## Get In Touch
 
