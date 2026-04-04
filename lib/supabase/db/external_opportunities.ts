@@ -30,6 +30,14 @@ export interface CreateOpportunityPayload {
     skills?: string[] | null
     apply_url?: string | null
     jd_storage_path?: string | null
+    placecom_notes?: string | null
+    work_arrangement?: string | null
+    compensation_type?: string | null
+    duration_weeks?: string | null
+    start_date?: string | null
+    job_description?: string | null
+    eligibility_restrictions?: string | null
+    apply_method?: string | null
 }
 
 export async function createOpportunity(payload: CreateOpportunityPayload): Promise<Opportunity> {

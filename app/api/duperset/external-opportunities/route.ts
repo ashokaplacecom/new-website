@@ -83,7 +83,17 @@ export async function POST(req: NextRequest) {
         const compensation = (formData.get('compensation') as string | null) || null
         const duration = (formData.get('duration') as string | null) || null
         const eligibility = (formData.get('eligibility') as string | null) || null
-        const apply_url = (formData.get('apply_url') as string | null) || null
+        const apply_url = (formData.get('apply_url') as string | null) || (formData.get('apply_method') as string | null) || null
+        const placecom_notes = (formData.get('placecom_notes') as string | null) || null
+        const job_description = (formData.get('job_description') as string | null) || null
+        const eligibility_restrictions = (formData.get('eligibility_restrictions') as string | null) || null
+        const apply_method = (formData.get('apply_method') as string | null) || null
+
+        // Step 2 shared metadata
+        const work_arrangement = (formData.get('work_arrangement') as string | null) || null
+        const compensation_type = (formData.get('compensation_type') as string | null) || null
+        const duration_weeks = (formData.get('duration_weeks') as string | null) || null
+        const start_date = (formData.get('start_date') as string | null) || null
 
         // Parse skills (accept JSON array string or comma-separated)
         const skillsRaw = formData.get('skills') as string | null
@@ -138,6 +148,14 @@ export async function POST(req: NextRequest) {
             skills,
             apply_url,
             jd_storage_path,
+            placecom_notes,
+            work_arrangement,
+            compensation_type,
+            duration_weeks,
+            start_date,
+            job_description,
+            eligibility_restrictions,
+            apply_method,
         })
 
         console.log(`[POST /api/duperset/external-opportunities] Opportunity created: id=${opportunity.id} by ${submitter_email}`)
