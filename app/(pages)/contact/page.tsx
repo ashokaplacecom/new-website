@@ -75,7 +75,7 @@ export default function ContactPage() {
                 setApiError(result.message ?? "Failed to send your message. Please try again.");
             }
         } catch {
-            setApiError("Unexpected error. Please try again later.");
+            setApiError("Failed to send your message. Please try again.");
         } finally {
             setIsLoading(false);
         }
