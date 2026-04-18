@@ -1,6 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { after, NextRequest, NextResponse } from 'next/server'
 import { getRequestById, modifyRequest, RequestStatus } from '@/lib/supabase/db/requests'
-import { getStudentByEmail } from '@/lib/supabase/db/students'
 import { getPOCById } from '@/lib/supabase/db/pocs'
 import { sendMail } from '@/app/api/_lib/mailer'
 import { requestApprovedStudentEmail } from '@/content/emails/templates/request_approved_student'
@@ -14,7 +13,7 @@ export async function POST(req: NextRequest) {
         let body: {
             requestId?: number
             method?: string       // 'approved' | 'rejected'
-            pocNote?: string      // COMPULSORY — remove the validation below if this becomes optional
+            pocNote?: string      // COMPULSORY
             pocId?: number        // which POC is taking this action
         }
 
@@ -30,54 +29,31 @@ export async function POST(req: NextRequest) {
         const { requestId, method, pocNote, pocId } = body
 
         // Input validation
-        if (!requestId) {
+        if (!requestId || !method || !VALID_METHODS.includes(method as RequestStatus) || !pocId) {
             return NextResponse.json(
-                { success: false, message: 'Missing required field: requestId.' },
-                { status: 400 }
-            )
-        }
-        if (!method || !VALID_METHODS.includes(method as RequestStatus)) {
-            return NextResponse.json(
-                { success: false, message: `Missing or invalid field: method. Must be one of: ${VALID_METHODS.join(', ')}.` },
-                { status: 400 }
-            )
-        }
-        if (!pocId) {
-            return NextResponse.json(
-                { success: false, message: 'Missing required field: pocId.' },
+                { success: false, message: 'Missing or invalid required fields.' },
                 { status: 400 }
             )
         }
 
-        // poc_note is compulsory — remove this block if poc_note becomes optional in future
         if (!pocNote?.trim()) {
             return NextResponse.json(
-                { success: false, message: 'Missing required field: pocNote. A note is required when approving or rejecting a request.' },
+                { success: false, message: 'Missing required field: pocNote.' },
                 { status: 400 }
             )
         }
 
-        // Verify POC exists
         const poc = await getPOCById(pocId)
         if (!poc) {
-            return NextResponse.json(
-                { success: false, message: 'POC not found.' },
-                { status: 404 }
-            )
+            return NextResponse.json({ success: false, message: 'POC not found.' }, { status: 404 })
         }
 
-        // Fetch the request
         const request = await getRequestById(requestId)
-
-        // Check it's still pending
         if (request.status !== 'pending') {
-            return NextResponse.json(
-                { success: false, message: `Request has already been ${request.status}. Cannot modify a closed request.` },
-                { status: 409 }
-            )
+            return NextResponse.json({ success: false, message: `Request is already ${request.status}.` }, { status: 409 })
         }
 
-        // Apply the status update
+        // Apply status update in DB
         await modifyRequest({
             requestId,
             status: method as RequestStatus,
@@ -85,42 +61,45 @@ export async function POST(req: NextRequest) {
             pocId,
         })
 
-        // Fetch student details for the email
-        const supabase = (await import('@/lib/supabase/server')).createAdminClient()
-        const { data: student } = await supabase
-            .from('students')
-            .select('id, name, email')
-            .eq('id', request.student)
-            .single()
+        // Background processing for email and audit
+        after(async () => {
+            try {
+                const supabase = (await import('@/lib/supabase/server')).createAdminClient()
+                const { data: student } = await supabase
+                    .from('students')
+                    .select('id, name, email')
+                    .eq('id', request.student)
+                    .single()
 
-        // Send email to student
-        if (student) {
-            const template = method === 'approved'
-                ? requestApprovedStudentEmail({ name: student.name, pocNote: pocNote.trim() })
-                : requestRejectedStudentEmail({ name: student.name, pocNote: pocNote.trim() })
+                if (student) {
+                    const template = method === 'approved'
+                        ? requestApprovedStudentEmail({ name: student.name, pocNote: pocNote.trim() })
+                        : requestRejectedStudentEmail({ name: student.name, pocNote: pocNote.trim() })
 
-            await sendMail({ to: student.email, template })
-        }
-
-        // Log audit trail
-        try {
-            await logAuditTrail(
-                request.student, // User who this request belongs to
-                method === 'approved' ? 'REQUEST_APPROVED' : 'REQUEST_REJECTED',
-                {
-                    requestId,
-                    pocId,
-                    pocNote: pocNote.trim(),
-                    status: method
+                    await sendMail({ to: student.email, template })
                 }
-            )
-        } catch (auditErr) {
-            console.error('[POST /api/duperset/request/modify] Failed to log audit trail:', auditErr)
-        }
+
+                await logAuditTrail(
+                    request.student,
+                    method === 'approved' ? 'REQUEST_APPROVED' : 'REQUEST_REJECTED',
+                    { requestId, pocId, pocNote: pocNote.trim(), status: method }
+                )
+            } catch (err: any) {
+                console.error('[modify request] [Background] Failure:', err)
+                try {
+                    await logAuditTrail(request.student, 'MODIFY_REQUEST_EMAIL_FAILED', { 
+                        requestId, 
+                        error: err.message 
+                    })
+                } catch (auditErr) {
+                    console.error('[modify request] [Background] Logging failure:', auditErr)
+                }
+            }
+        })
 
         return NextResponse.json({
             success: true,
-            message: `Request ${method} successfully.`,
+            message: `Request ${method} successfully. Confirmation email is being sent.`,
             requestId,
             method,
         })
@@ -128,7 +107,7 @@ export async function POST(req: NextRequest) {
     } catch (err: any) {
         console.error('[POST /api/duperset/request/modify]', err)
         return NextResponse.json(
-            { success: false, message: 'An unexpected error occurred. Please try again.' },
+            { success: false, message: 'An unexpected error occurred.' },
             { status: 500 }
         )
     }

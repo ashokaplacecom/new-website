@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { after, NextRequest, NextResponse } from 'next/server'
 import { getStudentById, decrementMajorMinorCount } from '@/lib/supabase/db/students'
 import { hasPendingMajorMinorRequest, createMajorMinorRequest } from '@/lib/supabase/db/major_minor_requests'
 import { getLeadershipPOCs } from '@/lib/supabase/db/pocs'
@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
             )
         }
 
-        // Check for existing pending request (only 1 allowed at a time)
+        // Check for existing pending request
         const pending = await hasPendingMajorMinorRequest(student.id)
         if (pending) {
             return NextResponse.json(
@@ -93,61 +93,74 @@ export async function POST(req: NextRequest) {
             prospectiveMinor,
         })
 
-        // Decrement change count only after the request is successfully created
+        // Decrement change count
         await decrementMajorMinorCount(student.id)
-
-        // Log audit trail immediately after success in DB, before slow mailer calls
-        try {
-            await logAuditTrail(
-                student.id,
-                'MAJOR_MINOR_REQUEST_GENERATED',
-                { requestId: request.id, email: student.email, currentMajor, currentMinor, prospectiveMajor, prospectiveMinor }
-            )
-        } catch (auditErr) {
-            console.error('[POST /api/duperset/major-minor-change/create] Failed to log audit trail:', auditErr)
-        }
 
         // Fetch Leadership POCs
         const leadershipPOCs = await getLeadershipPOCs()
 
-        // Send confirmation email to student
-        const studentTemplate = studentMajorMinorRequestEmail({
-            name: student.name,
-            currentMajor,
-            currentMinor,
-            prospectiveMajor,
-            prospectiveMinor,
-        })
-        await sendMail({ to: student.email, template: studentTemplate })
+        // Schedule background emails and audit logging
+        after(async () => {
+            try {
+                const mailPromises = []
 
-        // Send email to all leadership POCs
-        if (leadershipPOCs.length > 0) {
-            const pocTemplate = pocMajorMinorRequestEmail({
-                pocName: 'Leadership Team', // generic greeting
-                studentName: student.name,
-                studentEmail: student.email,
-                currentMajor,
-                currentMinor,
-                prospectiveMajor,
-                prospectiveMinor,
-                portalLink: PORTAL_LINK,
-            })
-            
-            // Send to each leadership POC
-            await Promise.all(
-                leadershipPOCs.map(poc => 
-                    sendMail({ to: poc.email, template: pocTemplate }).catch(e => {
-                        console.error(`Failed to send email to leadership POC ${poc.email}:`, e)
-                    })
+                // 1. Student Email
+                const studentTemplate = studentMajorMinorRequestEmail({
+                    name: student.name,
+                    currentMajor,
+                    currentMinor,
+                    prospectiveMajor,
+                    prospectiveMinor,
+                })
+                mailPromises.push(
+                    sendMail({ to: student.email, template: studentTemplate })
+                        .catch(err => console.error(`[major/minor change] Student email failed:`, err))
                 )
-            )
-        } else {
-             console.error(`[POST /api/duperset/major-minor-change/create] No leadership POCs found! Emails to leadership not sent.`)
-        }
+
+                // 2. Leadership POC Emails
+                if (leadershipPOCs.length > 0) {
+                    const pocTemplate = pocMajorMinorRequestEmail({
+                        pocName: 'Leadership Team',
+                        studentName: student.name,
+                        studentEmail: student.email,
+                        currentMajor,
+                        currentMinor,
+                        prospectiveMajor,
+                        prospectiveMinor,
+                        portalLink: PORTAL_LINK,
+                    })
+                    leadershipPOCs.forEach(poc => {
+                        mailPromises.push(
+                            sendMail({ to: poc.email, template: pocTemplate })
+                                .catch(err => console.error(`[major/minor change] Leadership email failed for ${poc.email}:`, err))
+                        )
+                    })
+                }
+
+                await Promise.all(mailPromises)
+
+                // Log audit trail
+                await logAuditTrail(
+                    student.id,
+                    'MAJOR_MINOR_REQUEST_GENERATED',
+                    { requestId: request.id, email: student.email, currentMajor, currentMinor, prospectiveMajor, prospectiveMinor }
+                )
+            } catch (err: any) {
+                console.error('[major/minor change] [Background] Failure:', err)
+                try {
+                    await logAuditTrail(student.id, 'MAJOR_MINOR_REQUEST_EMAIL_FAILED', { 
+                        requestId: request.id, 
+                        error: err.message 
+                    })
+                } catch (auditErr) {
+                    console.error('[major/minor change] [Background] Logging failure:', auditErr)
+                }
+            }
+        })
 
         return NextResponse.json({
             success: true,
-            message: 'Major/Minor change request submitted successfully.',
+            message: 'Major/Minor change request submitted successfully. Confirmation email is being sent.',
             requestId: request.id,
         })
 

@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 const ALLOWED_ORIGINS = [
-    'https://your-frontend.vercel.app',
-    'chrome-extension://YOUR_EXTENSION_ID',
+    'https://connect-placecom.vercel.app',
+    'chrome-extension://debmlfjpofnpjlafiicfcgdmfgkpaaoj',
+    'https://app.joinsuperset.com',
 ]
 
 export function withCors(req: NextRequest, res: NextResponse): NextResponse {

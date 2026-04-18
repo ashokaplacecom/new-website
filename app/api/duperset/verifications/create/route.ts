@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { after, NextRequest, NextResponse } from 'next/server'
 import { getStudentByEmail, decrementEmergencies } from '@/lib/supabase/db/students'
 import { hasPendingRequest, createRequest } from '@/lib/supabase/db/requests'
 import { getPOCByStudentId } from '@/lib/supabase/db/pocs'
@@ -106,64 +106,84 @@ export async function POST(req: NextRequest) {
 
         // Fetch POC details
         const poc = await getPOCByStudentId(student.id)
-        if (!poc) {
-            // Request created but POC not found — log and continue, don't fail the request
-            console.error(`[create request] POC not found for student ${student.id}`)
-        }
 
-        // Send email to student
-        const studentTemplate = isEmergency
-            ? requestStudentEmergencyEmail({
-                name: student.name,
-                message: studentMessage,
-                emergenciesRemaining: student.emergencies_remaining - 1,
-            })
-            : requestStudentEmail({
-                name: student.name,
-                message: studentMessage,
-            })
+        // Schedule background emails and audit logging
+        after(async () => {
+            try {
+                // Send emails to student and POC in parallel
+                const mailPromises = []
 
-        await sendMail({ to: email, template: studentTemplate })
+                // 1. Student Email
+                const studentTemplate = isEmergency
+                    ? requestStudentEmergencyEmail({
+                        name: student.name,
+                        message: studentMessage,
+                        emergenciesRemaining: student.emergencies_remaining - 1,
+                    })
+                    : requestStudentEmail({
+                        name: student.name,
+                        message: studentMessage,
+                    })
+                
+                mailPromises.push(
+                    sendMail({ to: email, template: studentTemplate })
+                        .catch(err => console.error(`[create request] Student email failed for ${email}:`, err))
+                )
 
-        // Send email to POC (only if found)
-        if (poc) {
-            const pocTemplate = isEmergency
-                ? requestPOCEmergencyEmail({
-                    pocName: poc.poc_name,
-                    studentName: student.name,
-                    studentEmail: email,
-                    studentMessage,
-                    portalLink: PORTAL_LINK,
-                    deadlineStr,
-                })
-                : requestPOCEmail({
-                    pocName: poc.poc_name,
-                    studentName: student.name,
-                    studentEmail: email,
-                    studentMessage,
-                    portalLink: PORTAL_LINK,
-                    deadlineStr,
-                })
+                // 2. POC Email (only if found)
+                if (poc) {
+                    const pocTemplate = isEmergency
+                        ? requestPOCEmergencyEmail({
+                            pocName: poc.poc_name,
+                            studentName: student.name,
+                            studentEmail: email,
+                            studentMessage,
+                            portalLink: PORTAL_LINK,
+                            deadlineStr,
+                        })
+                        : requestPOCEmail({
+                            pocName: poc.poc_name,
+                            studentName: student.name,
+                            studentEmail: email,
+                            studentMessage,
+                            portalLink: PORTAL_LINK,
+                            deadlineStr,
+                        })
 
-            await sendMail({ to: poc.email, template: pocTemplate })
-        }
+                    mailPromises.push(
+                        sendMail({ to: poc.email, template: pocTemplate })
+                            .catch(err => console.error(`[create request] POC email failed for ${poc.email}:`, err))
+                    )
+                }
 
-        // Log audit trail
-        try {
-            await logAuditTrail(
-                student.id,
-                isEmergency ? 'EMERGENCY_REQUEST_GENERATED' : 'REGULAR_REQUEST_GENERATED',
-                { requestId: request.id, email: student.email }
-            )
-        } catch (auditErr) {
-            console.error('[POST /api/duperset/request/create] Failed to log audit trail:', auditErr)
-        }
+                // Wait for all mail attempts
+                await Promise.all(mailPromises)
+
+                // Log success audit trail
+                await logAuditTrail(
+                    student.id,
+                    isEmergency ? 'EMERGENCY_REQUEST_GENERATED' : 'REGULAR_REQUEST_GENERATED',
+                    { requestId: request.id, email: student.email }
+                )
+            } catch (err: any) {
+                console.error('[create request] [Background] Failure:', err)
+                try {
+                    await logAuditTrail(student.id, 'REQUEST_EMAIL_FAILED', { 
+                        requestId: request.id, 
+                        error: err.message,
+                        isEmergency 
+                    })
+                } catch (auditErr) {
+                    console.error('[create request] [Background] Logging failure:', auditErr)
+                }
+            }
+        })
 
         return NextResponse.json({
             success: true,
             message: isEmergency
-                ? 'Emergency request submitted. Your POC has been notified and has 24 hours to respond.'
-                : 'Request submitted. Your POC has been notified and has 48 hours to respond.',
+                ? 'Emergency request submitted! Your POC has been notified and has 24 hours to respond. Confirmation email is being sent.'
+                : 'Request submitted! Your POC has been notified and has 48 hours to respond. Confirmation email is being sent.',
             requestId: request.id,
         })
 

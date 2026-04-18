@@ -24,7 +24,7 @@ export async function sendMail({ to, template, fromAlias, cc, bcc }: SendMailOpt
     console.log(`[sendMail] Fetching ${url} for ${to}...`);
     
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 40000); // 40s timeout
+    const timeoutId = setTimeout(() => controller.abort(), 60000); // 60s timeout
 
     try {
         const res = await fetch(url, {
@@ -37,6 +37,11 @@ export async function sendMail({ to, template, fromAlias, cc, bcc }: SendMailOpt
 
         clearTimeout(timeoutId);
 
+        if (!res.ok) {
+            const errorText = await res.text();
+            throw new Error(`HTTP Error ${res.status}: ${errorText}`);
+        }
+
         const data = await res.json();
         console.log(`[send_mail] Response:`, data);
 
@@ -47,10 +52,13 @@ export async function sendMail({ to, template, fromAlias, cc, bcc }: SendMailOpt
         return data;
     } catch (err: any) {
         clearTimeout(timeoutId);
+        
         if (err.name === 'AbortError') {
-            console.error(`[sendMail] Timeout of 40s reached for ${to}. Email might still be processed by GAS.`);
-            throw new Error(`Email sender timed out after 40 seconds. Since it's Google Apps Script, the mail might still be sent.`);
+            console.error(`[sendMail] Timeout of 60s reached for ${to}. Email might still be processed by GAS but we stopped waiting.`);
+            throw new Error(`Email sender timed out after 60 seconds.`);
         }
+        
+        console.error(`[sendMail] Error sending to ${to}:`, err);
         throw err;
     }
 }
