@@ -27,8 +27,12 @@ export function middleware(req: NextRequest) {
     const isWebExtension = apiKey === process.env.API_KEY_WEB_EXTENSION;
     const isFrontend = apiKey === process.env.API_KEY_FRONTEND;
 
+    const isPublicGet = req.nextUrl.pathname === '/api/duperset/external-opportunities' && req.method === 'GET';
+
     if (!apiKey || (!isWebExtension && !isFrontend)) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+        if (!(isPublicGet && isAllowedOrigin)) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+        }
     }
 
     if (isWebExtension) {
