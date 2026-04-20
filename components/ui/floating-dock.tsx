@@ -114,24 +114,24 @@ function IconContainer({
 
   let width = useSpring(widthTransform, {
     mass: 0.1,
-    stiffness: 150,
-    damping: 12,
+    stiffness: 200,
+    damping: 15,
   });
   let height = useSpring(heightTransform, {
     mass: 0.1,
-    stiffness: 150,
-    damping: 12,
+    stiffness: 200,
+    damping: 15,
   });
 
   let widthIcon = useSpring(widthTransformIcon, {
     mass: 0.1,
-    stiffness: 150,
-    damping: 12,
+    stiffness: 200,
+    damping: 15,
   });
   let heightIcon = useSpring(heightTransformIcon, {
     mass: 0.1,
-    stiffness: 150,
-    damping: 12,
+    stiffness: 200,
+    damping: 15,
   });
 
   const [hovered, setHovered] = useState(false);
@@ -144,7 +144,7 @@ function IconContainer({
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
         className={cn(
-          "relative flex aspect-square items-center justify-center rounded-full transition-all duration-200",
+          "relative flex aspect-square items-center justify-center rounded-full transition-colors duration-200",
           "border border-white/40 dark:border-white/10",
           "shadow-[0_4px_12px_rgba(0,0,0,0.1)]",
           "backdrop-blur-md",
