@@ -15,124 +15,73 @@ import {
     CircleUserRound,
     Users,
 } from "lucide-react";
-import {
-    Dock,
-    DockIcon,
-    DockItem,
-    DockLabel,
-} from "@/components/motion-primitives/dock";
-import { cn } from "@/lib/utils";
+import { FloatingDock } from "@/components/ui/floating-dock";
 
 const dockItems = [
     {
-        title: "POC Dashboard",
-        icon: Users,
+        title: "POC",
+        icon: <Users className="h-full w-full" />,
         href: "/toolbox/pocs",
     },
     {
         title: "Verifications",
-        icon: BadgeCheck,
+        icon: <BadgeCheck className="h-full w-full" />,
         href: "/toolbox/verifications",
     },
     {
-        title: "Opportunities",
-        icon: Briefcase,
+        title: "External Opportunities",
+        icon: <Briefcase className="h-full w-full" />,
         href: "/toolbox/external-opportunities",
     },
     {
-        title: "View Requests",
-        icon: ScrollText,
+        title: "Requests",
+        icon: <ScrollText className="h-full w-full" />,
         href: "/toolbox/view-requests",
     },
     {
-        title: "Major/Minor",
-        icon: GraduationCap,
+        title: "Academic",
+        icon: <GraduationCap className="h-full w-full" />,
         href: "/toolbox/major-minor-change",
     },
     {
         title: "Resources",
-        icon: Library,
+        icon: <Library className="h-full w-full" />,
         href: "/toolbox/resources",
     },
     {
         title: "FAQs",
-        icon: CircleHelp,
+        icon: <CircleHelp className="h-full w-full" />,
         href: "/toolbox/faqs",
     },
     {
         title: "Profile",
-        icon: CircleUserRound,
+        icon: <CircleUserRound className="h-full w-full" />,
         href: "/toolbox/profile",
     },
 ];
 
 export function ToolboxDock() {
     const pathname = usePathname();
-    const { trigger: haptic } = useWebHaptics();
     const { data: session } = useSession();
 
     const visibleItems = session?.user?.isPoc
         ? dockItems
         : dockItems.filter(item => item.href !== "/toolbox/pocs");
 
+    const links = visibleItems.map(item => ({
+        ...item,
+        isActive: pathname === item.href
+    }));
+
     return (
-        <LayoutGroup>
-            <Dock
-                className={cn(
-                    "border border-white/30 dark:border-white/15",
-                    "shadow-[0_8px_32px_rgba(0,0,0,0.12),inset_0_1px_0_rgba(255,255,255,0.4)]",
-                    "dark:shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.08)]",
-                    "backdrop-blur-2xl backdrop-saturate-[1.8]",
-                    "bg-white/50 dark:bg-neutral-900/50",
-                    "ring-1 ring-white/20 dark:ring-white/5"
-                )}
-                panelHeight={64}
-                magnification={72}
-                distance={140}
-            >
-                {visibleItems.map((item) => {
-                    const isActive = pathname === item.href;
-                    const Icon = item.icon;
-                    return (
-                        <DockItem
-                            key={item.href}
-                            className="cursor-pointer"
-                        >
-                            <Link
-                                href={item.href}
-                                className="absolute inset-0 z-10"
-                                aria-label={item.title}
-                                onClick={() => haptic("light")}
-                            />
-                            <DockLabel>{item.title}</DockLabel>
-                            <DockIcon>
-                                <div
-                                    className={cn(
-                                        "relative flex items-center justify-center rounded-full transition-colors duration-200",
-                                        "aspect-square w-full p-2",
-                                        isActive
-                                            ? "text-primary-foreground"
-                                            : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
-                                    )}
-                                >
-                                    {isActive && (
-                                        <motion.div
-                                            layoutId="toolbox-active-indicator"
-                                            className="absolute inset-0 rounded-full bg-primary shadow-sm"
-                                            transition={{
-                                                type: "spring",
-                                                stiffness: 350,
-                                                damping: 30,
-                                            }}
-                                        />
-                                    )}
-                                    <Icon className="w-5 h-5 shrink-0 relative z-[1]" />
-                                </div>
-                            </DockIcon>
-                        </DockItem>
-                    );
-                })}
-            </Dock>
-        </LayoutGroup>
+        <div className="fixed bottom-6 inset-x-0 flex justify-center z-50 pointer-events-none">
+            <div className="pointer-events-auto">
+                <FloatingDock
+                    items={links}
+                    desktopClassName="shadow-2xl"
+                    mobileClassName="translate-y-[-2rem]"
+                />
+            </div>
+        </div>
     );
 }
