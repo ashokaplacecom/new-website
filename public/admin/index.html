@@ -8,6 +8,24 @@
   <link href="/admin/config.yml" type="text/yaml" rel="cms-config-url" />
 </head>
 <body>
+  <!-- Support Decap CMS without Netlify hosting by mocking the identity service -->
+  <script>
+    window.netlifyIdentity = {
+      on: (event, cb) => {
+        if (event === 'login') {
+          // Immediately satisfy the login check
+          setTimeout(() => cb({
+            token: { access_token: 'local-admin-token' }
+          }), 1);
+        }
+      },
+      currentUser: () => ({
+        jwt: (forceRefresh) => Promise.resolve('local-admin-token'),
+        logout: () => { window.location.href = '/'; }
+      })
+    };
+  </script>
+
   <!-- Include the script that builds the page and powers Decap CMS -->
   <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
 </body>

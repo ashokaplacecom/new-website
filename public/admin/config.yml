@@ -1,6 +1,6 @@
 backend:
-  name: github
-  repo: ashokaplacecom/new-website
+  name: git-gateway
+  gateway_url: /api/cms/proxy
   branch: main
 
 # Enables local proxy server for development — run `npx decap-server` alongside `npm run dev`
