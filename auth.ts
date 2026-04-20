@@ -11,6 +11,7 @@ declare module "next-auth" {
       id: string;
       isPoc: boolean;
       pocId?: number;
+      isAdmin: boolean;
     } & DefaultSession["user"];
   }
 }
@@ -20,6 +21,7 @@ declare module "next-auth/jwt" {
     userId?: string;
     isPoc?: boolean;
     pocId?: number;
+    isAdmin?: boolean;
   }
 }
 
@@ -62,7 +64,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return true;
     },
 
-    // Enrich JWT with user id and POC status on first sign-in
+    // Enrich JWT with user id, POC status, and admin status on first sign-in
     async jwt({ token, user, profile }) {
       if (user?.id) {
         token.userId = user.id;
@@ -70,28 +72,42 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (profile?.picture) {
         token.picture = profile.picture as string;
       }
-      
-      // Fetch POC status if not already determined in the token
+
+      // Fetch roles if not already determined in the token (runs once on new session)
       if (token.isPoc === undefined && token.email) {
+        const supabase = createAdminClient();
+
+        // ── Check POC status ──
         try {
-          const supabase = createAdminClient();
-          const { data } = await supabase
+          const { data: pocData } = await supabase
             .schema("requests")
             .from("pocs")
             .select("id")
             .eq("email", token.email)
             .single();
-            
-          token.isPoc = !!data;
-          if (data?.id) {
-            token.pocId = data.id;
+
+          token.isPoc = !!pocData;
+          if (pocData?.id) {
+            token.pocId = pocData.id;
           }
-        } catch (error) {
-          // If the lookup fails (e.g. no rows returned, which throws in .single()), they are not a POC
+        } catch {
           token.isPoc = false;
         }
+
+        // ── Check Admin status ──
+        try {
+          const { data: adminData } = await supabase
+            .from("admin")
+            .select("id")
+            .eq("email", token.email)
+            .single();
+
+          token.isAdmin = !!adminData;
+        } catch {
+          token.isAdmin = false;
+        }
       }
-      
+
       return token;
     },
 
@@ -100,8 +116,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (session.user) {
         if (token.userId) session.user.id = token.userId as string;
         if (token.picture) session.user.image = token.picture as string;
-        if (token.isPoc !== undefined) session.user.isPoc = token.isPoc as boolean;
+        session.user.isPoc = token.isPoc ?? false;
         if (token.pocId !== undefined) session.user.pocId = token.pocId as number;
+        session.user.isAdmin = token.isAdmin ?? false;
       }
       return session;
     },

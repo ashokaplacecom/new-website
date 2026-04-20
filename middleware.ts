@@ -8,7 +8,7 @@ const ALLOWED_ORIGINS = [
 ];
 
 // Page routes that require an authenticated session
-const PROTECTED_ROUTES = ["/toolbox", "/submit-opportunity"];
+const PROTECTED_ROUTES = ["/toolbox", "/submit-opportunity", "/admin"];
 
 export async function middleware(req: NextRequest) {
     const { pathname } = req.nextUrl;
@@ -134,6 +134,11 @@ export async function middleware(req: NextRequest) {
         if (pathname.startsWith("/toolbox/pocs") && token.isPoc !== true) {
             return NextResponse.redirect(new URL("/toolbox", req.url));
         }
+
+        // Only admins can access the CMS admin panel
+        if (pathname.startsWith("/admin") && token.isAdmin !== true) {
+            return NextResponse.redirect(new URL("/", req.url));
+        }
     }
 
     return NextResponse.next();
@@ -146,5 +151,7 @@ export const config = {
         "/toolbox/:path*",
         "/submit-opportunity",
         "/submit-opportunity/:path*",
+        "/admin",
+        "/admin/:path*",
     ],
 };
