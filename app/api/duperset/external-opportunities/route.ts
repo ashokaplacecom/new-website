@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getActiveOpportunities, createOpportunity } from '@/lib/supabase/db/external_opportunities'
+import { getActiveOpportunities, createOpportunity, mapOpportunityUrls } from '@/lib/supabase/db/external_opportunities'
 import { uploadFile } from '@/lib/supabase/storage/upload'
 import { Opportunity } from './types'
 
@@ -40,7 +40,6 @@ export async function GET() {
     try {
         const opportunities = await getActiveOpportunities()
         const sorted = sortOpportunities(opportunities)
-
         return NextResponse.json({ success: true, opportunities: sorted })
 
     } catch (err: any) {
@@ -161,7 +160,7 @@ export async function POST(req: NextRequest) {
         console.log(`[POST /api/duperset/external-opportunities] Opportunity created: id=${opportunity.id} by ${submitter_email}`)
 
         return NextResponse.json(
-            { success: true, message: 'Opportunity submitted successfully.', opportunity },
+            { success: true, message: 'Opportunity submitted successfully.', opportunity: mapOpportunityUrls(opportunity) },
             { status: 201 }
         )
 

@@ -1,6 +1,18 @@
 import { createAdminClient } from '../server'
 import { Opportunity } from '@/app/api/duperset/external-opportunities/types'
 
+// Helper to transform storage paths to public URLs
+export function mapOpportunityUrls(opp: Opportunity): Opportunity {
+    if (!opp.jd_storage_path) return opp
+    
+    const publicUrl = `${process.env.SUPABASE_URL}/storage/v1/object/public/opportunity-jds/${opp.jd_storage_path}`
+    return {
+        ...opp,
+        jd_storage_path: publicUrl,
+        jd_link: opp.jd_link || publicUrl
+    }
+}
+
 // Fetch all active opportunities (is_active = true)
 export async function getActiveOpportunities(): Promise<Opportunity[]> {
     const supabase = createAdminClient()
@@ -12,7 +24,8 @@ export async function getActiveOpportunities(): Promise<Opportunity[]> {
 
     if (error) throw new Error(`getActiveOpportunities: ${error.message}`)
 
-    return data || []
+    const rawData = data || []
+    return rawData.map(mapOpportunityUrls)
 }
 
 export interface CreateOpportunityPayload {
