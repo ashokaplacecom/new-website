@@ -26,6 +26,11 @@ http://localhost:3000/api
 - All endpoints use HTTPS in production.
 - Responses are JSON unless explicitly noted.
 
+### Authentication
+- Protected endpoints require an `x-api-key` header to be sent with the request.
+- The API key must match the backend `API_KEY_WEB_EXTENSION` or `API_KEY_FRONTEND` variables.
+- Certain endpoints like `GET /api/duperset/external-opportunities` are public for allowed specific CORS origins, but otherwise default to requiring the `x-api-key` header.
+
 ### Request bodies
 - Most endpoints accept `application/json`.
 - `POST /api/duperset/external-opportunities` accepts `multipart/form-data`.
@@ -83,12 +88,11 @@ Simple endpoint health/info message for this API group.
 Sends an email through the internal mailer abstraction.
 
 #### Authentication
-Provide `key` in request JSON. It must match server-side `API_KEY_WEB_EXTENSION` (or fallback `API_KEY_FRONTEND`).
+Provide `x-api-key` in the request headers. It must match the server-side API Key.
 
 #### Body (`application/json`)
 | Field | Type | Required | Description |
 |---|---|---:|---|
-| `key` | string | Yes | API key for this endpoint. |
 | `to` | string | Yes | Recipient email address. |
 | `subject` | string | Yes | Email subject line. |
 | `html` | string | Yes | HTML email body content. |
@@ -97,7 +101,6 @@ Provide `key` in request JSON. It must match server-side `API_KEY_WEB_EXTENSION`
 #### Example request
 ```json
 {
-  "key": "<api-key>",
   "to": "user@example.com",
   "subject": "Welcome",
   "html": "<p>Hello from the API</p>",

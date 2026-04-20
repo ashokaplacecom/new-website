@@ -1,7 +1,9 @@
 "use client";
 
-import { Users, ChartLine, Menu, Presentation } from "lucide-react";
+import { Users, ChartLine, Menu, Presentation, LogIn } from "lucide-react";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
+import { signIn } from "next-auth/react";
 
 import {
   Tooltip,
@@ -32,6 +34,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { UserNav } from "@/components/user-nav";
 
 interface MenuItem {
   title: string;
@@ -41,6 +44,7 @@ interface MenuItem {
   items?: MenuItem[];
   disabled?: boolean;
   tooltip?: string;
+  requiresAuth?: boolean;
 }
 
 interface Navbar1Props {
@@ -53,12 +57,6 @@ interface Navbar1Props {
     className?: string;
   };
   menu?: MenuItem[];
-  auth?: {
-    signup: {
-      title: string;
-      url: string;
-    };
-  };
 }
 
 const Navbar1 = ({
@@ -85,7 +83,7 @@ const Navbar1 = ({
           url: "/about/reports",
           icon: <ChartLine className="size-5 shrink-0" />,
           description: "Something about progress reports",
-        }
+        },
       ],
     },
     {
@@ -100,9 +98,9 @@ const Navbar1 = ({
     },
     {
       title: "List an Opportunity",
-      url: "/list-opportunities",
-      disabled: true,
-      tooltip: "You need to be authenticated to access this!",
+      url: "/submit-opportunity",
+      requiresAuth: true,
+      tooltip: "Sign in with your @ashoka.edu.in account to access this!",
       description: "Share an opportunity with us to provide to Ashokan students!",
     },
     {
@@ -110,11 +108,12 @@ const Navbar1 = ({
       url: "/contact",
     },
   ],
-  auth = {
-    signup: { title: "Enter Toolbox", url: "#" },
-  },
   className,
 }: Navbar1Props) => {
+  const { data: session, status } = useSession();
+  const isAuthenticated = status === "authenticated";
+  const isLoading = status === "loading";
+
   return (
     <section className={cn("py-4", className)}>
       <div className="container">
@@ -135,19 +134,40 @@ const Navbar1 = ({
             <div className="flex items-center">
               <NavigationMenu>
                 <NavigationMenuList>
-                  {menu.map((item) => renderMenuItem(item))}
+                  {menu.map((item) =>
+                    renderMenuItem(item, isAuthenticated)
+                  )}
                 </NavigationMenuList>
               </NavigationMenu>
             </div>
           </div>
-          <div className="flex gap-2">
-            <Button
-              size="sm"
-              className="bg-primary/5 hover:bg-primary/10 text-primary/80 border-primary/20 border shadow-sm disabled:opacity-100"
-            >
-              {/* {auth.signup.title} */}
-              <Link href="/toolbox">Enter Toolbox</Link>
-            </Button>
+
+          {/* Right-side auth controls */}
+          <div className="flex items-center gap-3">
+            {isLoading ? (
+              // Skeleton placeholder while session loads
+              <div className="h-8 w-8 rounded-full bg-muted animate-pulse" />
+            ) : isAuthenticated && session ? (
+              <>
+                <Button
+                  size="sm"
+                  className="bg-primary/5 hover:bg-primary/10 text-primary/80 border-primary/20 border shadow-sm"
+                  asChild
+                >
+                  <Link href="/toolbox">Toolbox</Link>
+                </Button>
+                <UserNav session={session} />
+              </>
+            ) : (
+              <Button
+                size="sm"
+                className="gap-2"
+                onClick={() => signIn("google", { callbackUrl: "/toolbox" })}
+              >
+                <LogIn className="h-4 w-4" />
+                Sign in
+              </Button>
+            )}
           </div>
         </nav>
 
@@ -162,44 +182,66 @@ const Navbar1 = ({
                 alt={logo.alt}
               />
             </a>
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <Menu className="size-4" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent className="overflow-y-auto">
-                <SheetHeader>
-                  <SheetTitle>
-                    <a href={logo.url} className="flex items-center gap-2">
-                      <img
-                        src={logo.src}
-                        className="max-h-8 dark:invert"
-                        alt={logo.alt}
-                      />
-                    </a>
-                  </SheetTitle>
-                </SheetHeader>
-                <div className="flex flex-col gap-6 p-4">
-                  <Accordion
-                    type="single"
-                    collapsible
-                    className="flex w-full flex-col gap-4"
-                  >
-                    {menu.map((item) => renderMobileMenuItem(item))}
-                  </Accordion>
 
-                  <div className="flex flex-col gap-3">
-                    <Button
-                      disabled
-                      className="bg-primary/5 text-primary/80 border-primary/20 border shadow-sm disabled:opacity-100"
+            <div className="flex items-center gap-2">
+              {/* Mobile: show avatar outside sheet if logged in */}
+              {!isLoading && isAuthenticated && session && (
+                <UserNav session={session} />
+              )}
+
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant="outline" size="icon">
+                    <Menu className="size-4" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent className="overflow-y-auto">
+                  <SheetHeader>
+                    <SheetTitle>
+                      <a href={logo.url} className="flex items-center gap-2">
+                        <img
+                          src={logo.src}
+                          className="max-h-8 dark:invert"
+                          alt={logo.alt}
+                        />
+                      </a>
+                    </SheetTitle>
+                  </SheetHeader>
+                  <div className="flex flex-col gap-6 p-4">
+                    <Accordion
+                      type="single"
+                      collapsible
+                      className="flex w-full flex-col gap-4"
                     >
-                      {auth.signup.title}
-                    </Button>
+                      {menu.map((item) =>
+                        renderMobileMenuItem(item, isAuthenticated)
+                      )}
+                    </Accordion>
+
+                    <div className="flex flex-col gap-3">
+                      {isAuthenticated ? (
+                        <Button
+                          className="bg-primary/5 text-primary/80 border-primary/20 border shadow-sm"
+                          asChild
+                        >
+                          <Link href="/toolbox">Enter Toolbox</Link>
+                        </Button>
+                      ) : (
+                        <Button
+                          className="gap-2"
+                          onClick={() =>
+                            signIn("google", { callbackUrl: "/toolbox" })
+                          }
+                        >
+                          <LogIn className="h-4 w-4" />
+                          Sign in with Google
+                        </Button>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </SheetContent>
-            </Sheet>
+                </SheetContent>
+              </Sheet>
+            </div>
           </div>
         </div>
       </div>
@@ -207,7 +249,7 @@ const Navbar1 = ({
   );
 };
 
-const renderMenuItem = (item: MenuItem) => {
+const renderMenuItem = (item: MenuItem, isAuthenticated: boolean) => {
   if (item.items) {
     return (
       <NavigationMenuItem key={item.title}>
@@ -223,26 +265,34 @@ const renderMenuItem = (item: MenuItem) => {
     );
   }
 
+  // Items that require auth: treat as disabled when not signed in
+  const isDisabled = item.disabled || (item.requiresAuth && !isAuthenticated);
+  const tooltip =
+    item.tooltip ??
+    (item.requiresAuth && !isAuthenticated
+      ? "Sign in with your @ashoka.edu.in account to access this!"
+      : undefined);
+
   const link = (
     <NavigationMenuLink
-      href={item.disabled ? undefined : item.url}
+      href={isDisabled ? undefined : item.url}
       className={cn(
         "group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-muted hover:text-accent-foreground",
-        item.disabled && "cursor-not-allowed opacity-50"
+        isDisabled && "cursor-not-allowed opacity-50"
       )}
-      onClick={item.disabled ? (e) => e.preventDefault() : undefined}
+      onClick={isDisabled ? (e) => e.preventDefault() : undefined}
     >
       {item.title}
     </NavigationMenuLink>
   );
 
-  if (item.tooltip) {
+  if (tooltip) {
     return (
       <NavigationMenuItem key={item.title}>
         <Tooltip>
           <TooltipTrigger asChild>{link}</TooltipTrigger>
           <TooltipContent>
-            <p>{item.tooltip}</p>
+            <p>{tooltip}</p>
           </TooltipContent>
         </Tooltip>
       </NavigationMenuItem>
@@ -252,7 +302,14 @@ const renderMenuItem = (item: MenuItem) => {
   return <NavigationMenuItem key={item.title}>{link}</NavigationMenuItem>;
 };
 
-const renderMobileMenuItem = (item: MenuItem) => {
+const renderMobileMenuItem = (item: MenuItem, isAuthenticated: boolean) => {
+  const isDisabled = item.disabled || (item.requiresAuth && !isAuthenticated);
+  const tooltip =
+    item.tooltip ??
+    (item.requiresAuth && !isAuthenticated
+      ? "Sign in with your @ashoka.edu.in account to access this!"
+      : undefined);
+
   if (item.items) {
     return (
       <AccordionItem key={item.title} value={item.title} className="border-b-0">
@@ -271,23 +328,23 @@ const renderMobileMenuItem = (item: MenuItem) => {
   const link = (
     <a
       key={item.title}
-      href={item.disabled ? undefined : item.url}
+      href={isDisabled ? undefined : item.url}
       className={cn(
         "text-md font-semibold",
-        item.disabled && "cursor-not-allowed opacity-50"
+        isDisabled && "cursor-not-allowed opacity-50"
       )}
-      onClick={item.disabled ? (e) => e.preventDefault() : undefined}
+      onClick={isDisabled ? (e) => e.preventDefault() : undefined}
     >
       {item.title}
     </a>
   );
 
-  if (item.tooltip) {
+  if (tooltip) {
     return (
       <Tooltip key={item.title}>
         <TooltipTrigger asChild>{link}</TooltipTrigger>
         <TooltipContent>
-          <p>{item.tooltip}</p>
+          <p>{tooltip}</p>
         </TooltipContent>
       </Tooltip>
     );

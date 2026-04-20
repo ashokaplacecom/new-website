@@ -5,6 +5,7 @@ import { Navbar1 } from "@/components/navbar1";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Footer from "@/components/shadcn-studio/blocks/footer-component-01/footer-component-01";
 import { Toaster } from "@/components/ui/sonner";
+import { SessionProvider } from "next-auth/react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,12 +32,14 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased px-6 py-3`}
       >
-        <TooltipProvider>
-          <Navbar1 />
-          {children}
-          <Footer />
-          <Toaster richColors position="top-right" />
-        </TooltipProvider>
+        <SessionProvider>
+          <TooltipProvider>
+            <Navbar1 />
+            {children}
+            <Footer />
+            <Toaster richColors position="top-right" />
+          </TooltipProvider>
+        </SessionProvider>
       </body>
     </html>
   );
