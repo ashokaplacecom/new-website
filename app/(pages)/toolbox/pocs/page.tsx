@@ -1,6 +1,8 @@
 "use client";
 
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useMemo, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { fetchDashboardRequests, modifyRequestAction, fetchAllPOCs } from "./actions";
 import {
     RefreshCw,
     Zap,
@@ -64,6 +66,8 @@ interface RequestEntry {
     status: Status;
     studentMessage: string | null;
     pocMessage: string;
+    type: "verification" | "major-minor";
+    baseId: number;
 }
 
 // ─── Mock Data ────────────────────────────────────────────────────────────────
@@ -71,70 +75,7 @@ interface RequestEntry {
 const now = new Date();
 const hoursFromNow = (h: number) => new Date(now.getTime() + h * 60 * 60 * 1000);
 
-const INITIAL_DATA: RequestEntry[] = [
-    {
-        id: "REQ-001",
-        studentName: "Arjun Mehta",
-        email: "arjun.mehta@ashoka.edu.in",
-        poc: "Priya Sharma",
-        deadline: hoursFromNow(24),
-        status: "pending",
-        studentMessage: "Hi, I would like to know the status of my placement application for the Goldman Sachs role. I have completed all the assessments and am waiting for a response.",
-        pocMessage: "",
-    },
-    {
-        id: "REQ-002",
-        studentName: "Sneha Kapoor",
-        email: "sneha.kapoor@ashoka.edu.in",
-        poc: "Rohan Verma",
-        deadline: hoursFromNow(10),
-        status: "pending",
-        studentMessage: "Thank you for getting back to me. Please let me know the next steps in the process.",
-        pocMessage: "",
-    },
-    {
-        id: "REQ-003",
-        studentName: "Kiran Nair",
-        email: "kiran.nair@ashoka.edu.in",
-        poc: "Priya Sharma",
-        deadline: hoursFromNow(4.5),
-        status: "pending",
-        studentMessage: "URGENT: My interview is today at 5 PM and I haven't received the confirmation link. Please help immediately.",
-        pocMessage: "",
-    },
-    {
-        id: "REQ-004",
-        studentName: "Devika Rao",
-        email: "devika.rao@ashoka.edu.in",
-        poc: "Ananya Singh",
-        deadline: hoursFromNow(36),
-        status: "emergency",
-        studentMessage: "Emergency! The company HR called me saying they have no record of my application. This needs to be resolved today.",
-        pocMessage: "",
-    },
-    {
-        id: "REQ-005",
-        studentName: "Rishi Agarwal",
-        email: "rishi.agarwal@ashoka.edu.in",
-        poc: "Rohan Verma",
-        deadline: hoursFromNow(2),
-        status: "pending",
-        studentMessage: null,
-        pocMessage: "",
-    },
-    {
-        id: "REQ-006",
-        studentName: "Mehak Joshi",
-        email: "mehak.joshi@ashoka.edu.in",
-        poc: "Ananya Singh",
-        deadline: hoursFromNow(48),
-        status: "pending",
-        studentMessage: "I am following up on my request from last week regarding the McKinsey application.",
-        pocMessage: "",
-    },
-];
-
-const POCS = ["All", "Priya Sharma", "Rohan Verma", "Ananya Singh"];
+const INITIAL_DATA: RequestEntry[] = [];
 
 // ─── Utilities ────────────────────────────────────────────────────────────────
 
@@ -167,15 +108,7 @@ function getTimeColor(entry: RequestEntry): string {
     return "text-muted-foreground";
 }
 
-// ─── Mock async API call ──────────────────────────────────────────────────────
-
-async function mockApiCall(id: string, status: "approved" | "rejected"): Promise<void> {
-    await new Promise((res) => setTimeout(res, 1200));
-    // Simulate occasional failure (10% chance) for demo
-    if (Math.random() < 0.1) throw new Error("Server error");
-    console.log(`[API] ${id} marked as ${status}`);
-}
-
+// ─── API actions are imported from actions.ts ─────────────────────────
 // ─── Status Badge ─────────────────────────────────────────────────────────────
 
 function StatusBadge({ status }: { status: Status }) {
@@ -240,7 +173,7 @@ function StudentMessagePopover({
                     <p className="text-xs font-semibold text-foreground">{entry.studentName}</p>
                     <p className="text-[11px] text-muted-foreground">{entry.email}</p>
                 </div>
-                <p className="px-3 py-3 text-[12px] leading-relaxed text-foreground/90">
+                <p className="px-3 py-3 text-[12px] leading-relaxed text-foreground/90 whitespace-pre-line">
                     {entry.studentMessage}
                 </p>
             </PopoverContent>
@@ -330,8 +263,8 @@ function ActionButton({
     const [loading, setLoading] = useState(false);
 
     // Unlock rules:
-    // • approve: if student has no message → always unlocked; if student has message → must have viewed it
-    // • reject: same as above PLUS POC must have written a note
+    // • approve: must have viewed student message (if one exists) — no note required
+    // • reject: must have viewed student message AND must have written a poc note
     const studentMsgExists = !!entry.studentMessage;
     const approveUnlocked = studentMsgExists ? hasViewedStudentMessage : true;
     const rejectUnlocked = approveUnlocked && !!entry.pocMessage;
@@ -389,25 +322,53 @@ function ActionButton({
 // ─── Main Dashboard ───────────────────────────────────────────────────────────
 
 export default function POCDashboard() {
+    const { data: session } = useSession();
     const [entries, setEntries] = useState<RequestEntry[]>(INITIAL_DATA);
     const [pocFilter, setPocFilter] = useState("All");
-    const [isRefreshing, setIsRefreshing] = useState(false);
+    const [typeFilter, setTypeFilter] = useState("All");
+    const [availablePocs, setAvailablePocs] = useState<string[]>(["All"]);
+    const [isRefreshing, setIsRefreshing] = useState(true);
     const [viewedMessages, setViewedMessages] = useState<Set<string>>(new Set());
+
+    const loadData = useCallback(async () => {
+        setIsRefreshing(true);
+        const [res, pocsRes] = await Promise.all([
+            fetchDashboardRequests(),
+            fetchAllPOCs()
+        ]);
+        
+        if (Array.isArray(pocsRes) && pocsRes.length > 0) {
+             setAvailablePocs(["All", ...pocsRes]);
+        }
+
+        if (res.success && res.data) {
+             setEntries(res.data.map((d: any) => ({...d, deadline: new Date(d.deadline)})));
+        } else {
+             toast.error("Failed to load requests", { description: res.message });
+        }
+        setIsRefreshing(false);
+    }, []);
+
+    useEffect(() => { loadData(); }, [loadData]);
 
     const visibleEntries = useMemo(
         () => entries.filter((e) => e.status === "pending" || e.status === "emergency"),
         [entries]
     );
 
-    const metrics = useMemo(() => ({
-        active: entries.filter((e) => e.status === "pending" || e.status === "emergency").length,
-        approved: entries.filter((e) => e.status === "approved").length,
-        pending: entries.filter((e) => e.status === "pending").length,
-    }), [entries]);
+    const metrics = useMemo(() => {
+        const expired = entries.filter((e) => e.status === "pending" && e.deadline.getTime() < Date.now()).length;
+        const approved = entries.filter((e) => e.status === "approved").length;
+        const pending = entries.filter((e) => e.status === "pending").length;
+        return { expired, approved, pending };
+    }, [entries]);
 
     const filteredEntries = useMemo(
-        () => visibleEntries.filter((e) => pocFilter === "All" || e.poc === pocFilter),
-        [visibleEntries, pocFilter]
+        () => visibleEntries.filter((e) => 
+            (pocFilter === "All" || e.poc === pocFilter) &&
+            (typeFilter === "All" || e.type === typeFilter)
+        ),
+        [visibleEntries, pocFilter, typeFilter]
     );
 
     const handleMessageViewed = useCallback((id: string) => {
@@ -427,9 +388,17 @@ export default function POCDashboard() {
     const handleAction = useCallback(async (id: string, newStatus: "approved" | "rejected") => {
         const entry = entries.find((e) => e.id === id);
         const studentName = entry?.studentName ?? id;
+        
+        const pocId = session?.user?.pocId;
+        if (!pocId || !entry) {
+            toast.error("Error", { description: "You are not an authorized POC or entry invalid." });
+            return;
+        }
 
         try {
-            await mockApiCall(id, newStatus);
+            const res = await modifyRequestAction(entry.type, entry.baseId, newStatus, pocId, entry.pocMessage);
+            if (!res.success) throw new Error(res.message || "Failed to update API");
+
             setEntries((prev) =>
                 prev.map((e) => (e.id === id ? { ...e, status: newStatus } : e))
             );
@@ -442,19 +411,15 @@ export default function POCDashboard() {
                     description: `${studentName}'s request has been rejected.`,
                 });
             }
-        } catch {
+        } catch (e: any) {
             toast.error("Action failed", {
-                description: "Could not update the request. Please try again.",
+                description: e.message || "Could not update the request. Please try again.",
             });
         }
-    }, [entries]);
+    }, [entries, session]);
 
     const handleRefresh = () => {
-        setIsRefreshing(true);
-        setTimeout(() => {
-            setIsRefreshing(false);
-            toast.success("Refreshed", { description: "Requests are up to date." });
-        }, 1000);
+        loadData();
     };
 
     return (
@@ -486,9 +451,9 @@ export default function POCDashboard() {
             {/* ── Metric Cards ──────────────────────────────────────── */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
                 {[
-                    { label: "Active", value: metrics.active, icon: Zap, iconClass: "text-primary/70", desc: "Awaiting action" },
-                    { label: "Approved", value: metrics.approved, icon: CheckCircle2, iconClass: "text-emerald-500", desc: "This session" },
-                    { label: "Pending", value: metrics.pending, icon: Clock, iconClass: "text-amber-500", desc: "Still pending" },
+                    { label: "Expired", value: metrics.expired, icon: Zap, iconClass: "text-destructive/70", desc: "This week" },
+                    { label: "Approved", value: metrics.approved, icon: CheckCircle2, iconClass: "text-emerald-500", desc: "This week" },
+                    { label: "Pending", value: metrics.pending, icon: Clock, iconClass: "text-amber-500", desc: "This week" },
                 ].map(({ label, value, icon: Icon, iconClass, desc }) => (
                     <Card key={label} className="border-border/50 bg-card/60">
                         <CardHeader className="pb-1">
@@ -506,19 +471,34 @@ export default function POCDashboard() {
             </div>
 
             {/* ── Controls ──────────────────────────────────────────── */}
-            <div className="flex items-center justify-between mb-4 gap-4">
-                <div className="flex items-center gap-2">
-                    <Label className="text-xs text-muted-foreground whitespace-nowrap">Filter by POC</Label>
-                    <Select value={pocFilter} onValueChange={setPocFilter}>
-                        <SelectTrigger className="h-8 w-[160px] text-xs">
-                            <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {POCS.map((poc) => (
-                                <SelectItem key={poc} value={poc} className="text-xs">{poc}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-4">
+                <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2">
+                        <Label className="text-xs text-muted-foreground whitespace-nowrap">POC</Label>
+                        <Select value={pocFilter} onValueChange={setPocFilter}>
+                            <SelectTrigger className="h-8 w-[140px] text-xs">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {availablePocs.map((poc) => (
+                                    <SelectItem key={poc} value={poc} className="text-xs">{poc}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <Label className="text-xs text-muted-foreground whitespace-nowrap">Type</Label>
+                        <Select value={typeFilter} onValueChange={setTypeFilter}>
+                            <SelectTrigger className="h-8 w-[150px] text-xs">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="All" className="text-xs">All Types</SelectItem>
+                                <SelectItem value="verification" className="text-xs">Verifications</SelectItem>
+                                <SelectItem value="major-minor" className="text-xs">Major/Minor Change</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
                 </div>
 
                 <div className="flex items-center gap-3 text-[11px] text-muted-foreground">

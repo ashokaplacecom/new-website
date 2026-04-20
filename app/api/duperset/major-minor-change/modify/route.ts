@@ -50,9 +50,9 @@ export async function POST(req: NextRequest) {
             )
         }
 
-        if (!pocNote?.trim()) {
+        if (method === 'rejected' && !pocNote?.trim()) {
             return NextResponse.json(
-                { success: false, message: 'Missing required field: pocNote. A note is required when approving or rejecting a request.' },
+                { success: false, message: 'Missing required field: pocNote. A note is required when rejecting a request.' },
                 { status: 400 }
             )
         }
@@ -81,7 +81,7 @@ export async function POST(req: NextRequest) {
         await modifyMajorMinorRequest({
             requestId,
             status: method as RequestStatus,
-            pocNote: pocNote.trim(),
+            pocNote: (pocNote || "").trim(),
             pocId,
         })
 
@@ -93,7 +93,7 @@ export async function POST(req: NextRequest) {
                 {
                     requestId,
                     pocId,
-                    pocNote: pocNote.trim(),
+                    pocNote: (pocNote || "").trim(),
                     status: method
                 }
             )
@@ -106,9 +106,10 @@ export async function POST(req: NextRequest) {
 
         // Send email to student
         if (student) {
+            const safePocNote = (pocNote || "").trim()
             const template = method === 'approved'
-                ? majorMinorApprovedStudentEmail({ name: student.name, pocNote: pocNote.trim() })
-                : majorMinorRejectedStudentEmail({ name: student.name, pocNote: pocNote.trim() })
+                ? majorMinorApprovedStudentEmail({ name: student.name, pocNote: safePocNote })
+                : majorMinorRejectedStudentEmail({ name: student.name, pocNote: safePocNote })
 
             await sendMail({ to: student.email, template })
         }

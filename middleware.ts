@@ -13,7 +13,7 @@ const PROTECTED_ROUTES = ["/toolbox", "/submit-opportunity"];
 export async function middleware(req: NextRequest) {
     const { pathname } = req.nextUrl;
 
-    // ── 1. API routes — CORS + API-key gate ──────────────────────────────────
+    // ── 1. API routes — CORS + API-key gate + Trailing Slash Bypass ─────────
     if (pathname.startsWith("/api/")) {
         const origin = req.headers.get("origin") ?? "";
         const isAllowedOrigin =
@@ -63,7 +63,18 @@ export async function middleware(req: NextRequest) {
             }
         }
 
-        const response = NextResponse.next();
+        // Check if the original URL has a trailing slash. Next.js natively issues a 308 redirect,
+        // which breaks POST requests from extensions. We intercept and rewrite seamlessly instead.
+        const originalUrl = new URL(req.url);
+        const hasTrailingSlash = originalUrl.pathname.endsWith("/") && originalUrl.pathname !== "/";
+        
+        let response = NextResponse.next();
+        if (hasTrailingSlash) {
+            const urlWithoutSlash = new URL(originalUrl.pathname.slice(0, -1), req.url);
+            urlWithoutSlash.search = req.nextUrl.search; // Preserve query params
+            response = NextResponse.rewrite(urlWithoutSlash);
+        }
+
         if (isAllowedOrigin) {
             response.headers.set("Access-Control-Allow-Origin", origin);
             response.headers.set(

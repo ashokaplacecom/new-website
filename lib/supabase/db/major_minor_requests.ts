@@ -101,7 +101,7 @@ export async function modifyMajorMinorRequest(payload: ModifyMajorMinorRequestPa
         .from('major-minor-change')
         .update({
             status: payload.status,
-            poc_note: payload.pocNote,
+            poc_note: payload.pocNote?.trim() || null,
             modified_at: new Date().toISOString(),
             modified_by: payload.pocId,
         })

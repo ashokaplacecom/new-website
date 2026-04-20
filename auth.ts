@@ -10,6 +10,7 @@ declare module "next-auth" {
     user: {
       id: string;
       isPoc: boolean;
+      pocId?: number;
     } & DefaultSession["user"];
   }
 }
@@ -18,6 +19,7 @@ declare module "next-auth/jwt" {
   interface JWT {
     userId?: string;
     isPoc?: boolean;
+    pocId?: number;
   }
 }
 
@@ -81,6 +83,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             .single();
             
           token.isPoc = !!data;
+          if (data?.id) {
+            token.pocId = data.id;
+          }
         } catch (error) {
           // If the lookup fails (e.g. no rows returned, which throws in .single()), they are not a POC
           token.isPoc = false;
@@ -96,6 +101,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (token.userId) session.user.id = token.userId as string;
         if (token.picture) session.user.image = token.picture as string;
         if (token.isPoc !== undefined) session.user.isPoc = token.isPoc as boolean;
+        if (token.pocId !== undefined) session.user.pocId = token.pocId as number;
       }
       return session;
     },
