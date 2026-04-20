@@ -100,6 +100,11 @@ export async function middleware(req: NextRequest) {
             loginUrl.searchParams.set("callbackUrl", req.url);
             return NextResponse.redirect(loginUrl);
         }
+
+        // ── 3. Role-based access control ──────────────────────────────────────────
+        if (pathname.startsWith("/toolbox/pocs") && token.isPoc !== true) {
+            return NextResponse.redirect(new URL("/toolbox", req.url));
+        }
     }
 
     return NextResponse.next();

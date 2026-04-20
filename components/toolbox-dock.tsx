@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { motion, LayoutGroup } from "motion/react";
 import { useWebHaptics } from "web-haptics/react";
 import {
@@ -68,6 +69,11 @@ const dockItems = [
 export function ToolboxDock() {
     const pathname = usePathname();
     const { trigger: haptic } = useWebHaptics();
+    const { data: session } = useSession();
+
+    const visibleItems = session?.user?.isPoc
+        ? dockItems
+        : dockItems.filter(item => item.href !== "/toolbox/pocs");
 
     return (
         <LayoutGroup>
@@ -84,7 +90,7 @@ export function ToolboxDock() {
                 magnification={72}
                 distance={140}
             >
-                {dockItems.map((item) => {
+                {visibleItems.map((item) => {
                     const isActive = pathname === item.href;
                     const Icon = item.icon;
                     return (

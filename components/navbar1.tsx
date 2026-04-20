@@ -267,11 +267,11 @@ const renderMenuItem = (item: MenuItem, isAuthenticated: boolean) => {
 
   // Items that require auth: treat as disabled when not signed in
   const isDisabled = item.disabled || (item.requiresAuth && !isAuthenticated);
-  const tooltip =
-    item.tooltip ??
-    (item.requiresAuth && !isAuthenticated
-      ? "Sign in with your @ashoka.edu.in account to access this!"
-      : undefined);
+  const tooltip = item.disabled
+    ? item.tooltip
+    : item.requiresAuth && !isAuthenticated
+    ? item.tooltip ?? "Sign in with your @ashoka.edu.in account to access this!"
+    : undefined;
 
   const link = (
     <NavigationMenuLink
@@ -304,11 +304,11 @@ const renderMenuItem = (item: MenuItem, isAuthenticated: boolean) => {
 
 const renderMobileMenuItem = (item: MenuItem, isAuthenticated: boolean) => {
   const isDisabled = item.disabled || (item.requiresAuth && !isAuthenticated);
-  const tooltip =
-    item.tooltip ??
-    (item.requiresAuth && !isAuthenticated
-      ? "Sign in with your @ashoka.edu.in account to access this!"
-      : undefined);
+  const tooltip = item.disabled
+    ? item.tooltip
+    : item.requiresAuth && !isAuthenticated
+    ? item.tooltip ?? "Sign in with your @ashoka.edu.in account to access this!"
+    : undefined;
 
   if (item.items) {
     return (
