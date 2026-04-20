@@ -45,8 +45,26 @@ export async function middleware(req: NextRequest) {
             pathname === "/api/duperset/external-opportunities" &&
             req.method === "GET";
 
+        // For the submission form, we allow POST without an API key IF the user is authenticated.
+        const isInternalSubmission = 
+            pathname === "/api/duperset/external-opportunities" && 
+            req.method === "POST";
+
         if (!apiKey || (!isWebExtension && !isFrontend)) {
-            if (!(isPublicGet && isAllowedOrigin)) {
+            // If No API key, check if it's a public GET or an internal authenticated POST
+            let authenticated = false;
+            if (isInternalSubmission) {
+                 // We'll verify the token here since we are in the API block
+                 const token = await getToken({
+                    req,
+                    secret: process.env.AUTH_SECRET!,
+                    secureCookie: process.env.NODE_ENV === "production",
+                    salt: process.env.NODE_ENV === "production" ? "__Secure-authjs.session-token" : "authjs.session-token",
+                });
+                if (token) authenticated = true;
+            }
+
+            if (!(isPublicGet && isAllowedOrigin) && !authenticated) {
                 return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
             }
         }

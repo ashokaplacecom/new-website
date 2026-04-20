@@ -286,9 +286,11 @@ export function ExternalOpportunityForm() {
         }
         if (step === "manual") {
             if (!data.job_description.trim()) errs.job_description = "Job description is required.";
-            if (!data.eligibility_restrictions.trim()) errs.eligibility_restrictions = "Eligibility info is required.";
-            if (!data.apply_method.trim()) errs.apply_method = "How should candidates apply?";
         }
+
+        // Shared fields validation
+        if (!data.eligibility_restrictions.trim()) errs.eligibility_restrictions = "Eligibility info is required.";
+        if (!data.apply_method.trim()) errs.apply_method = "How should candidates apply?";
 
         if (Object.keys(errs).length) { setErrors(errs); return; }
 
@@ -308,6 +310,10 @@ export function ExternalOpportunityForm() {
             fd.append("compensation_type", data.compensation_type);
             fd.append("duration_weeks", data.duration_weeks);
             if (data.start_date) fd.append("start_date", data.start_date.toISOString());
+            
+            // Shared info
+            fd.append("eligibility_restrictions", data.eligibility_restrictions.trim());
+            fd.append("apply_method", data.apply_method.trim());
 
             if (step === "upload" && data.jd_file) {
                 fd.append("jd_file", data.jd_file);
@@ -315,8 +321,6 @@ export function ExternalOpportunityForm() {
 
             if (step === "manual") {
                 fd.append("job_description", data.job_description.trim());
-                fd.append("eligibility_restrictions", data.eligibility_restrictions.trim());
-                fd.append("apply_method", data.apply_method.trim());
             }
 
             if (data.placecom_notes.trim())
@@ -713,48 +717,96 @@ export function ExternalOpportunityForm() {
                                                 <FieldError message={errors.jd_file} />
                                             </div>
 
-                                            {/* Work Arrangement */}
-                                            <div className="space-y-1.5">
-                                                <FieldLabel htmlFor="opp-work-arrangement" required>Work Arrangement</FieldLabel>
-                                                <FieldHint>Select the primary work location/setup for this opportunity.</FieldHint>
-                                                <select
-                                                    id="opp-work-arrangement"
-                                                    value={data.work_arrangement}
-                                                    onChange={(e) => set("work_arrangement", e.target.value)}
-                                                    className={cn(inputClass(!!errors.work_arrangement), "h-11 cursor-pointer")}
-                                                >
-                                                    <option value="">Select an arrangement…</option>
-                                                    <option value="Remote / Work from Home">Remote / Work from Home</option>
-                                                    <option value="On-site / In-person">On-site / In-person</option>
-                                                    <option value="Hybrid (Combination of remote and on-site)">Hybrid (Combination of remote and on-site)</option>
-                                                    <option value="Field Work / Travel Required">Field Work / Travel Required</option>
-                                                </select>
-                                                <FieldError message={errors.work_arrangement} />
+                                            {/* Shared Shared Step 2 details will follow... */}
+                                        </>
+                                    )}
+
+                                    {/* ══ STEP 2b: Manual details ══ */}
+                                    {step === "manual" && (
+                                        <>
+                                            <div className="mb-1">
+                                                <h2 className="text-lg font-semibold text-foreground tracking-tight">
+                                                    Manual Details
+                                                </h2>
+                                                <p className="text-sm text-muted-foreground mt-0.5">
+                                                    Share the essential details of the opportunity.
+                                                </p>
                                             </div>
 
-                                            {/* Compensation Type */}
+                                            {/* Job Description */}
                                             <div className="space-y-1.5">
-                                                <FieldLabel htmlFor="opp-compensation-type" required>Compensation Type</FieldLabel>
-                                                <FieldHint>What type of compensation is being offered for this opportunity?</FieldHint>
-                                                <select
-                                                    id="opp-compensation-type"
-                                                    value={data.compensation_type}
-                                                    onChange={(e) => set("compensation_type", e.target.value)}
-                                                    className={cn(inputClass(!!errors.compensation_type), "h-11 cursor-pointer")}
-                                                >
-                                                    <option value="">Select a compensation type…</option>
-                                                    <option value="Monetary Compensation">Monetary Compensation (e.g., stipend, salary, performance-based pay)</option>
-                                                    <option value="Non-monetary Compensation">Non-monetary Compensation (e.g., certificate, academic credit, travel allowance, accommodation, meals)</option>
-                                                    <option value="No Compensation at all">No Compensation at all (Unpaid opportunity)</option>
-                                                </select>
-                                                <FieldError message={errors.compensation_type} />
+                                                <FieldLabel htmlFor="opp-job-desc" required>Job Description</FieldLabel>
+                                                <FieldHint>Kindly share the essential details and a short description of the opportunity below. For instance, include the company name, type of role, and the location (e.g., company XYZ, marketing internship, based in Maharashtra).</FieldHint>
+                                                <textarea
+                                                    id="opp-job-desc"
+                                                    rows={5}
+                                                    placeholder="Role details, location, and key responsibilities…"
+                                                    value={data.job_description}
+                                                    onChange={(e) => set("job_description", e.target.value)}
+                                                    className={cn(inputClass(!!errors.job_description), "py-3 resize-none leading-relaxed")}
+                                                />
+                                                <FieldError message={errors.job_description} />
+                                            </div>
+                                        </>
+                                    )}
+
+                                    {/* ══ SHARED STEP 2 FIELDS ══ */}
+                                    {(step === "upload" || step === "manual") && (
+                                        <div className="space-y-6 pt-2">
+                                            {/* Eligibility Restrictions (Now shared) */}
+                                            <div className="space-y-1.5">
+                                                <FieldLabel htmlFor="opp-eligibility" required>Eligibility Restrictions</FieldLabel>
+                                                <FieldHint>Are there any eligibility restrictions? E.g.: only students from specific courses, graduation year, background, etc. Write N/A if none.</FieldHint>
+                                                <textarea
+                                                    id="opp-eligibility"
+                                                    rows={3}
+                                                    placeholder="e.g. Open to 3rd year UG Economics students…"
+                                                    value={data.eligibility_restrictions}
+                                                    onChange={(e) => set("eligibility_restrictions", e.target.value)}
+                                                    className={cn(inputClass(!!errors.eligibility_restrictions), "py-3 resize-none leading-relaxed")}
+                                                />
+                                                <FieldError message={errors.eligibility_restrictions} />
+                                            </div>
+
+                                            {/* Arrangement & Compensation */}
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <div className="space-y-1.5">
+                                                    <FieldLabel htmlFor="opp-work-arrangement" required>Work Arrangement</FieldLabel>
+                                                    <select
+                                                        id="opp-work-arrangement"
+                                                        value={data.work_arrangement}
+                                                        onChange={(e) => set("work_arrangement", e.target.value)}
+                                                        className={cn(inputClass(!!errors.work_arrangement), "h-11 cursor-pointer")}
+                                                    >
+                                                        <option value="">Arrangement…</option>
+                                                        <option value="Remote / Work from Home">Remote</option>
+                                                        <option value="On-site / In-person">On-site</option>
+                                                        <option value="Hybrid (Combination of remote and on-site)">Hybrid</option>
+                                                        <option value="Field Work / Travel Required">Field Work</option>
+                                                    </select>
+                                                    <FieldError message={errors.work_arrangement} />
+                                                </div>
+
+                                                <div className="space-y-1.5">
+                                                    <FieldLabel htmlFor="opp-compensation-type" required>Compensation</FieldLabel>
+                                                    <select
+                                                        id="opp-compensation-type"
+                                                        value={data.compensation_type}
+                                                        onChange={(e) => set("compensation_type", e.target.value)}
+                                                        className={cn(inputClass(!!errors.compensation_type), "h-11 cursor-pointer")}
+                                                    >
+                                                        <option value="">Type…</option>
+                                                        <option value="Monetary Compensation">Monetary</option>
+                                                        <option value="Non-monetary Compensation">Non-monetary</option>
+                                                        <option value="No Compensation at all">Unpaid</option>
+                                                    </select>
+                                                    <FieldError message={errors.compensation_type} />
+                                                </div>
                                             </div>
 
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                {/* Duration Weeks */}
                                                 <div className="space-y-1.5">
-                                                    <FieldLabel htmlFor="opp-duration-weeks" required>Duration (weeks)</FieldLabel>
-                                                    <FieldHint>Approximately how long? (e.g. 8 weeks)</FieldHint>
+                                                    <FieldLabel htmlFor="opp-duration-weeks" required>Duration</FieldLabel>
                                                     <input
                                                         id="opp-duration-weeks"
                                                         type="text"
@@ -766,10 +818,8 @@ export function ExternalOpportunityForm() {
                                                     <FieldError message={errors.duration_weeks} />
                                                 </div>
 
-                                                {/* Start Date */}
                                                 <div className="space-y-1.5">
-                                                    <FieldLabel htmlFor="opp-start-date" required>Approximate Start Date</FieldLabel>
-                                                    <FieldHint>Expected beginning?</FieldHint>
+                                                    <FieldLabel htmlFor="opp-start-date" required>Approx. Start Date</FieldLabel>
                                                     <Popover open={calOpen} onOpenChange={setCalOpen}>
                                                         <PopoverTrigger asChild>
                                                             <button
@@ -803,179 +853,14 @@ export function ExternalOpportunityForm() {
                                                 </div>
                                             </div>
 
-                                            {/* PlaceCom notes */}
-                                            <PlacecomNotes
-                                                value={data.placecom_notes}
-                                                onChange={(v) => set("placecom_notes", v)}
-                                            />
-
-                                            {/* API error */}
-                                            {apiError && <ApiErrorBanner message={apiError} />}
-
-                                            {/* Actions */}
-                                            <div className="flex gap-3">
-                                                <button
-                                                    type="button"
-                                                    onClick={handleBack}
-                                                    className="flex items-center gap-1 px-4 py-2.5 rounded-xl border border-border text-sm font-medium text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-all"
-                                                >
-                                                    <ChevronLeft className="w-4 h-4" />
-                                                    Back
-                                                </button>
-                                                <Button
-                                                    type="button"
-                                                    onClick={handleSubmit}
-                                                    disabled={isSubmitting}
-                                                    className="flex-1 h-11 rounded-xl text-sm font-semibold"
-                                                >
-                                                    {isSubmitting ? (
-                                                        <><Loader2 className="h-4 w-4 animate-spin" /> Submitting…</>
-                                                    ) : "Submit Opportunity"}
-                                                </Button>
-                                            </div>
-                                        </>
-                                    )}
-
-                                    {/* ══ STEP 2b: Manual details ══ */}
-                                    {step === "manual" && (
-                                        <>
-                                            <div className="mb-1">
-                                                <h2 className="text-lg font-semibold text-foreground tracking-tight">
-                                                    Manual Details
-                                                </h2>
-                                                <p className="text-sm text-muted-foreground mt-0.5">
-                                                    Share the essential details of the opportunity.
-                                                </p>
-                                            </div>
-
-                                            {/* Job Description */}
-                                            <div className="space-y-1.5">
-                                                <FieldLabel htmlFor="opp-job-desc" required>Job Description</FieldLabel>
-                                                <FieldHint>Kindly share the essential details and a short description of the opportunity below. For instance, include the company name, type of role, and the location (e.g., company XYZ, marketing internship, based in Maharashtra).</FieldHint>
-                                                <textarea
-                                                    id="opp-job-desc"
-                                                    rows={5}
-                                                    placeholder="Role details, location, and key responsibilities…"
-                                                    value={data.job_description}
-                                                    onChange={(e) => set("job_description", e.target.value)}
-                                                    className={cn(inputClass(!!errors.job_description), "py-3 resize-none leading-relaxed")}
-                                                />
-                                                <FieldError message={errors.job_description} />
-                                            </div>
-
-                                            {/* Eligibility Restrictions */}
-                                            <div className="space-y-1.5">
-                                                <FieldLabel htmlFor="opp-eligibility" required>Eligibility Restrictions</FieldLabel>
-                                                <FieldHint>Are there any eligibility restrictions for this opportunity? E.g.: only students from specific courses, graduation year, background, etc. Write N/A if none.</FieldHint>
-                                                <textarea
-                                                    id="opp-eligibility"
-                                                    rows={3}
-                                                    placeholder="e.g. Open to 3rd year UG Economics students…"
-                                                    value={data.eligibility_restrictions}
-                                                    onChange={(e) => set("eligibility_restrictions", e.target.value)}
-                                                    className={cn(inputClass(!!errors.eligibility_restrictions), "py-3 resize-none leading-relaxed")}
-                                                />
-                                                <FieldError message={errors.eligibility_restrictions} />
-                                            </div>
-
-                                            {/* Compensation Type */}
-                                            <div className="space-y-1.5">
-                                                <FieldLabel htmlFor="opp-comp-manual" required>Compensation Type</FieldLabel>
-                                                <FieldHint>What type of compensation is being offered for this opportunity?</FieldHint>
-                                                <select
-                                                    id="opp-comp-manual"
-                                                    value={data.compensation_type}
-                                                    onChange={(e) => set("compensation_type", e.target.value)}
-                                                    className={cn(inputClass(!!errors.compensation_type), "h-11 cursor-pointer")}
-                                                >
-                                                    <option value="">Select a compensation type…</option>
-                                                    <option value="Monetary Compensation">Monetary Compensation (e.g., stipend, salary, performance-based pay)</option>
-                                                    <option value="Non-monetary Compensation">Non-monetary Compensation (e.g., certificate, academic credit, travel allowance, accommodation, meals)</option>
-                                                    <option value="No Compensation at all">No Compensation at all (Unpaid opportunity)</option>
-                                                </select>
-                                                <FieldError message={errors.compensation_type} />
-                                            </div>
-
-                                            {/* Work Arrangement */}
-                                            <div className="space-y-1.5">
-                                                <FieldLabel htmlFor="opp-work-manual" required>Work Arrangement</FieldLabel>
-                                                <FieldHint>Select the primary work location/setup for this opportunity.</FieldHint>
-                                                <select
-                                                    id="opp-work-manual"
-                                                    value={data.work_arrangement}
-                                                    onChange={(e) => set("work_arrangement", e.target.value)}
-                                                    className={cn(inputClass(!!errors.work_arrangement), "h-11 cursor-pointer")}
-                                                >
-                                                    <option value="">Select an arrangement…</option>
-                                                    <option value="Remote / Work from Home">Remote / Work from Home</option>
-                                                    <option value="On-site / In-person">On-site / In-person</option>
-                                                    <option value="Hybrid (Combination of remote and on-site)">Hybrid (Combination of remote and on-site)</option>
-                                                    <option value="Field Work / Travel Required">Field Work / Travel Required</option>
-                                                </select>
-                                                <FieldError message={errors.work_arrangement} />
-                                            </div>
-
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                {/* Duration Weeks */}
-                                                <div className="space-y-1.5">
-                                                    <FieldLabel htmlFor="opp-dur-manual" required>Duration (weeks)</FieldLabel>
-                                                    <FieldHint>Approximately how long? (e.g. 8 weeks)</FieldHint>
-                                                    <input
-                                                        id="opp-dur-manual"
-                                                        type="text"
-                                                        placeholder="e.g. 8 weeks"
-                                                        value={data.duration_weeks}
-                                                        onChange={(e) => set("duration_weeks", e.target.value)}
-                                                        className={cn(inputClass(!!errors.duration_weeks), "h-11")}
-                                                    />
-                                                    <FieldError message={errors.duration_weeks} />
-                                                </div>
-
-                                                {/* Start Date */}
-                                                <div className="space-y-1.5">
-                                                    <FieldLabel htmlFor="opp-start-manual" required>Approximate Start Date</FieldLabel>
-                                                    <FieldHint>When is it expected to begin?</FieldHint>
-                                                    <Popover open={calOpen} onOpenChange={setCalOpen}>
-                                                        <PopoverTrigger asChild>
-                                                            <button
-                                                                type="button"
-                                                                id="opp-start-manual"
-                                                                className={cn(
-                                                                    inputClass(!!errors.start_date),
-                                                                    "h-11 flex items-center gap-2 text-left w-full",
-                                                                    !data.start_date && "text-muted-foreground/50"
-                                                                )}
-                                                            >
-                                                                <CalendarIcon className="w-4 h-4 shrink-0 text-muted-foreground" />
-                                                                {data.start_date
-                                                                    ? format(data.start_date, "PPP")
-                                                                    : "Pick a date"}
-                                                            </button>
-                                                        </PopoverTrigger>
-                                                        <PopoverContent className="w-auto p-0" align="start">
-                                                            <Calendar
-                                                                mode="single"
-                                                                selected={data.start_date}
-                                                                onSelect={(d) => {
-                                                                    set("start_date", d);
-                                                                    setCalOpen(false);
-                                                                }}
-                                                                disabled={(d) => d < new Date()}
-                                                            />
-                                                        </PopoverContent>
-                                                    </Popover>
-                                                    <FieldError message={errors.start_date} />
-                                                </div>
-                                            </div>
-
-                                            {/* Apply Method */}
+                                            {/* Apply Method (Now shared) */}
                                             <div className="space-y-1.5">
                                                 <FieldLabel htmlFor="opp-apply-method" required>How can candidates apply?</FieldLabel>
-                                                <FieldHint>Please share the method through which candidates can apply for this opportunity. E.g.: link to form, application portal, email id, etc.</FieldHint>
+                                                <FieldHint>Please share the application method (e.g. link to form, portal, email id).</FieldHint>
                                                 <input
                                                     id="opp-apply-method"
                                                     type="text"
-                                                    placeholder="e.g. Application portal link or HR email"
+                                                    placeholder="e.g. https://forms.gle/..."
                                                     value={data.apply_method}
                                                     onChange={(e) => set("apply_method", e.target.value)}
                                                     className={cn(inputClass(!!errors.apply_method), "h-11")}
@@ -1013,7 +898,7 @@ export function ExternalOpportunityForm() {
                                                     ) : "Submit Opportunity"}
                                                 </Button>
                                             </div>
-                                        </>
+                                        </div>
                                     )}
                                 </motion.div>
                             )}
