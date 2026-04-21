@@ -22,7 +22,11 @@
       currentUser: () => ({
         jwt: (forceRefresh) => Promise.resolve('local-admin-token'),
         logout: () => { window.location.href = '/'; }
-      })
+      }),
+      open: () => {},
+      close: () => {},
+      init: () => {},
+      logout: () => { window.location.href = '/'; }
     };
   </script>
 
