@@ -73,37 +73,49 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.picture = profile.picture as string;
       }
 
-      // Fetch roles if not already determined in the token (runs once on new session)
-      if (token.isPoc === undefined && token.email) {
+      // Fetch roles if not already determined in the token
+      if (token.email) {
         const supabase = createAdminClient();
+        console.log(`[Auth] Checking roles for: ${token.email}`);
 
         // ── Check POC status ──
         try {
-          const { data: pocData } = await supabase
+          const { data: pocData, error: pocError } = await supabase
             .schema("requests")
             .from("pocs")
             .select("id")
             .eq("email", token.email)
             .single();
 
+          if (pocError && pocError.code !== 'PGRST116') {
+             console.error("[Auth] POC check error:", pocError);
+          }
+
           token.isPoc = !!pocData;
           if (pocData?.id) {
             token.pocId = pocData.id;
           }
-        } catch {
+        } catch (err) {
+          console.error("[Auth] POC catch error:", err);
           token.isPoc = false;
         }
 
         // ── Check Admin status ──
         try {
-          const { data: adminData } = await supabase
+          const { data: adminData, error: adminError } = await supabase
             .from("admin")
             .select("id")
             .eq("email", token.email)
             .single();
 
+          if (adminError && adminError.code !== 'PGRST116') {
+            console.error("[Auth] Admin check error:", adminError);
+          }
+
           token.isAdmin = !!adminData;
-        } catch {
+          console.log(`[Auth] isAdmin for ${token.email}: ${token.isAdmin}`);
+        } catch (err) {
+          console.error("[Auth] Admin catch error:", err);
           token.isAdmin = false;
         }
       }

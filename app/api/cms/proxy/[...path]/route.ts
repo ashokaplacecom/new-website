@@ -63,11 +63,23 @@ async function handleRequest(req: NextRequest, params: { path: string[] }) {
     }
 
     // 3. Resolve the GitHub API URL
-    // CMS sends: /api/cms/proxy/github/repos/owner/repo/contents/...
-    // We transform it into the real GitHub API call using params.path
+    // CMS sends: /api/cms/proxy/github/branches/main
+    // or: /api/cms/proxy/github/repos/owner/repo/contents/...
+    // We transform it into the real GitHub API call (injecting the repo name)
+    const REPO_PATH = '/repos/ashokaplacecom/new-website';
     
-    // Decap CMS might prefix with /github/
-    const targetPath = apiPath.startsWith('/github') ? apiPath.replace('/github', '') : apiPath;
+    let targetPath = apiPath;
+    if (apiPath.startsWith('/github')) {
+        const pathAfterGithub = apiPath.replace('/github', '');
+        // If the path already includes /repos/, just use it
+        if (pathAfterGithub.startsWith('/repos/')) {
+            targetPath = pathAfterGithub;
+        } else {
+            // Otherwise, prepend the repo path (e.g. /branches/main -> /repos/owner/repo/branches/main)
+            targetPath = `${REPO_PATH}${pathAfterGithub}`;
+        }
+    }
+    
     const targetUrl = `${GITHUB_API_BASE}${targetPath}${originalUrl.search}`;
 
     try {

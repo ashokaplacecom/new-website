@@ -4,7 +4,7 @@ backend:
   branch: main
 
 # Enables local proxy server for development — run `npx decap-server` alongside `npm run dev`
-local_backend: true
+local_backend: false
 
 media_folder: public/images/uploads
 public_folder: /images/uploads

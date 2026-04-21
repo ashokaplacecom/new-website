@@ -15,12 +15,16 @@
         if (event === 'login') {
           // Immediately satisfy the login check
           setTimeout(() => cb({
-            token: { access_token: 'local-admin-token' }
+            token: { access_token: 'local-admin-token' },
+            user_metadata: { full_name: 'Admin User' },
+            email: 'admin@ashoka.edu.in'
           }), 1);
         }
       },
       currentUser: () => ({
         jwt: (forceRefresh) => Promise.resolve('local-admin-token'),
+        user_metadata: { full_name: 'Admin User' },
+        email: 'admin@ashoka.edu.in',
         logout: () => { window.location.href = '/'; }
       }),
       open: () => {},

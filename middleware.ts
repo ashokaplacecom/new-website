@@ -36,6 +36,8 @@ export async function middleware(req: NextRequest) {
             return NextResponse.next();
         }
 
+        const isCmsProxy = pathname.startsWith("/api/cms/proxy/");
+
         // API key validation for all other /api/* routes
         const apiKey = req.headers.get("x-api-key");
         const isWebExtension = apiKey === process.env.API_KEY_WEB_EXTENSION;
@@ -51,20 +53,27 @@ export async function middleware(req: NextRequest) {
             req.method === "POST";
 
         if (!apiKey || (!isWebExtension && !isFrontend)) {
-            // If No API key, check if it's a public GET or an internal authenticated POST
-            let authenticated = false;
-            if (isInternalSubmission) {
-                 // We'll verify the token here since we are in the API block
-                 const token = await getToken({
-                    req,
-                    secret: process.env.AUTH_SECRET!,
-                    secureCookie: process.env.NODE_ENV === "production",
-                    salt: process.env.NODE_ENV === "production" ? "__Secure-authjs.session-token" : "authjs.session-token",
-                });
-                if (token) authenticated = true;
+            // Check session status for internal/CMS routes
+            const token = await getToken({
+                req,
+                secret: process.env.AUTH_SECRET!,
+                secureCookie: process.env.NODE_ENV === "production",
+                salt: process.env.NODE_ENV === "production" ? "__Secure-authjs.session-token" : "authjs.session-token",
+            });
+
+            if (isCmsProxy) {
+                if (!token?.isAdmin) {
+                    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+                }
+                // Allow through to route handler
+                return NextResponse.next();
             }
 
-            if (!(isPublicGet && isAllowedOrigin) && !authenticated) {
+            if (!token && !isPublicGet) {
+                return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+            }
+
+            if (isPublicGet && !isAllowedOrigin) {
                 return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
             }
         }
