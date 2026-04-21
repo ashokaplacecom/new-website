@@ -39,11 +39,32 @@ async function handleRequest(req: NextRequest, params: { path: string[] }) {
         return NextResponse.json({ error: 'GITHUB_TOKEN not configured on server' }, { status: 500 });
     }
 
-    // 2. Resolve the GitHub API URL
-    // CMS sends: /api/cms/proxy/github/repos/owner/repo/contents/...
-    // We transform it into the real GitHub API call using params.path
+    // 2. Handle internal Git Gateway endpoints
     const originalUrl = new URL(req.url);
     const apiPath = '/' + params.path.join('/');
+
+    // Decap CMS checks /settings and /user on the gateway before starting
+    if (apiPath === '/settings') {
+        return NextResponse.json({
+            github_enabled: true,
+            github_owner: 'ashokaplacecom',
+            github_repo: 'new-website'
+        });
+    }
+
+    if (apiPath === '/user') {
+        return NextResponse.json({
+            id: session.user.id,
+            email: session.user.email,
+            name: session.user.name,
+            avatar_url: session.user.image,
+            roles: ['admin']
+        });
+    }
+
+    // 3. Resolve the GitHub API URL
+    // CMS sends: /api/cms/proxy/github/repos/owner/repo/contents/...
+    // We transform it into the real GitHub API call using params.path
     
     // Decap CMS might prefix with /github/
     const targetPath = apiPath.startsWith('/github') ? apiPath.replace('/github', '') : apiPath;
