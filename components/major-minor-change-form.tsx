@@ -18,6 +18,8 @@ import { cn } from "@/lib/utils";
 import { OtpInput } from "@/components/ui/otp-input";
 import { Button } from "@/components/ui/button";
 
+import { generateOtpAction, verifyOtpAndCreateMajorMinorAction } from "@/app/(pages)/toolbox/major-minor-change/actions";
+
 /* ─── Schemas ─── */
 const emailSchema = z.object({
     email: z
@@ -61,8 +63,7 @@ const stepMeta = [
     },
 ];
 
-const MOCK_OTP = "1234";
-const RESEND_COOLDOWN = 20;
+const RESEND_COOLDOWN = 60; // 60s for real OTPs
 
 /* ─── Slide Variants ─── */
 const slideVariants = {
@@ -145,15 +146,15 @@ export function MajorMinorChangeForm() {
             setIsLoading(true);
             setApiError(null);
             try {
-                await new Promise((resolve) => setTimeout(resolve, 1500));
+                await generateOtpAction(values.email);
                 setEmail(values.email);
                 changeForm.setValue("email", values.email);
                 startResendTimer();
                 haptic("success");
                 goTo(1);
-            } catch {
+            } catch (err: any) {
                 haptic("error");
-                setApiError("Failed to send OTP. Please try again.");
+                setApiError(err.message || "Failed to send OTP. Please try again.");
             } finally {
                 setIsLoading(false);
             }
@@ -169,26 +170,19 @@ export function MajorMinorChangeForm() {
             // Clear any existing debounce
             if (debounceRef.current) clearTimeout(debounceRef.current);
 
-            debounceRef.current = setTimeout(async () => {
+            // We do not verify OTP here anymore because the backend expects OTP+Details at once.
+            // So we just advance to the next step.
+            debounceRef.current = setTimeout(() => {
                 setOtpVerifying(true);
                 setApiError(null);
-                try {
-                    await new Promise((resolve) => setTimeout(resolve, 1000));
-                    if (otp !== MOCK_OTP) {
-                        haptic("error");
-                        setApiError("Invalid OTP. Please try again.");
-                        setOtpVerifying(false);
-                        return;
-                    }
+                
+                // Pretend to verify so the user gets feedback that they can proceed
+                setTimeout(() => {
                     haptic("success");
                     setOtpVerifying(false);
                     goTo(2);
-                } catch {
-                    haptic("error");
-                    setApiError("Verification failed. Please try again.");
-                    setOtpVerifying(false);
-                }
-            }, 2000);
+                }, 500);
+            }, 500);
         },
         [goTo, haptic]
     );
@@ -200,30 +194,45 @@ export function MajorMinorChangeForm() {
             setIsLoading(true);
             setApiError(null);
             try {
-                await new Promise((resolve) => setTimeout(resolve, 1500));
-                console.log("Change request submitted:", values);
+                await verifyOtpAndCreateMajorMinorAction({
+                    email: values.email,
+                    otp: otpValue,
+                    ashokaId: values.ashokaId,
+                    currentMajor: values.currentMajor,
+                    currentMinor: values.currentMinor,
+                    prospectiveMajor: values.prospectiveMajor,
+                    prospectiveMinor: values.prospectiveMinor,
+                });
+                
                 haptic("success");
                 setSuccessMessage(
                     "Your major/minor change request has been submitted successfully. You'll receive a confirmation email shortly."
                 );
                 setIsSuccess(true);
                 goTo(3);
-            } catch {
+            } catch (err: any) {
                 haptic("error");
-                setApiError("Failed to submit request. Please try again.");
+                setApiError(err.message || "Failed to submit request. Please try again.");
             } finally {
                 setIsLoading(false);
             }
         },
-        [goTo, haptic]
+        [otpValue, goTo, haptic]
     );
 
     /* ── Resend OTP ── */
-    const handleResend = useCallback(() => {
-        if (resendTimer > 0) return;
+    const handleResend = useCallback(async () => {
+        if (resendTimer > 0 || !email) return;
         haptic("selection");
-        startResendTimer();
-    }, [resendTimer, startResendTimer, haptic]);
+        try {
+            await generateOtpAction(email);
+            startResendTimer();
+            haptic("success");
+        } catch (err: any) {
+            haptic("error");
+            setApiError(err.message || "Failed to resend OTP.");
+        }
+    }, [resendTimer, email, startResendTimer, haptic]);
 
     /* ── Subscribe to formState for reactivity ── */
     const emailErrors = emailForm.formState.errors;
