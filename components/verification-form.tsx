@@ -19,6 +19,8 @@ import { cn } from "@/lib/utils";
 import { OtpInput } from "@/components/ui/otp-input";
 import { Button } from "@/components/ui/button";
 
+import { generateOtpAction, verifyOtpAndCreateVerificationAction } from "@/app/(pages)/toolbox/verifications/actions";
+
 /* ─── Schemas ─── */
 const emailSchema = z.object({
     email: z
@@ -66,8 +68,7 @@ const stepMeta = [
 ];
 
 /* ─── Constants ─── */
-const MOCK_OTP = "1234";
-const RESEND_COOLDOWN = 20;
+const RESEND_COOLDOWN = 60; // 60s for real OTPs
 
 /* ─── Slide Variants ─── */
 const slideVariants = {
@@ -146,16 +147,14 @@ export function VerificationForm() {
             setIsLoading(true);
             setApiError(null);
             try {
-                // Mock API call
-                await new Promise((resolve) => setTimeout(resolve, 1500));
-                // Simulate success (could also simulate error)
+                await generateOtpAction(values.email);
                 setEmail(values.email);
                 startResendTimer();
                 haptic("success");
                 goTo(1);
-            } catch {
+            } catch (err: any) {
                 haptic("error");
-                setApiError("Failed to send OTP. Please try again.");
+                setApiError(err.message || "Failed to send OTP. Please try again.");
             } finally {
                 setIsLoading(false);
             }
@@ -170,26 +169,27 @@ export function VerificationForm() {
             setIsLoading(true);
             setApiError(null);
             try {
-                await new Promise((resolve) => setTimeout(resolve, 1000));
-                if (values.otp !== MOCK_OTP) {
-                    haptic("error");
-                    setApiError("Invalid OTP. Please try again.");
-                    return;
-                }
+                await verifyOtpAndCreateVerificationAction({
+                    email,
+                    otp: values.otp,
+                    message: values.message,
+                    isEmergency: false,
+                });
+                
                 haptic("success");
                 setSuccessMessage(
                     "Your verification request has been submitted successfully."
                 );
                 setIsSuccess(true);
                 goTo(3);
-            } catch {
+            } catch (err: any) {
                 haptic("error");
-                setApiError("Verification failed. Please try again.");
+                setApiError(err.message || "Verification failed. Please try again.");
             } finally {
                 setIsLoading(false);
             }
         },
-        [goTo, haptic]
+        [email, goTo, haptic]
     );
 
     /* ── Step 2: Emergency submit ── */
@@ -199,35 +199,44 @@ export function VerificationForm() {
             setIsLoading(true);
             setApiError(null);
             try {
-                await new Promise((resolve) => setTimeout(resolve, 1000));
-                if (values.otp !== MOCK_OTP) {
-                    haptic("error");
-                    setApiError("Invalid OTP. Please try again.");
-                    return;
-                }
+                const fullMessage = `Company: ${values.company}\nReason: ${values.reason}`;
+                
+                await verifyOtpAndCreateVerificationAction({
+                    email,
+                    otp: values.otp,
+                    message: fullMessage,
+                    isEmergency: true,
+                });
+                
                 haptic("success");
                 setSuccessMessage(
                     "Your emergency verification request has been submitted. You will be contacted shortly."
                 );
                 setIsSuccess(true);
                 goTo(3);
-            } catch {
+            } catch (err: any) {
                 haptic("error");
-                setApiError("Emergency request failed. Please try again.");
+                setApiError(err.message || "Emergency request failed. Please try again.");
             } finally {
                 setIsLoading(false);
             }
         },
-        [goTo, haptic]
+        [email, goTo, haptic]
     );
 
     /* ── Resend OTP ── */
-    const handleResend = useCallback(() => {
-        if (resendTimer > 0) return;
+    const handleResend = useCallback(async () => {
+        if (resendTimer > 0 || !email) return;
         haptic("selection");
-        startResendTimer();
-        // Mock resend
-    }, [resendTimer, startResendTimer, haptic]);
+        try {
+            await generateOtpAction(email);
+            startResendTimer();
+            haptic("success");
+        } catch (err: any) {
+            haptic("error");
+            setApiError(err.message || "Failed to resend OTP.");
+        }
+    }, [resendTimer, email, startResendTimer, haptic]);
 
     /* ── Subscribe to formState so useMemo re-evaluates on validation ── */
     const emailErrors = emailForm.formState.errors;

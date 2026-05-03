@@ -109,6 +109,12 @@ function HeroBlock({ section }: { section: HeroSection }) {
 
 function StatsBlock({ section }: { section: StatsSection }) {
     const cols = section.columns ?? Math.min(section.items.length, 4);
+    const gridClass = {
+        1: "grid-cols-1",
+        2: "grid-cols-1 sm:grid-cols-2",
+        3: "grid-cols-1 sm:grid-cols-2 md:grid-cols-3",
+        4: "grid-cols-2 sm:grid-cols-2 md:grid-cols-4",
+    }[cols] ?? "grid-cols-2 sm:grid-cols-2 md:grid-cols-4";
     return (
         <section className={cn("py-8", section.className)}>
             {section.heading && (
@@ -116,10 +122,7 @@ function StatsBlock({ section }: { section: StatsSection }) {
                     {section.heading}
                 </h2>
             )}
-            <div
-                className="grid grid-cols-2 gap-6"
-                style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
-            >
+            <div className={cn("grid gap-6", gridClass)}>
                 {section.items.map((item, i) => (
                     <div
                         key={i}
@@ -142,6 +145,12 @@ function StatsBlock({ section }: { section: StatsSection }) {
 
 function CardsBlock({ section }: { section: CardsSection }) {
     const cols = section.columns ?? 2;
+    const gridClass = {
+        1: "grid-cols-1",
+        2: "grid-cols-1 sm:grid-cols-2",
+        3: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
+        4: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4",
+    }[cols] ?? "grid-cols-1 sm:grid-cols-2";
     return (
         <section className={cn("py-8", section.className)}>
             {section.heading && (
@@ -149,10 +158,7 @@ function CardsBlock({ section }: { section: CardsSection }) {
                     {section.heading}
                 </h2>
             )}
-            <div
-                className="grid grid-cols-1 gap-6"
-                style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
-            >
+            <div className={cn("grid gap-6", gridClass)}>
                 {section.items.map((item, i) => (
                     <div
                         key={i}

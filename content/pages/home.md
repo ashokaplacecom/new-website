@@ -58,13 +58,13 @@ sections:
 ---
 ## About Us
 
-The **Placement Committee** of Ashoka University is a student-run body dedicated to facilitating career opportunities for the graduating class. We partner closely with the Office of Career Services to ensure every student — across disciplines — has access to meaningful, high-quality opportunities. This shit is quite need to use. Clearly ain't working. 
+The **Placement Committee** at Ashoka University is a dedicated, student-led body functioning under the Career Development Office. Anchored in professionalism and efficient processes, the Committee works to uphold Ashoka’s eminence as a premier liberal arts institution by facilitating meaningful engagement between leading organizations and a highly capable, diverse student body. With a strong focus on quality, consistency, and integrity, we aim to ensure that every stage of the recruitment process reflects the University’s standards of excellence.
 
-We believe that a great education doesn't end at campus gates. Our work bridges the classroom and the boardroom: whether that means crafting the perfect resume, preparing for a case interview, or landing a role at a dream company. 
+Our work extends far beyond coordination and is deeply invested in preparing students to meet the evolving demands of the professional world through structured, end-to-end support. This includes rigorous CV screening, personalised mentoring, and targeted training initiatives such as mock interviews, expert-led resume sessions, group discussions, and domain-specific preparation. In addition, the Committee also develops comprehensive resources, including casebooks and industry guides, while equipping students with insights into market trends and organisational expectations.
 
-## Our Approach
+Ashoka University’s recruitment ecosystem continues to grow in both scale and stature, attracting leading organisations such as McKinsey, Deloitte, BCG, Accenture, alongside firms across consulting, finance, healthtech, Data and development, public policy, media, and startups. The Placement Committee plays a central role in maintaining this ecosystem by seamlessly coordinating recruitment processes and fostering long-term partnerships with recruiters. These efforts translate into a wide spectrum of opportunities for students, including placements and internships, ensuring strong alignment between student aspirations and recruiter requirements.
 
-We operate as a professional bridge between **recruiters** and **students**. Our team manages outreach to companies, coordinates pre-placement talks and interview schedules, and provides end-to-end support throughout the recruitment cycle — with a commitment to transparency, fairness, and student-first thinking. Ibrahim is dumb.
+We are also guided by a commitment to inclusivity and continuous improvement. The Committee undertakes a range of initiatives aimed at maximising student outcomes and strengthening stakeholder relationships. From expanding recruiter outreach to enabling inclusive hiring practices and driving strategic engagement campaigns, we remain focused on delivering a recruitment experience that is both impactful and adaptive. Through our sustained efforts, we continue to empower Ashokans to transition confidently into successful professional careers.
 
 ## Get In Touch
 

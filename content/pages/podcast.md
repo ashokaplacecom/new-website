@@ -1,8 +1,7 @@
 ---
-title: "PlaceCom Podcast"
+title: "Grad2Guide"
 description: "Conversations about careers, ambition, and life after Ashoka."
 ---
 
-Tune in to candid conversations with Ashoka alumni, industry professionals, and career coaches. Each episode dives into a different career path — unpacking what it really takes to get there, what the work looks like, and how your Ashoka education can be your biggest asset.
-
-New episodes drop every few weeks. Subscribe on Spotify so you never miss one.
+Welcome to your roadmap for life beyond the classroom, where aspirations meet experience. An initiative by the Placement Committee and the Career Development Office, Grad2 Guide bridges the gap between campus life and career realities. We host candid podcast conversations with alumni, entrepreneurs, industry leaders, professors, and placed peers to offer grounded advice on internships, placements, and professional growth.
+Season 1 is brought to you in collaboration with the InfoEdge Centre for Entrepreneurship, bringing entrepreneurial thinking and industry expertise directly to our community.

@@ -2,16 +2,16 @@
   "emails": [
     {
       "label": "General Enquiries",
-      "address": "placements@ashoka.edu.in"
+      "address": "connect.placecom@ashoka.edu.in"
     },
     {
-      "label": "Student Support",
-      "address": "soham.tulsyan_ug2023@ashoka.edu.in"
+      "label": "Career Development Office",
+      "address": "connect.cdo@ashoka.edu.in"
     }
   ],
   "phones": [
     {
-      "label": "Office",
+      "label": "CDO Office",
       "number": "+91 11 4130 4500"
     }
   ]

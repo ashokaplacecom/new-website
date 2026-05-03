@@ -23,7 +23,7 @@ export const FloatingDock = ({
   desktopClassName,
   mobileClassName,
 }: {
-  items: { title: string; icon: React.ReactNode; href: string; isActive?: boolean }[];
+  items: { title: string; icon: React.ReactNode; href: string; isActive?: boolean; onNavigate?: () => void }[];
   desktopClassName?: string;
   mobileClassName?: string;
 }) => {
@@ -36,7 +36,7 @@ const FloatingDockDesktop = ({
   items,
   className,
 }: {
-  items: { title: string; icon: React.ReactNode; href: string; isActive?: boolean }[];
+  items: { title: string; icon: React.ReactNode; href: string; isActive?: boolean; onNavigate?: () => void }[];
   className?: string;
 }) => {
   let mouseX = useMotionValue(Infinity);
@@ -66,12 +66,14 @@ function IconContainer({
   icon,
   href,
   isActive,
+  onNavigate,
 }: {
   mouseX: MotionValue;
   title: string;
   icon: React.ReactNode;
   href: string;
   isActive?: boolean;
+  onNavigate?: () => void;
 }) {
   let ref = useRef<HTMLDivElement>(null);
 
@@ -137,7 +139,7 @@ function IconContainer({
   const [hovered, setHovered] = useState(false);
 
   return (
-    <a href={href}>
+    <a href={href} onClick={() => onNavigate?.()}>
       <motion.div
         ref={ref}
         style={{ width, height }}
@@ -149,7 +151,7 @@ function IconContainer({
           "shadow-[0_4px_12px_rgba(0,0,0,0.1)]",
           "backdrop-blur-md",
           isActive
-            ? "bg-primary/90 text-white shadow-lg"
+            ? "bg-primary text-white shadow-lg"
             : "bg-white/10 dark:bg-white/5 text-neutral-500 dark:text-neutral-300 hover:bg-white/20 dark:hover:bg-white/10"
         )}
       >

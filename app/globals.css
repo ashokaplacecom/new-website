@@ -243,8 +243,9 @@ body {
 
   body {
     @apply bg-background text-foreground;
-    /* Prevent layout shift when Radix UI (Select/Dialog) locks scroll:
+    /* Prevent layout shift when Radix UI (Select/Dialog/Sheet) locks scroll:
        Keeps scrollbar track always reserved so removing it doesn't shift content. */
     overflow-y: scroll;
+    scrollbar-gutter: stable;
   }
 }

@@ -1,9 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { motion, LayoutGroup } from "motion/react";
 import { useWebHaptics } from "web-haptics/react";
 import {
     BadgeCheck,
@@ -63,6 +61,7 @@ const dockItems = [
 export function ToolboxDock() {
     const pathname = usePathname();
     const { data: session } = useSession();
+    const haptic = useWebHaptics();
 
     const visibleItems = session?.user?.isPoc
         ? dockItems
@@ -70,7 +69,8 @@ export function ToolboxDock() {
 
     const links = visibleItems.map(item => ({
         ...item,
-        isActive: pathname === item.href
+        isActive: pathname === item.href,
+        onNavigate: () => haptic.trigger("selection"),
     }));
 
     return (
