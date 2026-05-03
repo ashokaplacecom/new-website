@@ -39,7 +39,7 @@ export interface Opportunity {
 
 // ─── Category badge colours ───────────────────────────────────────────────────
 
-const categoryColours: Record<Opportunity["category"], string> = {
+const categoryColours: Record<string, string> = {
     Internship: "bg-blue-500/10 text-blue-500 border-blue-500/20",
     "Full-Time": "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
     Research: "bg-violet-500/10 text-violet-500 border-violet-500/20",
@@ -65,7 +65,7 @@ function MetaItem({ icon: Icon, label, value }: { icon: React.ElementType; label
 function DefaultLogo({ company }: { company: string }) {
     return (
         <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-bold text-sm shrink-0">
-            {company.charAt(0).toUpperCase()}
+            {(company || "?").charAt(0).toUpperCase()}
         </div>
     );
 }
@@ -149,8 +149,8 @@ export default function OpportunityListing({ opportunities, className }: Opportu
                                         <span className="font-semibold text-foreground text-base leading-tight">
                                             {activeItem.name}
                                         </span>
-                                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full border text-[10px] font-semibold uppercase tracking-wide ${categoryColours[activeItem.category]}`}>
-                                            {activeItem.category}
+                                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full border text-[10px] font-semibold uppercase tracking-wide ${categoryColours[activeItem.category] || "bg-muted text-muted-foreground border-border"}`}>
+                                            {activeItem.category || "General"}
                                         </span>
                                     </div>
                                     <p className="text-sm text-muted-foreground mt-0.5">
@@ -186,7 +186,7 @@ export default function OpportunityListing({ opportunities, className }: Opportu
                                         <Wrench className="w-3.5 h-3.5 mt-0.5 shrink-0 text-muted-foreground/60" />
                                         <span>
                                             <span className="font-medium text-foreground/50 mr-1">Skills:</span>
-                                            <span className="text-foreground/80">{activeItem.skills.join(", ")}</span>
+                                            <span className="text-foreground/80">{(activeItem.skills ?? []).join(", ")}</span>
                                         </span>
                                     </p>
                                 </div>
@@ -244,8 +244,8 @@ export default function OpportunityListing({ opportunities, className }: Opportu
                             <div className="flex items-start justify-between gap-2 flex-wrap">
                                 <div className="flex items-center gap-2 flex-wrap">
                                     <span className="font-semibold text-sm text-foreground">{opp.name}</span>
-                                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full border text-[10px] font-semibold uppercase tracking-wide ${categoryColours[opp.category]}`}>
-                                        {opp.category}
+                                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full border text-[10px] font-semibold uppercase tracking-wide ${categoryColours[opp.category] || "bg-muted text-muted-foreground border-border"}`}>
+                                        {opp.category || "General"}
                                     </span>
                                 </div>
                                 <ChevronRight className="w-4 h-4 text-muted-foreground/50 group-hover:text-muted-foreground transition-colors shrink-0 mt-0.5" />
@@ -262,9 +262,9 @@ export default function OpportunityListing({ opportunities, className }: Opportu
                                 <span className="hidden sm:contents"><MetaItem icon={Clock} label="Duration" value={opp.duration} /></span>
                             </div>
 
-                            {/* Skill tags */}
+                             {/* Skill tags */}
                             <div className="hidden sm:flex flex-wrap gap-1.5 mt-2.5">
-                                {opp.skills.slice(0, 4).map((skill) => (
+                                {(opp.skills ?? []).slice(0, 4).map((skill) => (
                                     <span
                                         key={skill}
                                         className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-muted/60 text-muted-foreground text-[11px] font-medium border border-border/40"
@@ -273,9 +273,9 @@ export default function OpportunityListing({ opportunities, className }: Opportu
                                         {skill}
                                     </span>
                                 ))}
-                                {opp.skills.length > 4 && (
+                                {(opp.skills ?? []).length > 4 && (
                                     <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-muted/40 text-muted-foreground text-[11px] border border-border/30">
-                                        +{opp.skills.length - 4} more
+                                        +{(opp.skills ?? []).length - 4} more
                                     </span>
                                 )}
                             </div>

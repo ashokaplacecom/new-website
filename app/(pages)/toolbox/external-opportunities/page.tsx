@@ -6,9 +6,24 @@ export const metadata = { title: "External Opportunities – Toolbox" };
 
 export default async function ExternalOpportunitiesPage() {
     const res = await fetchExternalOpportunitiesAction();
-    const opportunities = (res && res.success && Array.isArray(res.opportunities)) 
+    const rawOpportunities = (res && res.success && Array.isArray(res.opportunities)) 
         ? res.opportunities 
         : [];
+
+    const opportunities = rawOpportunities.map((item: any) => ({
+        id: item.id?.toString() || Math.random().toString(),
+        name: item.title || "Untitled Opportunity",
+        company: item.recruiting_body || "Unknown Company",
+        role: item.role || "Not Specified",
+        category: item.category || "General",
+        deadline: item.deadline || "TBD",
+        compensation: item.compensation || "Not Specified",
+        duration: item.duration || "Not Specified",
+        eligibility: item.eligibility || "Not Specified",
+        skills: Array.isArray(item.skills) ? item.skills : [],
+        jdUrl: item.jd_link || null,
+        applyUrl: item.apply_url || null,
+    }));
 
     return (
         <div className="container max-w-5xl py-10 px-4 mx-auto font-[family-name:var(--font-geist-sans)]">
