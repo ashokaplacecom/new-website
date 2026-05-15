@@ -2,6 +2,35 @@ import NextAuth, { DefaultSession } from "next-auth";
 import Google from "next-auth/providers/google";
 import { SupabaseAdapter } from "@auth/supabase-adapter";
 import { createAdminClient } from "@/lib/supabase/server";
+import fs from "fs";
+import path from "path";
+
+// Function to load Google credentials from JSON if env vars are missing
+const getGoogleCredentials = () => {
+  const envId = process.env.AUTH_GOOGLE_ID;
+  const envSecret = process.env.AUTH_GOOGLE_SECRET;
+
+  if (envId && envSecret) {
+    return { clientId: envId, clientSecret: envSecret };
+  }
+
+  try {
+    const jsonPath = path.join(process.cwd(), "client_secret.json");
+    if (fs.existsSync(jsonPath)) {
+      const content = JSON.parse(fs.readFileSync(jsonPath, "utf8"));
+      return {
+        clientId: content.web.client_id,
+        clientSecret: content.web.client_secret,
+      };
+    }
+  } catch (error) {
+    console.error("[Auth] Failed to load client_secret.json:", error);
+  }
+
+  return { clientId: envId!, clientSecret: envSecret! };
+};
+
+const googleCredentials = getGoogleCredentials();
 
 const TEN_DAYS_SECONDS = 10 * 24 * 60 * 60; // 864_000s
 
@@ -29,8 +58,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   trustHost: true,
   providers: [
     Google({
-      clientId: process.env.AUTH_GOOGLE_ID!,
-      clientSecret: process.env.AUTH_GOOGLE_SECRET!,
+      clientId: googleCredentials.clientId,
+      clientSecret: googleCredentials.clientSecret,
     }),
   ],
 
