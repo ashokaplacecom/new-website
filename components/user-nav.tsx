@@ -35,12 +35,12 @@ export function UserNav({ session }: UserNavProps) {
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
         <button
-          className="relative flex items-center gap-2 rounded-full ring-2 ring-primary/20 hover:ring-primary/60 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          className="relative flex items-center gap-2 rounded-full ring-2 ring-primary/10 hover:ring-primary/40 transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary hover:scale-105 active:scale-95"
           aria-label="User menu"
         >
-          <Avatar className="h-8 w-8 cursor-pointer">
+          <Avatar className="h-8 w-8 cursor-pointer border border-border/50">
             <AvatarImage src={user?.image ?? undefined} alt={user?.name ?? "User"} />
-            <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
+            <AvatarFallback className="bg-primary/5 text-primary text-xs font-bold">
               {initials}
             </AvatarFallback>
           </Avatar>
@@ -60,7 +60,7 @@ export function UserNav({ session }: UserNavProps) {
         <DropdownMenuItem asChild>
           <Link href="/toolbox" className="flex items-center gap-2 cursor-pointer">
             <Wrench className="h-4 w-4" />
-            <span>Toolbox</span>
+            <span>Duperset</span>
           </Link>
         </DropdownMenuItem>
 

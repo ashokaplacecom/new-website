@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Footer from "@/components/shadcn-studio/blocks/footer-component-01/footer-component-01";
 import { Toaster } from "@/components/ui/sonner";
 import { SessionProvider } from "next-auth/react";
+import { auth } from "@/auth";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,17 +23,19 @@ export const metadata: Metadata = {
   description: "The official website of the Placement Committee of Ashoka University",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await auth();
+
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased px-6 py-3`}
       >
-        <SessionProvider>
+        <SessionProvider session={session}>
           <TooltipProvider>
             <Navbar1 />
             {children}

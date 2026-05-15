@@ -11,6 +11,10 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { NoiseBackground } from "@/components/ui/noise-background";
+import { TextAnimate } from "@/components/ui/text-animate";
+
+
 
 import {
   Accordion,
@@ -127,9 +131,9 @@ const Navbar1 = ({
                 className="max-h-8 dark:invert"
                 alt={logo.alt}
               />
-              <span className="text-lg font-semibold tracking-tighter">
+              <TextAnimate animation="blurIn" by="character" className="text-lg font-bold tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/60">
                 {logo.title}
-              </span>
+              </TextAnimate>
             </a>
             <div className="flex items-center">
               <NavigationMenu>
@@ -149,13 +153,19 @@ const Navbar1 = ({
               <div className="h-8 w-8 rounded-full bg-muted animate-pulse" />
             ) : isAuthenticated && session ? (
               <>
-                <Button
-                  size="sm"
-                  className="bg-primary/5 hover:bg-primary/10 text-primary/80 border-primary/20 border shadow-sm"
-                  asChild
-                >
-                  <Link href="/toolbox">Toolbox</Link>
-                </Button>
+                <Link href="/toolbox">
+                  <NoiseBackground
+                    containerClassName="h-9 rounded-full p-0 px-5 shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all duration-300 cursor-pointer border border-primary-foreground/10 bg-primary dark:bg-primary group hover:scale-[1.02] active:scale-[0.98]"
+                    className="flex h-full items-center justify-center"
+                    gradientColors={["var(--chart-1)", "var(--chart-2)", "var(--chart-5)"]}
+                    noiseIntensity={0.15}
+                  >
+                    <span className="text-sm font-bold tracking-tight text-primary-foreground drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]">
+                      Duperset
+                    </span>
+                  </NoiseBackground>
+                </Link>
+
                 <UserNav session={session} />
               </>
             ) : (
@@ -220,12 +230,19 @@ const Navbar1 = ({
 
                     <div className="flex flex-col gap-3">
                       {isAuthenticated ? (
-                        <Button
-                          className="bg-primary/5 text-primary/80 border-primary/20 border shadow-sm"
-                          asChild
-                        >
-                          <Link href="/toolbox">Enter Toolbox</Link>
-                        </Button>
+                        <Link href="/toolbox">
+                          <NoiseBackground
+                            containerClassName="h-11 rounded-full p-0 px-6 shadow-xl shadow-primary/20 hover:shadow-primary/30 transition-all duration-300 cursor-pointer border border-primary-foreground/10 bg-primary dark:bg-primary group hover:scale-[1.02] active:scale-[0.98]"
+                            className="flex h-full items-center justify-center"
+                            gradientColors={["var(--chart-1)", "var(--chart-2)", "var(--chart-5)"]}
+                            noiseIntensity={0.15}
+                          >
+                            <span className="text-base font-bold tracking-tight text-primary-foreground drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
+                              Enter Duperset
+                            </span>
+                          </NoiseBackground>
+                        </Link>
+
                       ) : (
                         <Button
                           className="gap-2"

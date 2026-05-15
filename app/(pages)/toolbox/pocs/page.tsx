@@ -1,4 +1,7 @@
 "use client";
+import { motion } from "motion/react";
+import { TextAnimate } from "@/components/ui/text-animate";
+
 
 import React, { useState, useCallback, useMemo, useEffect } from "react";
 import { useSession } from "next-auth/react";
@@ -431,7 +434,9 @@ export default function POCDashboard() {
                     <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 text-primary flex-shrink-0">
                         <Users className="w-5 h-5" />
                     </div>
-                    <h1 className="text-2xl font-semibold tracking-tight">POC Dashboard</h1>
+                    <TextAnimate animation="slideUp" by="character" className="text-2xl font-bold tracking-tight">
+                        POC Dashboard
+                    </TextAnimate>
                 </div>
                 <Button
                     variant="outline"
@@ -629,9 +634,14 @@ export default function POCDashboard() {
                 </Table>
             </div>
 
-            <p className="text-center text-[11px] text-muted-foreground/40 mt-6">
+            <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+                className="text-center text-[11px] text-muted-foreground/40 mt-6"
+            >
                 Only pending and emergency requests are shown. Approved / rejected entries are removed from this view.
-            </p>
+            </motion.p>
         </div>
     );
 }
