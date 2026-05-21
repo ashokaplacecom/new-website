@@ -51,6 +51,7 @@ declare module "next-auth/jwt" {
     isPoc?: boolean;
     pocId?: number;
     isAdmin?: boolean;
+    googlePicture?: string;
   }
 }
 
@@ -100,6 +101,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
       if (profile?.picture) {
         token.picture = profile.picture as string;
+        token.googlePicture = profile.picture as string;
       }
 
       // Fetch roles if not already determined in the token
@@ -156,7 +158,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async session({ session, token }) {
       if (session.user) {
         if (token.userId) session.user.id = token.userId as string;
-        if (token.picture) session.user.image = token.picture as string;
+        
+        // Prioritize googlePicture which is not overwritten by database user.image checks
+        if (token.googlePicture) {
+          session.user.image = token.googlePicture as string;
+        } else if (token.picture) {
+          session.user.image = token.picture as string;
+        }
+
         session.user.isPoc = token.isPoc ?? false;
         if (token.pocId !== undefined) session.user.pocId = token.pocId as number;
         session.user.isAdmin = token.isAdmin ?? false;

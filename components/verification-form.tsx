@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils";
 import { OtpInput } from "@/components/ui/otp-input";
 import { Button } from "@/components/ui/button";
 
-import { generateOtpAction, verifyOtpAndCreateVerificationAction } from "@/app/(pages)/toolbox/verifications/actions";
+import { generateOtpAction, verifyOtpAndCreateVerificationAction } from "@/app/(pages)/duperset/verifications/actions";
 
 /* ─── Schemas ─── */
 const emailSchema = z.object({
@@ -175,7 +175,7 @@ export function VerificationForm() {
                     message: values.message,
                     isEmergency: false,
                 });
-                
+
                 haptic("success");
                 setSuccessMessage(
                     "Your verification request has been submitted successfully."
@@ -200,14 +200,14 @@ export function VerificationForm() {
             setApiError(null);
             try {
                 const fullMessage = `Company: ${values.company}\nReason: ${values.reason}`;
-                
+
                 await verifyOtpAndCreateVerificationAction({
                     email,
                     otp: values.otp,
                     message: fullMessage,
                     isEmergency: true,
                 });
-                
+
                 haptic("success");
                 setSuccessMessage(
                     "Your emergency verification request has been submitted. You will be contacted shortly."

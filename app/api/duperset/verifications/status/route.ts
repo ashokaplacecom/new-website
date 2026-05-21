@@ -4,7 +4,7 @@ import { getLatestRequest } from '@/lib/supabase/db/requests'
 
 export async function POST(req: NextRequest) {
     try {
-        let body: { email?: string }
+        let body: { email?: string; include_created_at?: boolean; created_at?: boolean }
         try {
             body = await req.json()
         } catch {
@@ -44,11 +44,15 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ success: true, data: null })
         }
 
-        const data = {
+        const data: any = {
             raised_at: request.request_at,
             modified_at: request.modified_at || null,
             modified_by: request.modified_by || null,
             status: request.status
+        }
+
+        if (body.include_created_at || body.created_at) {
+            data.created_at = request.request_at
         }
 
         return NextResponse.json({ success: true, data })

@@ -37,6 +37,7 @@
   --font-sans: Noto Serif Georgian, ui-serif, serif;
   --font-serif: Playfair Display, ui-serif, serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --font-apple-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", var(--font-geist-sans), "Segoe UI", Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif;
   --radius: 0.6rem;
   --shadow-x: 0;
   --shadow-y: 1px;
@@ -97,6 +98,7 @@
   --font-sans: Noto Serif Georgian, ui-serif, serif;
   --font-serif: Playfair Display, ui-serif, serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --font-apple-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", var(--font-geist-sans), "Segoe UI", Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif;
   --radius: 0.6rem;
   --shadow-x: 0;
   --shadow-y: 1px;
@@ -155,6 +157,7 @@
   --font-sans: Noto Serif Georgian, ui-serif, serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   --font-serif: Playfair Display, ui-serif, serif;
+  --font-apple-sans: var(--font-apple-sans);
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);

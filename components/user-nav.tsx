@@ -39,7 +39,7 @@ export function UserNav({ session }: UserNavProps) {
           aria-label="User menu"
         >
           <Avatar className="h-8 w-8 cursor-pointer border border-border/50">
-            <AvatarImage src={user?.image ?? undefined} alt={user?.name ?? "User"} />
+            <AvatarImage src={user?.image ?? undefined} alt={user?.name ?? "User"} referrerPolicy="no-referrer" />
             <AvatarFallback className="bg-primary/5 text-primary text-xs font-bold">
               {initials}
             </AvatarFallback>

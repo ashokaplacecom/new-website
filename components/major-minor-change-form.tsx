@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
 import { OtpInput } from "@/components/ui/otp-input";
 import { Button } from "@/components/ui/button";
 
-import { generateOtpAction, verifyOtpAndCreateMajorMinorAction } from "@/app/(pages)/toolbox/major-minor-change/actions";
+import { generateOtpAction, verifyOtpAndCreateMajorMinorAction } from "@/app/(pages)/duperset/major-minor-change/actions";
 
 /* ─── Schemas ─── */
 const emailSchema = z.object({
@@ -175,7 +175,7 @@ export function MajorMinorChangeForm() {
             debounceRef.current = setTimeout(() => {
                 setOtpVerifying(true);
                 setApiError(null);
-                
+
                 // Pretend to verify so the user gets feedback that they can proceed
                 setTimeout(() => {
                     haptic("success");
@@ -203,7 +203,7 @@ export function MajorMinorChangeForm() {
                     prospectiveMajor: values.prospectiveMajor,
                     prospectiveMinor: values.prospectiveMinor,
                 });
-                
+
                 haptic("success");
                 setSuccessMessage(
                     "Your major/minor change request has been submitted successfully. You'll receive a confirmation email shortly."

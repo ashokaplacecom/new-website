@@ -1,5 +1,4 @@
 import type { LucideIcon } from "lucide-react";
-import { TextAnimate } from "@/components/ui/text-animate";
 import { cn } from "@/lib/utils";
 
 
@@ -8,6 +7,8 @@ interface ToolboxPageShellProps {
     title: string;
     description: string;
     children?: React.ReactNode;
+    maxWidthClass?: string;
+    headerActions?: React.ReactNode;
 }
 
 export function ToolboxPageShell({
@@ -15,21 +16,28 @@ export function ToolboxPageShell({
     title,
     description,
     children,
+    maxWidthClass = "max-w-4xl",
+    headerActions,
 }: ToolboxPageShellProps) {
     return (
-        <div className="container max-w-4xl py-12 px-4 mx-auto">
-            <div className="flex flex-col gap-1 mb-10">
+        <div className={cn("container py-12 px-4 mx-auto", maxWidthClass)}>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-10 w-full">
                 <div className="flex items-center gap-4">
-                    <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-primary/10 text-primary shadow-sm border border-primary/5">
+                    <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-primary/10 text-primary shadow-sm border border-primary/5 flex-shrink-0">
                         <Icon className="w-6 h-6" />
                     </div>
                     <div className="flex flex-col">
-                        <TextAnimate animation="slideUp" by="character" className="text-3xl font-bold tracking-tight text-foreground">
+                        <h1 className="text-3xl font-semibold tracking-tight text-foreground font-apple-sans">
                             {title}
-                        </TextAnimate>
+                        </h1>
                         <p className="text-sm text-muted-foreground mt-1 max-w-lg leading-relaxed">{description}</p>
                     </div>
                 </div>
+                {headerActions && (
+                    <div className="flex items-center gap-3 self-end sm:self-auto">
+                        {headerActions}
+                    </div>
+                )}
             </div>
             <div className="relative">
                 {children ? (

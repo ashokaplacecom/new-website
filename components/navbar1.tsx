@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { signIn } from "next-auth/react";
 
+import { usePathname } from "next/navigation";
 import {
   Tooltip,
   TooltipContent,
@@ -117,6 +118,8 @@ const Navbar1 = ({
   const { data: session, status } = useSession();
   const isAuthenticated = status === "authenticated";
   const isLoading = status === "loading";
+  const pathname = usePathname();
+  const isInDuperset = pathname?.startsWith("/duperset") || pathname?.startsWith("/toolbox");
 
   return (
     <section className={cn("py-4", className)}>
@@ -131,7 +134,7 @@ const Navbar1 = ({
                 className="max-h-8 dark:invert"
                 alt={logo.alt}
               />
-              <TextAnimate animation="blurIn" by="character" className="text-lg font-bold tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/60">
+              <TextAnimate animation="blurIn" by="character" className="text-lg font-bold tracking-tighter bg-clip-text text-black bg-gradient-to-r from-primary to-primary/60">
                 {logo.title}
               </TextAnimate>
             </a>
@@ -153,18 +156,20 @@ const Navbar1 = ({
               <div className="h-8 w-8 rounded-full bg-muted animate-pulse" />
             ) : isAuthenticated && session ? (
               <>
-                <Link href="/toolbox">
-                  <NoiseBackground
-                    containerClassName="h-9 rounded-full p-0 px-5 shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all duration-300 cursor-pointer border border-primary-foreground/10 bg-primary dark:bg-primary group hover:scale-[1.02] active:scale-[0.98]"
-                    className="flex h-full items-center justify-center"
-                    gradientColors={["var(--chart-1)", "var(--chart-2)", "var(--chart-5)"]}
-                    noiseIntensity={0.15}
-                  >
-                    <span className="text-sm font-bold tracking-tight text-primary-foreground drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]">
-                      Duperset
-                    </span>
-                  </NoiseBackground>
-                </Link>
+                {!isInDuperset && (
+                  <Link href="/duperset">
+                    <NoiseBackground
+                      containerClassName="h-9 rounded-full p-0 px-5 shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all duration-300 cursor-pointer border border-primary-foreground/10 bg-primary dark:bg-primary group hover:scale-[1.02] active:scale-[0.98]"
+                      className="flex h-full items-center justify-center"
+                      gradientColors={["var(--chart-1)", "var(--chart-2)", "var(--chart-5)"]}
+                      noiseIntensity={0.15}
+                    >
+                      <span className="text-sm font-bold tracking-tight text-primary-foreground drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]">
+                        Duperset
+                      </span>
+                    </NoiseBackground>
+                  </Link>
+                )}
 
                 <UserNav session={session} />
               </>
@@ -228,33 +233,34 @@ const Navbar1 = ({
                       )}
                     </Accordion>
 
-                    <div className="flex flex-col gap-3">
-                      {isAuthenticated ? (
-                        <Link href="/toolbox">
-                          <NoiseBackground
-                            containerClassName="h-11 rounded-full p-0 px-6 shadow-xl shadow-primary/20 hover:shadow-primary/30 transition-all duration-300 cursor-pointer border border-primary-foreground/10 bg-primary dark:bg-primary group hover:scale-[1.02] active:scale-[0.98]"
-                            className="flex h-full items-center justify-center"
-                            gradientColors={["var(--chart-1)", "var(--chart-2)", "var(--chart-5)"]}
-                            noiseIntensity={0.15}
+                    {(!isAuthenticated || !isInDuperset) && (
+                      <div className="flex flex-col gap-3">
+                        {isAuthenticated ? (
+                          <Link href="/toolbox">
+                            <NoiseBackground
+                              containerClassName="h-11 rounded-full p-0 px-6 shadow-xl shadow-primary/20 hover:shadow-primary/30 transition-all duration-300 cursor-pointer border border-primary-foreground/10 bg-primary dark:bg-primary group hover:scale-[1.02] active:scale-[0.98]"
+                              className="flex h-full items-center justify-center"
+                              gradientColors={["var(--chart-1)", "var(--chart-2)", "var(--chart-5)"]}
+                              noiseIntensity={0.15}
+                            >
+                              <span className="text-base font-bold tracking-tight text-primary-foreground drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
+                                Enter Duperset
+                              </span>
+                            </NoiseBackground>
+                          </Link>
+                        ) : (
+                          <Button
+                            className="gap-2"
+                            onClick={() =>
+                              signIn("google", { callbackUrl: "/toolbox" })
+                            }
                           >
-                            <span className="text-base font-bold tracking-tight text-primary-foreground drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
-                              Enter Duperset
-                            </span>
-                          </NoiseBackground>
-                        </Link>
-
-                      ) : (
-                        <Button
-                          className="gap-2"
-                          onClick={() =>
-                            signIn("google", { callbackUrl: "/toolbox" })
-                          }
-                        >
-                          <LogIn className="h-4 w-4" />
-                          Sign in with Google
-                        </Button>
-                      )}
-                    </div>
+                            <LogIn className="h-4 w-4" />
+                            Sign in with Google
+                          </Button>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </SheetContent>
               </Sheet>
@@ -287,8 +293,8 @@ const renderMenuItem = (item: MenuItem, isAuthenticated: boolean) => {
   const tooltip = item.disabled
     ? item.tooltip
     : item.requiresAuth && !isAuthenticated
-    ? item.tooltip ?? "Sign in with your @ashoka.edu.in account to access this!"
-    : undefined;
+      ? item.tooltip ?? "Sign in with your @ashoka.edu.in account to access this!"
+      : undefined;
 
   const link = (
     <NavigationMenuLink
@@ -324,8 +330,8 @@ const renderMobileMenuItem = (item: MenuItem, isAuthenticated: boolean) => {
   const tooltip = item.disabled
     ? item.tooltip
     : item.requiresAuth && !isAuthenticated
-    ? item.tooltip ?? "Sign in with your @ashoka.edu.in account to access this!"
-    : undefined;
+      ? item.tooltip ?? "Sign in with your @ashoka.edu.in account to access this!"
+      : undefined;
 
   if (item.items) {
     return (

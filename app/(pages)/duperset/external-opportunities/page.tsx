@@ -1,9 +1,8 @@
 import { Briefcase, AlertCircle } from "lucide-react";
 import OpportunityListing from "@/components/external-opportunities/opportunity-listing";
 import { fetchExternalOpportunitiesAction } from "./actions";
-import { TextAnimate } from "@/components/ui/text-animate";
 import { motion } from "motion/react";
-
+import { ToolboxPageShell } from "@/components/toolbox-page-shell";
 
 export const metadata = { title: "External Opportunities – Toolbox" };
 
@@ -29,20 +28,12 @@ export default async function ExternalOpportunitiesPage() {
     }));
 
     return (
-        <div className="container max-w-5xl py-10 px-4 mx-auto font-[family-name:var(--font-geist-sans)]">
-            {/* Header */}
-            <div className="flex items-center gap-3 mb-2">
-                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 text-primary">
-                    <Briefcase className="w-5 h-5" />
-                </div>
-                <TextAnimate animation="slideUp" by="character" className="text-2xl font-bold tracking-tight">
-                    External Opportunities
-                </TextAnimate>
-            </div>
-            <p className="text-sm text-muted-foreground mb-8 ml-[52px]">
-                Browse internships, fellowships, and jobs curated for Ashoka students. Click any card to see full details.
-            </p>
-
+        <ToolboxPageShell
+            icon={Briefcase}
+            title="External Opportunities"
+            description="Browse internships, fellowships, and jobs curated for Ashoka students. Click any card to see full details."
+            maxWidthClass="max-w-5xl"
+        >
             {opportunities.length > 0 ? (
                 <OpportunityListing opportunities={opportunities} />
             ) : (
@@ -56,6 +47,6 @@ export default async function ExternalOpportunitiesPage() {
                     </p>
                 </div>
             )}
-        </div>
+        </ToolboxPageShell>
     );
 }

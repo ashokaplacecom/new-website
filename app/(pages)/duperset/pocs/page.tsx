@@ -1,6 +1,6 @@
 "use client";
 import { motion } from "motion/react";
-import { TextAnimate } from "@/components/ui/text-animate";
+import { ToolboxPageShell } from "@/components/toolbox-page-shell";
 
 
 import React, { useState, useCallback, useMemo, useEffect } from "react";
@@ -426,18 +426,12 @@ export default function POCDashboard() {
     };
 
     return (
-        <div className="container max-w-6xl py-10 px-4 mx-auto font-[family-name:var(--font-geist-sans)]">
-
-            {/* ── Header ────────────────────────────────────────────── */}
-            <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-3">
-                    <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 text-primary flex-shrink-0">
-                        <Users className="w-5 h-5" />
-                    </div>
-                    <TextAnimate animation="slideUp" by="character" className="text-2xl font-bold tracking-tight">
-                        POC Dashboard
-                    </TextAnimate>
-                </div>
+        <ToolboxPageShell
+            icon={Users}
+            title="POC Dashboard"
+            description="Review and respond to active student placement requests."
+            maxWidthClass="max-w-6xl"
+            headerActions={
                 <Button
                     variant="outline"
                     size="sm"
@@ -448,10 +442,8 @@ export default function POCDashboard() {
                     <RefreshCw className={cn("size-3.5", isRefreshing && "animate-spin")} />
                     {isRefreshing ? "Refreshing…" : "Refresh"}
                 </Button>
-            </div>
-            <p className="text-sm text-muted-foreground mb-8 ml-[52px]">
-                Review and respond to active student placement requests.
-            </p>
+            }
+        >
 
             {/* ── Metric Cards ──────────────────────────────────────── */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
@@ -642,6 +634,6 @@ export default function POCDashboard() {
             >
                 Only pending and emergency requests are shown. Approved / rejected entries are removed from this view.
             </motion.p>
-        </div>
+        </ToolboxPageShell>
     );
 }

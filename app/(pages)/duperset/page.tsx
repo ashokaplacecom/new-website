@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
 
 export default function ToolboxPage() {
-    redirect("/toolbox/verifications");
+    redirect("/duperset/verifications");
 }
