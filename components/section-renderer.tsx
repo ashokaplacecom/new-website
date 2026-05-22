@@ -8,7 +8,7 @@ import { TeamSectionBlock } from "@/components/team-section";
 interface SectionRendererProps {
     sections: Section[];
     /** The parsed markdown body — injected into "content" sections */
-    markdownContent?: React.ReactNode;
+    markdownContent?: React.ReactNode | Record<string, React.ReactNode>;
 }
 
 /**
@@ -21,7 +21,7 @@ interface SectionRendererProps {
 export function SectionRenderer({ sections, markdownContent }: SectionRendererProps) {
     const FULL_BLEED = new Set(["about-hero", "team-hero"]);
     // These section types manage their own spacing internally
-    const SELF_SPACED = new Set(["about-stats", "about-hero", "team-hero", "team"]);
+    const SELF_SPACED = new Set(["about-stats", "about-hero", "team-hero", "team", "cards"]);
 
     return (
         <div>
@@ -48,7 +48,19 @@ export function SectionRenderer({ sections, markdownContent }: SectionRendererPr
                         case "cards":
                             return <CardsBlock section={section} />;
                         case "content":
-                            return <ContentBlock section={section} markdownContent={markdownContent} />;
+                            const blockContent = (() => {
+                                if (!markdownContent) return null;
+                                if (
+                                    typeof markdownContent === "object" &&
+                                    !("props" in markdownContent) &&
+                                    !("$$typeof" in markdownContent)
+                                ) {
+                                    const key = section.id || "default";
+                                    return (markdownContent as Record<string, React.ReactNode>)[key];
+                                }
+                                return markdownContent as React.ReactNode;
+                            })();
+                            return <ContentBlock section={section} markdownContent={blockContent} />;
                         default:
                             return null;
                     }
@@ -142,54 +154,61 @@ function StatsBlock({ section }: { section: StatsSection }) {
 }
 
 // ─── Cards Section ────────────────────────────────────────────────────
+// Rendered as an editorial numbered list — no card borders, just clean typography.
 
 function CardsBlock({ section }: { section: CardsSection }) {
-    const cols = section.columns ?? 2;
-    const gridClass = {
-        1: "grid-cols-1",
-        2: "grid-cols-1 sm:grid-cols-2",
-        3: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
-        4: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4",
-    }[cols] ?? "grid-cols-1 sm:grid-cols-2";
     return (
-        <section className={cn("py-8", section.className)}>
+        <section
+            className={cn("pt-8 pb-8 px-4", section.className)}
+            id="metrics"
+            aria-label="PlaceCom metrics"
+        >
+            <div className="max-w-2xl mx-auto">
             {section.heading && (
-                <h2 className="font-serif text-2xl md:text-3xl font-semibold text-center text-foreground mb-10">
+                <h2 className="font-serif text-2xl md:text-3xl font-semibold text-foreground mb-10">
                     {section.heading}
                 </h2>
             )}
-            <div className={cn("grid gap-6", gridClass)}>
+            <div className="flex flex-col">
                 {section.items.map((item, i) => (
                     <div
                         key={i}
-                        className="group p-6 rounded-xl bg-card border border-border shadow-sm hover:shadow-lg hover:border-primary/20 transition-all duration-200"
+                        className="group grid grid-cols-[2rem_1fr] gap-x-5 gap-y-1 py-7 border-t border-border/60 last:border-b hover:border-primary/20 transition-colors duration-200"
                     >
-                        {item.image && (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
-                                src={item.image}
-                                alt={item.title}
-                                className="w-full h-40 object-cover rounded-lg mb-4"
-                            />
-                        )}
-                        <h3 className="font-serif text-xl font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
-                            {item.title}
-                        </h3>
-                        {item.description && (
-                            <p className="text-muted-foreground leading-relaxed">
-                                {item.description}
-                            </p>
-                        )}
-                        {item.href && (
-                            <a
-                                href={item.href}
-                                className="inline-block mt-3 text-sm text-primary font-medium underline underline-offset-4 decoration-primary/30 hover:decoration-primary/80 transition-colors"
-                            >
-                                Learn more →
-                            </a>
-                        )}
+                        {/* Index number */}
+                        <span className="font-mono text-xs text-muted-foreground/50 pt-1 select-none tabular-nums">
+                            {String(i + 1).padStart(2, "0")}
+                        </span>
+
+                        <div className="flex flex-col gap-1.5">
+                            {item.image && (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img
+                                    src={item.image}
+                                    alt={item.title}
+                                    className="w-full h-40 object-cover rounded-lg mb-3"
+                                />
+                            )}
+                            <h3 className="font-serif text-lg font-semibold text-foreground group-hover:text-primary transition-colors duration-200">
+                                {item.title}
+                            </h3>
+                            {item.description && (
+                                <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
+                                    {item.description}
+                                </p>
+                            )}
+                            {item.href && (
+                                <a
+                                    href={item.href}
+                                    className="inline-flex items-center gap-1 mt-1 text-sm text-primary font-medium hover:underline underline-offset-4 transition-colors"
+                                >
+                                    Learn more →
+                                </a>
+                            )}
+                        </div>
                     </div>
                 ))}
+            </div>
             </div>
         </section>
     );

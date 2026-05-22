@@ -32,6 +32,7 @@ sections:
         prefix: ₹
         suffix: L
   - type: content
+    id: about-us
   - type: cards
     heading: What We Do
     items:
@@ -55,6 +56,8 @@ sections:
           documentation support students need during the placement process.
         text: IDek what ts is
     columns: 50012
+  - type: content
+    id: get-in-touch
 ---
 ## About Us
 

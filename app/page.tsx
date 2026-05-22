@@ -22,18 +22,37 @@ export default function Home() {
             (s) => s.type === "about-hero"
         );
 
+        const parts = content.split(/##\s+Get\s+In\s+Touch/i);
+        const aboutContent = parts[0] || "";
+        const getInTouchContent = parts[1] ? `## Get In Touch\n${parts[1]}` : "";
+
+        const markdownMap = {
+            "about-us": (
+                <div id="about" className="max-w-2xl mx-auto px-6 md:px-8 pt-4 pb-4">
+                    <MarkdownRenderer content={aboutContent} variant="landing" />
+                </div>
+            ),
+            "get-in-touch": (
+                <div id="contact" className="max-w-2xl mx-auto px-6 md:px-8 pt-4 pb-16">
+                    <MarkdownRenderer content={getInTouchContent} variant="landing" />
+                </div>
+            ),
+            "default": (
+                <div id="about" className="max-w-2xl mx-auto px-6 md:px-8 pt-4 pb-16">
+                    <MarkdownRenderer content={content} variant="landing" />
+                </div>
+            )
+        };
+
         return (
-            <main className={hasFullBleedHero ? "w-full" : "max-w-5xl mx-auto px-4 py-8"}>
+            <main className={hasFullBleedHero ? "w-full" : "max-w-3xl mx-auto px-4 py-8"}>
                 <SectionRenderer
                     sections={frontmatter.sections}
-                    markdownContent={
-                        <div id="about" className="max-w-6xl mx-auto px-6 md:px-12 pt-4 pb-12">
-                            <MarkdownRenderer content={content} variant="landing" />
-                        </div>
-                    }
+                    markdownContent={markdownMap}
                 />
             </main>
         );
+
     }
 
     return (

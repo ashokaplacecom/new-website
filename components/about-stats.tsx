@@ -51,11 +51,11 @@ export function AboutStats({ section }: AboutStatsProps) {
 
     return (
         <section
-            className={cn("pt-16 pb-10 px-4", section.className)}
+            className={cn("pt-16 pb-4 px-4", section.className)}
             id="metrics"
             aria-label="PlaceCom metrics"
         >
-            <div className="max-w-5xl mx-auto">
+            <div className="max-w-3xl mx-auto">
                 {/* Section heading */}
                 {section.heading && (
                     <motion.div
@@ -109,18 +109,18 @@ export function AboutStats({ section }: AboutStatsProps) {
                             {/* Number */}
                             <div className="flex items-baseline gap-0.5 mb-2">
                                 {item.prefix && (
-                                    <span className="text-2xl md:text-3xl font-bold text-primary font-mono">
+                                    <span className="text-xl md:text-2xl font-bold text-primary font-mono">
                                         {item.prefix}
                                     </span>
                                 )}
                                 {tickerInView && (
                                     <NumberTicker
                                         value={item.value}
-                                        className="text-4xl md:text-5xl font-bold text-primary font-mono tabular-nums"
+                                        className="text-3xl md:text-4xl font-bold text-primary font-mono tabular-nums"
                                     />
                                 )}
                                 {item.suffix && (
-                                    <span className="text-2xl md:text-3xl font-bold text-primary font-mono">
+                                    <span className="text-xl md:text-2xl font-bold text-primary font-mono">
                                         {item.suffix}
                                     </span>
                                 )}
@@ -141,7 +141,7 @@ export function AboutStats({ section }: AboutStatsProps) {
                 whileInView={{ opacity: 1 }}
                 viewport={{ once: true, margin: "0px" }}
                 transition={{ duration: 0.8, delay: 0.3 }}
-                className="mt-14"
+                className="mt-10"
             >
                 <p className="text-center text-xs tracking-[0.2em] uppercase text-muted-foreground/50 mb-6 font-medium">
                     Recruiting partners across sectors

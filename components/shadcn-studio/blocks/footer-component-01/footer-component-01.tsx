@@ -19,14 +19,14 @@ const Footer = () => {
             About
           </a>
           <a href='#' className='opacity-80 transition-opacity duration-300 hover:opacity-100'>
-            Features
+            Feedback
           </a>
-          <a href='#' className='opacity-80 transition-opacity duration-300 hover:opacity-100'>
-            Works
+          <a href='/contact' className='opacity-80 transition-opacity duration-300 hover:opacity-100'>
+            Contact
           </a>
-          <a href='#' className='opacity-80 transition-opacity duration-300 hover:opacity-100'>
+          {/* <a href='#' className='opacity-80 transition-opacity duration-300 hover:opacity-100'>
             Career
-          </a>
+          </a> */}
         </div>
 
         <div className='flex items-center gap-4'>

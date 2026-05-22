@@ -66,9 +66,9 @@ interface Navbar1Props {
 
 const Navbar1 = ({
   logo = {
-    url: "https://www.ashoka-place.com",
-    src: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/shadcnblockscom-icon.svg",
-    alt: "logo",
+    url: "/",
+    src: "/placecom_logo.png",
+    alt: "PlaceCom Logo",
     title: "Connect Placecom",
   },
   menu = [
@@ -76,20 +76,22 @@ const Navbar1 = ({
     {
       title: "About",
       url: "/about",
-      items: [
-        {
-          title: "The Team",
-          url: "/about/team",
-          icon: <Users className="size-5 shrink-0" />,
-          description: "Something about the team",
-        },
-        {
-          title: "Progress Reports",
-          url: "/about/reports",
-          icon: <ChartLine className="size-5 shrink-0" />,
-          description: "Something about progress reports",
-        },
-      ],
+      // items: [
+      //   {
+      //     title: "The Team",
+      //     url: "/about/team",
+      //     icon: <Users className="size-5 shrink-0" />,
+      //     description: "Something about the team",
+      //   },
+      //   {
+      //     title: "Progress Reports",
+      //     url: "/about/reports",
+      //     icon: <ChartLine className="size-5 shrink-0" />,
+      //     description: "Something about progress reports",
+      //   },
+      // ],
+      disabled: true,
+      tooltip: "Coming Soon!"
     },
     {
       title: "Podcast",
@@ -99,7 +101,7 @@ const Navbar1 = ({
       title: "Newsletter",
       url: "/newsletter",
       disabled: true,
-      tooltip: "Coming soon",
+      tooltip: "Coming Soon!",
     },
     {
       title: "List an Opportunity",
@@ -122,8 +124,8 @@ const Navbar1 = ({
   const isInDuperset = pathname?.startsWith("/duperset") || pathname?.startsWith("/toolbox");
 
   return (
-    <section className={cn("py-4", className)}>
-      <div className="container">
+    <section className={cn("sticky top-0 z-50 w-full border-b border-border bg-background py-4", className)}>
+      <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
         {/* Desktop Menu */}
         <nav className="hidden items-center justify-between lg:flex">
           <div className="flex items-center gap-6">
@@ -131,7 +133,7 @@ const Navbar1 = ({
             <a href={logo.url} className="flex items-center gap-2">
               <img
                 src={logo.src}
-                className="max-h-8 dark:invert"
+                className="max-h-8"
                 alt={logo.alt}
               />
               <TextAnimate animation="blurIn" by="character" className="text-lg font-bold tracking-tighter bg-clip-text text-black bg-gradient-to-r from-primary to-primary/60">
@@ -193,7 +195,7 @@ const Navbar1 = ({
             <a href={logo.url} className="flex items-center gap-2">
               <img
                 src={logo.src}
-                className="max-h-8 dark:invert"
+                className="max-h-8"
                 alt={logo.alt}
               />
             </a>
@@ -216,7 +218,7 @@ const Navbar1 = ({
                       <a href={logo.url} className="flex items-center gap-2">
                         <img
                           src={logo.src}
-                          className="max-h-8 dark:invert"
+                          className="max-h-8"
                           alt={logo.alt}
                         />
                       </a>

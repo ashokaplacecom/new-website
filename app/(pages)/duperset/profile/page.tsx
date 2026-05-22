@@ -117,11 +117,8 @@ export default async function ProfilePage() {
             title="Profile"
             description="Your placement profile and account settings."
         >
-            <div className={cn(
-                "w-full py-8 gap-8",
-                latestRequest ? "grid grid-cols-1 md:grid-cols-2 max-w-4xl mx-auto" : "max-w-md mx-auto"
-            )}>
-                {/* Left Column: User Profile Card */}
+            <div className="w-full py-8 max-w-md mx-auto">
+                {/* User Profile Card */}
                 <div className="flex flex-col items-center justify-center border border-border/50 bg-card/30 backdrop-blur-md rounded-3xl p-8 shadow-xl space-y-6">
                     {/* Avatar with Ring */}
                     <div className="relative w-24 h-24 rounded-full overflow-hidden ring-4 ring-primary/20 border border-border shadow-md bg-muted flex items-center justify-center">
@@ -152,54 +149,45 @@ export default async function ProfilePage() {
                             <span className="font-bold text-xs text-foreground truncate max-w-[180px]" title={String(dbUserId)}>{dbUserId}</span>
                         </div>
                     </div>
-                </div>
 
-                {/* Right Column: Latest Request */}
-                {latestRequest && (
-                    <div className="flex flex-col">
-                        <div className="relative overflow-hidden rounded-3xl border-2 border-primary/20 bg-gradient-to-br from-primary/5 via-card to-card p-8 shadow-xl flex flex-col justify-between h-full min-h-[300px]">
-                            {/* Ambient glow decoration */}
-                            <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary/10 rounded-full blur-2xl pointer-events-none" />
+                    {/* Latest Request Section */}
+                    {latestRequest && (
+                        <div className="w-full max-w-sm pt-5 border-t border-border/50 flex flex-col gap-4 text-sm">
+                            <div className="flex items-center justify-between">
+                                <span className="text-[10px] bg-primary/10 text-primary border border-primary/20 px-2.5 py-0.5 rounded-full font-bold tracking-wider uppercase">
+                                    Latest Request
+                                </span>
+                                <span className="text-xs text-muted-foreground">
+                                    {new Date(latestRequest.raised_at).toLocaleDateString(undefined, {
+                                        year: 'numeric',
+                                        month: 'short',
+                                        day: 'numeric'
+                                    })}
+                                </span>
+                            </div>
 
-                            <div className="space-y-6">
-                                <div className="flex items-center justify-between">
-                                    <span className="text-[10px] bg-primary/10 text-primary border border-primary/20 px-3 py-1 rounded-full font-bold tracking-wider uppercase">
-                                        Latest Request
-                                    </span>
-                                    <span className="text-xs text-muted-foreground">
-                                        {new Date(latestRequest.raised_at).toLocaleDateString(undefined, {
-                                            year: 'numeric',
-                                            month: 'long',
-                                            day: 'numeric'
-                                        })}
-                                    </span>
+                            <div className="flex justify-between items-start gap-4">
+                                <div className="space-y-1 flex-1">
+                                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Type</p>
+                                    <p className="font-semibold text-foreground leading-snug">{latestRequest.type}</p>
                                 </div>
-
-                                <div className="space-y-2">
-                                    <p className="text-xs text-muted-foreground uppercase tracking-widest font-semibold">Request Type</p>
-                                    <h3 className="text-2xl font-bold tracking-tight text-foreground">
-                                        {latestRequest.type}
-                                    </h3>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <p className="text-xs text-muted-foreground uppercase tracking-widest font-semibold">Status</p>
-                                    <div className={cn("flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold uppercase tracking-wider w-fit", getStatusTextClass(latestRequest.status))}>
+                                <div className="space-y-1 text-right shrink-0">
+                                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Status</p>
+                                    <div className={cn("flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-semibold uppercase tracking-wider w-fit ml-auto", getStatusTextClass(latestRequest.status))}>
                                         {getStatusIcon(latestRequest.status)}
                                         {latestRequest.status}
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="pt-6 border-t border-border/50 flex justify-between items-center text-xs text-muted-foreground">
-                                {/* <span>Procured via Server Action</span> */}
-                                <Link href="/duperset/view-requests" className="flex items-center gap-1 font-semibold text-primary hover:underline">
-                                    View All <ArrowRight className="h-3 w-3" />
+                            <div className="pt-2 flex justify-end">
+                                <Link href="/duperset/view-requests" className="flex items-center gap-1 text-xs font-semibold text-primary hover:underline">
+                                    View All Requests <ArrowRight className="h-3.5 w-3.5" />
                                 </Link>
                             </div>
                         </div>
-                    </div>
-                )}
+                    )}
+                </div>
             </div>
         </ToolboxPageShell>
     );

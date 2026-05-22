@@ -21,6 +21,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Connect Placement Committee",
   description: "The official website of the Placement Committee of Ashoka University",
+  icons: {
+    icon: "/placecom_logo.png",
+  },
 };
 
 export default async function RootLayout({
@@ -33,7 +36,7 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased px-6 py-3`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased px-6`}
       >
         <SessionProvider session={session}>
           <TooltipProvider>

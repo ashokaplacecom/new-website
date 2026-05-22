@@ -47,6 +47,7 @@ export interface HeroSection extends SectionBase {
 
 export interface ContentSection extends SectionBase {
     type: "content";
+    id?: string;
     // The markdown body content gets rendered here
 }
 

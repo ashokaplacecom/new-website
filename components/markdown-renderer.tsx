@@ -38,7 +38,7 @@ export function MarkdownRenderer({ content, className = "", variant = "default" 
                 className={cn(
                     "font-serif font-semibold tracking-tight text-foreground break-words",
                     variant === "landing"
-                        ? "text-3xl md:text-4xl text-center mt-12 mb-6"
+                        ? "text-3xl md:text-4xl text-center mt-12 mb-6 first:mt-0"
                         : "text-2xl md:text-3xl mt-10 mb-4 border-b border-border pb-3"
                 )}
                 {...props}
@@ -74,7 +74,7 @@ export function MarkdownRenderer({ content, className = "", variant = "default" 
                 className={cn(
                     "leading-relaxed mb-6",
                     variant === "landing"
-                        ? "text-base md:text-lg text-muted-foreground text-center"
+                        ? "text-base md:text-lg text-foreground/80 text-justify"
                         : "text-base md:text-lg text-foreground/85"
                 )}
                 {...props}
