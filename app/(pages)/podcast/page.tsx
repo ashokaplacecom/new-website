@@ -1,6 +1,7 @@
 import { getPageContent, getJsonData } from "@/lib/content";
 import { MarkdownRenderer } from "@/components/markdown-renderer";
 import type { Metadata } from "next";
+import { EpisodeDescription } from "./episode-description";
 
 export const metadata: Metadata = {
     title: "Podcast — Connect PlaceCom",
@@ -63,9 +64,10 @@ export default function PodcastPage() {
                                 <p className="text-sm font-semibold text-foreground leading-snug line-clamp-2">
                                     {ep.title}
                                 </p>
-                                <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">
-                                    {ep.description}
-                                </p>
+                                <EpisodeDescription
+                                    description={ep.description}
+                                    spotifyEmbedUrl={ep.spotifyEmbedUrl}
+                                />
                             </div>
                         </div>
                     ))}
