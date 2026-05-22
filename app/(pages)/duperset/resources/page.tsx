@@ -17,7 +17,7 @@ export default function ResourcesPage() {
             description="Resume templates, interview prep guides, sector overviews, and more — curated by Placecom."
             maxWidthClass="max-w-7xl"
         >
-            <ResourceBrowser nodes={nodes} />
+            {/* <ResourceBrowser nodes={nodes} /> */}
         </ToolboxPageShell>
     );
 }
