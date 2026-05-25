@@ -32,6 +32,14 @@ const getGoogleCredentials = () => {
 
 const googleCredentials = getGoogleCredentials();
 
+const getRedirectProxyUrl = () => {
+  const url = process.env.NEXTAUTH_URL;
+  if (!url) return undefined;
+  return url.includes("/api/auth")
+    ? url
+    : `${url.replace(/\/$/, "")}/api/auth`;
+};
+
 const TEN_DAYS_SECONDS = 10 * 24 * 60 * 60; // 864_000s
 
 declare module "next-auth" {
@@ -57,6 +65,7 @@ declare module "next-auth/jwt" {
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   trustHost: true,
+  redirectProxyUrl: getRedirectProxyUrl(),
   providers: [
     Google({
       clientId: googleCredentials.clientId,
