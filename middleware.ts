@@ -8,7 +8,7 @@ const ALLOWED_ORIGINS = [
 ];
 
 // Page routes that require an authenticated session
-const PROTECTED_ROUTES = ["/toolbox", "/submit-opportunity", "/admin"];
+const PROTECTED_ROUTES = ["/duperset", "/submit-opportunity", "/admin"];
 
 export async function middleware(req: NextRequest) {
     const { pathname } = req.nextUrl;
@@ -48,8 +48,8 @@ export async function middleware(req: NextRequest) {
             req.method === "GET";
 
         // For the submission form, we allow POST without an API key IF the user is authenticated.
-        const isInternalSubmission = 
-            pathname === "/api/duperset/external-opportunities" && 
+        const isInternalSubmission =
+            pathname === "/api/duperset/external-opportunities" &&
             req.method === "POST";
 
         if (!apiKey || (!isWebExtension && !isFrontend)) {
@@ -94,7 +94,7 @@ export async function middleware(req: NextRequest) {
         // which breaks POST requests from extensions. We intercept and rewrite seamlessly instead.
         const originalUrl = new URL(req.url);
         const hasTrailingSlash = originalUrl.pathname.endsWith("/") && originalUrl.pathname !== "/";
-        
+
         let response = NextResponse.next();
         if (hasTrailingSlash) {
             const urlWithoutSlash = new URL(originalUrl.pathname.slice(0, -1), req.url);
@@ -140,8 +140,8 @@ export async function middleware(req: NextRequest) {
         }
 
         // ── 3. Role-based access control ──────────────────────────────────────────
-        if (pathname.startsWith("/toolbox/pocs") && token.isPoc !== true) {
-            return NextResponse.redirect(new URL("/toolbox", req.url));
+        if (pathname.startsWith("/duperset/pocs") && token.isPoc !== true) {
+            return NextResponse.redirect(new URL("/duperset", req.url));
         }
 
         // Only admins can access the CMS admin panel
@@ -156,8 +156,8 @@ export async function middleware(req: NextRequest) {
 export const config = {
     matcher: [
         "/api/:path*",
-        "/toolbox",
-        "/toolbox/:path*",
+        "/duperset",
+        "/duperset/:path*",
         "/submit-opportunity",
         "/submit-opportunity/:path*",
         "/admin",

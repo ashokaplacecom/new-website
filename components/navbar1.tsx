@@ -121,7 +121,7 @@ const Navbar1 = ({
   const isAuthenticated = status === "authenticated";
   const isLoading = status === "loading";
   const pathname = usePathname();
-  const isInDuperset = pathname?.startsWith("/duperset") || pathname?.startsWith("/toolbox");
+  const isInDuperset = pathname?.startsWith("/duperset") || pathname?.startsWith("/duperset");
 
   return (
     <section className={cn("sticky top-0 z-50 w-full border-b border-border bg-background py-4", className)}>
@@ -179,7 +179,7 @@ const Navbar1 = ({
               <Button
                 size="sm"
                 className="gap-2"
-                onClick={() => signIn("google", { callbackUrl: "/toolbox" })}
+                onClick={() => signIn("google", { callbackUrl: "/duperset" })}
               >
                 <LogIn className="h-4 w-4" />
                 Sign in
@@ -238,7 +238,7 @@ const Navbar1 = ({
                     {(!isAuthenticated || !isInDuperset) && (
                       <div className="flex flex-col gap-3">
                         {isAuthenticated ? (
-                          <Link href="/toolbox">
+                          <Link href="/duperset">
                             <NoiseBackground
                               containerClassName="h-11 rounded-full p-0 px-6 shadow-xl shadow-primary/20 hover:shadow-primary/30 transition-all duration-300 cursor-pointer border border-primary-foreground/10 bg-primary dark:bg-primary group hover:scale-[1.02] active:scale-[0.98]"
                               className="flex h-full items-center justify-center"
@@ -254,7 +254,7 @@ const Navbar1 = ({
                           <Button
                             className="gap-2"
                             onClick={() =>
-                              signIn("google", { callbackUrl: "/toolbox" })
+                              signIn("google", { callbackUrl: "/duperset" })
                             }
                           >
                             <LogIn className="h-4 w-4" />

@@ -1,0 +1,80 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Next.js
+        run: npm run build
+        env:
+          NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
+          NODE_OPTIONS: "--max_old_space_size=4096"
+
+      - name: Copy static assets into standalone
+        run: |
+          cp -r .next/static .next/standalone/.next/static
+          cp -r public .next/standalone/public
+
+      - name: Create deployment archive
+        run: |
+          tar -czf deploy.tar.gz \
+            .next/standalone \
+            .next/static \
+            public
+
+      - name: Deploy to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT }}
+          source: "deploy.tar.gz"
+          target: "~/deploy-temp"
+
+      - name: Restart application
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT }}
+          script: |
+            set -e
+
+            echo "--- Extracting build ---"
+            cd ~/deploy-temp
+            tar -xzf deploy.tar.gz
+
+            echo "--- Swapping in new build ---"
+            rm -rf ~/placecom/new-website/.next/standalone
+            cp -r .next/standalone ~/placecom/new-website/.next/standalone
+            cp -r .next/static ~/placecom/new-website/.next/standalone/.next/static
+            cp -r public ~/placecom/new-website/.next/standalone/public
+
+            echo "--- Restarting app ---"
+            pm2 restart nextjs
+
+            echo "--- Cleaning up ---"
+            rm -rf ~/deploy-temp/*
+
+            echo "--- Done ---"
+            pm2 list

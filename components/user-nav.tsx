@@ -22,11 +22,11 @@ export function UserNav({ session }: UserNavProps) {
   const user = session.user;
   const initials = user?.name
     ? user.name
-        .split(" ")
-        .map((n) => n[0])
-        .join("")
-        .substring(0, 2)
-        .toUpperCase()
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .substring(0, 2)
+      .toUpperCase()
     : "AU";
 
   return (
@@ -58,7 +58,7 @@ export function UserNav({ session }: UserNavProps) {
         <DropdownMenuSeparator />
 
         <DropdownMenuItem asChild>
-          <Link href="/toolbox" className="flex items-center gap-2 cursor-pointer">
+          <Link href="/duperset" className="flex items-center gap-2 cursor-pointer">
             <Wrench className="h-4 w-4" />
             <span>Duperset</span>
           </Link>
