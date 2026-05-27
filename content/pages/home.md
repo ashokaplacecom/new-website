@@ -1,63 +1,70 @@
 ---
 title: Connect PlaceCom — Ashoka University
-description: Connecting Ashoka's brightest minds with the world's best
-  opportunities. Or something like that
+description: Connecting Ashoka's brightest minds with the world's best opportunities.
 sections:
-  - type: about-hero
-    heading: The Placement Committee
-    subheading: Connecting Ashoka's brightest minds with the world's best opportunities.
-    backgroundImage: /images/hero-bg.jpeg
-    cta:
-      label: Connect with Us
-      href: /contact
-    secondaryCta:
-      label: About Us
-      href: /about
-  - type: about-stats
-    heading: PlaceCom at a Glance
-    subheading: Numbers that reflect our commitment to every student's career journey.
-    columns: 4
-    items:
-      - label: Students Placed
-        value: 312
-        suffix: +
-      - label: Recruiting Partners
-        value: 85
-        suffix: +
-      - label: Verifications Processed
-        value: 1400
-        suffix: +
-      - label: Highest Package (LPA)
-        value: 42
-        prefix: ₹
-        suffix: L
-  - type: content
-    id: about-us
-  - type: cards
-    heading: What We Do
-    items:
-      - title: Campus Placements
-        description: We coordinate end-to-end campus recruitment drives, connecting top
-          employers with Ashoka talent across sectors — consulting, finance,
-          tech, development, and more.
-        text: Something something
-      - title: Career Resources
-        description: Resume reviews, mock interviews, SOP guides, and workshops to help
-          every student put their best foot forward — regardless of their
-          academic background.
-        text: Hoga kuch
-      - title: Industry Connects
-        description: Curated speaker sessions, panel discussions, and networking events
-          with professionals across industries, bringing real-world perspectives
-          to campus.
-        text: Idk
-      - title: Verification & Documentation
-        description: We handle offer letter verifications, degree attestations, and all
-          documentation support students need during the placement process.
-        text: IDek what ts is
-    columns: 50012
-  - type: content
-    id: get-in-touch
+  - discriminant: about-hero
+    value:
+      heading: The Placement Committee
+      subheading: Connecting Ashoka's brightest minds with the world's best opportunities.
+      cta:
+        label: Connect with Us
+        href: /contact
+      secondaryCta:
+        label: About Us
+        href: /about
+  - discriminant: about-stats
+    value:
+      heading: PlaceCom at a Glance
+      subheading: Numbers that reflect our commitment to every student's career journey.
+      columns: 4
+      items:
+        - label: Students Placed
+          value: '312'
+          suffix: +
+        - label: Recruiting Partners
+          value: '85'
+          suffix: +
+        - label: Verifications Processed
+          value: '1400'
+          suffix: +
+        - label: Highest Package (LPA)
+          value: '42'
+          prefix: ₹
+          suffix: L
+  - discriminant: content
+    value:
+      id: about-us
+  - discriminant: cards
+    value:
+      heading: What We Do
+      columns: 50012
+      items:
+        - title: Campus Placements
+          description: >-
+            We coordinate end-to-end campus recruitment drives, connecting top
+            employers with Ashoka talent across sectors — consulting, finance,
+            tech, development, and more.
+          text: Something something
+        - title: Career Resources
+          description: >-
+            Resume reviews, mock interviews, SOP guides, and workshops to help
+            every student put their best foot forward — regardless of their
+            academic background.
+          text: Hoga kuch
+        - title: Industry Connects
+          description: >-
+            Curated speaker sessions, panel discussions, and networking events
+            with professionals across industries, bringing real-world
+            perspectives to campus.
+          text: Idk
+        - title: Verification & Documentation
+          description: >-
+            We handle offer letter verifications, degree attestations, and all
+            documentation support students need during the placement process.
+          text: IDek what ts is
+  - discriminant: content
+    value:
+      id: get-in-touch
 ---
 ## About Us
 
@@ -73,4 +80,4 @@ We are also guided by a commitment to inclusivity and continuous improvement. Th
 
 Interested in recruiting from Ashoka, or want to learn more about what we do?
 
-Reach out at **connect.placecom@ashoka.edu.in** or visit the Office of Career Services.
+Reach out at **connect.placecom@ashoka.edu.in** or visit the Career Development Office.

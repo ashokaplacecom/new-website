@@ -53,7 +53,7 @@ export async function getLeadershipPOCs(): Promise<POC[]> {
             select: { id: true, poc_name: true, email: true }
         })
         
-        return pocs.map(poc => ({
+        return pocs.map((poc: any) => ({
             id: Number(poc.id),
             poc_name: poc.poc_name || '',
             email: poc.email || ''

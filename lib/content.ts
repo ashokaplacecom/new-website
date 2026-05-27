@@ -11,6 +11,21 @@ const DATA_DIR = path.join(CONTENT_DIR, "data");
 
 // ─── Page Content (Markdown + Frontmatter) ──────────────────────────
 
+function normalizeFrontmatter(data: any): PageFrontmatter {
+    if (data && Array.isArray(data.sections)) {
+        data.sections = data.sections.map((sec: any) => {
+            if (sec && typeof sec === "object" && "discriminant" in sec && "value" in sec) {
+                return {
+                    type: sec.discriminant,
+                    ...sec.value,
+                };
+            }
+            return sec;
+        });
+    }
+    return data as PageFrontmatter;
+}
+
 /**
  * Load a single markdown page by slug.
  * Looks for `content/pages/{slug}.md`
@@ -21,7 +36,7 @@ export function getPageContent(slug: string): PageContent {
     const { data, content } = matter(raw);
 
     return {
-        frontmatter: data as PageFrontmatter,
+        frontmatter: normalizeFrontmatter(data),
         content,
     };
 }
@@ -36,7 +51,7 @@ export function getNestedPageContent(...segments: string[]): PageContent {
     const { data, content } = matter(raw);
 
     return {
-        frontmatter: data as PageFrontmatter,
+        frontmatter: normalizeFrontmatter(data),
         content,
     };
 }

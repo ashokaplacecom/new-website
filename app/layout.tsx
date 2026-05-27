@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { Navbar1 } from "@/components/navbar1";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import Footer from "@/components/shadcn-studio/blocks/footer-component-01/footer-component-01";
 import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { SessionProvider } from "next-auth/react";
 import { auth } from "@/auth";
 
@@ -40,9 +38,7 @@ export default async function RootLayout({
       >
         <SessionProvider session={session}>
           <TooltipProvider>
-            <Navbar1 />
             {children}
-            <Footer />
             <Toaster richColors position="top-right" />
           </TooltipProvider>
         </SessionProvider>

@@ -19,7 +19,7 @@ export async function getActiveOpportunities(): Promise<Opportunity[]> {
             where: { is_active: true }
         })
 
-        return data.map(opp => {
+        return data.map((opp: any) => {
             const mapped = mapOpportunityUrls(opp)
             return {
                 ...mapped,

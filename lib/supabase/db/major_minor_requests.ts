@@ -164,7 +164,7 @@ export async function getArchivedMajorMinorRequests(studentId: number) {
             }
         })
         
-        return data.map(req => ({
+        return data.map((req: any) => ({
             ...req,
             modified_by: req.modified_by ? Number(req.modified_by) : null
         }))

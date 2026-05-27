@@ -8,7 +8,7 @@ const ALLOWED_ORIGINS = [
 ];
 
 // Page routes that require an authenticated session
-const PROTECTED_ROUTES = ["/duperset", "/submit-opportunity", "/admin"];
+const PROTECTED_ROUTES = ["/duperset", "/submit-opportunity", "/backend"];
 
 export async function middleware(req: NextRequest) {
     const { pathname } = req.nextUrl;
@@ -36,8 +36,6 @@ export async function middleware(req: NextRequest) {
             return NextResponse.next();
         }
 
-        const isCmsProxy = pathname.startsWith("/api/cms/proxy/");
-
         // API key validation for all other /api/* routes
         const apiKey = req.headers.get("x-api-key");
         const isWebExtension = apiKey === process.env.API_KEY_WEB_EXTENSION;
@@ -60,14 +58,6 @@ export async function middleware(req: NextRequest) {
                 secureCookie: process.env.NODE_ENV === "production",
                 salt: process.env.NODE_ENV === "production" ? "__Secure-authjs.session-token" : "authjs.session-token",
             });
-
-            if (isCmsProxy) {
-                if (!token?.isAdmin) {
-                    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-                }
-                // Allow through to route handler
-                return NextResponse.next();
-            }
 
             if (!token && !isPublicGet) {
                 return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -144,8 +134,8 @@ export async function middleware(req: NextRequest) {
             return NextResponse.redirect(new URL("/duperset", req.url));
         }
 
-        // Only admins can access the CMS admin panel
-        if (pathname.startsWith("/admin") && token.isAdmin !== true) {
+        // Only admins can access the backend CMS
+        if ((pathname.startsWith("/backend") || pathname.startsWith("/keystatic")) && token.isAdmin !== true) {
             return NextResponse.redirect(new URL("/", req.url));
         }
     }
@@ -160,7 +150,9 @@ export const config = {
         "/duperset/:path*",
         "/submit-opportunity",
         "/submit-opportunity/:path*",
-        "/admin",
-        "/admin/:path*",
+        "/backend",
+        "/backend/:path*",
+        "/keystatic",
+        "/keystatic/:path*",
     ],
 };
