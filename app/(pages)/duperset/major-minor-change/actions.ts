@@ -29,7 +29,7 @@ export async function generateOtpAction(email: string) {
     const data = await res.json().catch(() => null);
 
     if (!res.ok) {
-        throw new Error(data?.message || "Failed to generate OTP");
+        return data || { success: false, message: "Failed to generate OTP" };
     }
 
     return data;
@@ -60,7 +60,7 @@ export async function verifyOtpAndCreateMajorMinorAction(params: {
     const verifyData = await verifyRes.json().catch(() => null);
 
     if (!verifyRes.ok) {
-        throw new Error(verifyData?.message || "Invalid OTP");
+        return verifyData || { success: false, message: "Invalid OTP" };
     }
 
     // 2. Create Major/Minor Request
@@ -83,7 +83,7 @@ export async function verifyOtpAndCreateMajorMinorAction(params: {
     const createData = await createRes.json().catch(() => null);
 
     if (!createRes.ok) {
-        throw new Error(createData?.message || "Failed to create major/minor change request");
+        return createData || { success: false, message: "Failed to create major/minor change request" };
     }
 
     return createData;

@@ -41,5 +41,5 @@ export async function verifyOtp(email: string, otp: string): Promise<VerifyOtpRe
     // OTP is valid — clear it so it cannot be reused
     await clearStudentOTP(student.id)
 
-    return { success: true, studentId: student.id, studentName: student.name }
+    return { success: true, studentId: student.id, studentName: student.name || '' }
 }

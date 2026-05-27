@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server'
 import { getStudentByEmail } from '@/lib/supabase/db/students'
 import { getLatestMajorMinorRequest } from '@/lib/supabase/db/major_minor_requests'

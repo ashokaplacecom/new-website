@@ -147,7 +147,10 @@ export function VerificationForm() {
             setIsLoading(true);
             setApiError(null);
             try {
-                await generateOtpAction(values.email);
+                const res = await generateOtpAction(values.email);
+                if (!res?.success) {
+                    throw new Error(res?.message || "Failed to send OTP. Please try again.");
+                }
                 setEmail(values.email);
                 startResendTimer();
                 haptic("success");
@@ -169,12 +172,15 @@ export function VerificationForm() {
             setIsLoading(true);
             setApiError(null);
             try {
-                await verifyOtpAndCreateVerificationAction({
+                const res = await verifyOtpAndCreateVerificationAction({
                     email,
                     otp: values.otp,
                     message: values.message,
                     isEmergency: false,
                 });
+                if (!res?.success) {
+                    throw new Error(res?.message || "Verification failed. Please try again.");
+                }
 
                 haptic("success");
                 setSuccessMessage(
@@ -201,12 +207,15 @@ export function VerificationForm() {
             try {
                 const fullMessage = `Company: ${values.company}\nReason: ${values.reason}`;
 
-                await verifyOtpAndCreateVerificationAction({
+                const res = await verifyOtpAndCreateVerificationAction({
                     email,
                     otp: values.otp,
                     message: fullMessage,
                     isEmergency: true,
                 });
+                if (!res?.success) {
+                    throw new Error(res?.message || "Emergency request failed. Please try again.");
+                }
 
                 haptic("success");
                 setSuccessMessage(
@@ -229,7 +238,10 @@ export function VerificationForm() {
         if (resendTimer > 0 || !email) return;
         haptic("selection");
         try {
-            await generateOtpAction(email);
+            const res = await generateOtpAction(email);
+            if (!res?.success) {
+                throw new Error(res?.message || "Failed to resend OTP.");
+            }
             startResendTimer();
             haptic("success");
         } catch (err: any) {

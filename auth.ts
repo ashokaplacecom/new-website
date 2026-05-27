@@ -1,7 +1,7 @@
 import NextAuth, { DefaultSession } from "next-auth";
 import Google from "next-auth/providers/google";
-import { SupabaseAdapter } from "@auth/supabase-adapter";
-import { createAdminClient } from "@/lib/supabase/server";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import prisma from "@/lib/prisma";
 import fs from "fs";
 import path from "path";
 
@@ -73,11 +73,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
 
-  // Supabase adapter: persists users & accounts in next_auth schema.
-  adapter: SupabaseAdapter({
-    url: process.env.SUPABASE_URL!,
-    secret: process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  }),
+  // Prisma adapter: persists users & accounts in next_auth schema.
+  adapter: PrismaAdapter(prisma),
 
   // JWT strategy: session token lives in a signed cookie, not the DB.
   session: {
@@ -115,25 +112,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
       // Fetch roles if not already determined in the token
       if (token.email) {
-        const supabase = createAdminClient();
         console.log(`[Auth] Checking roles for: ${token.email}`);
 
         // ── Check POC status ──
         try {
-          const { data: pocData, error: pocError } = await supabase
-            .schema("requests")
-            .from("pocs")
-            .select("id")
-            .eq("email", token.email)
-            .single();
-
-          if (pocError && pocError.code !== 'PGRST116') {
-             console.error("[Auth] POC check error:", pocError);
-          }
+          const pocData = await prisma.pocs.findUnique({
+            where: { email: token.email },
+            select: { id: true }
+          });
 
           token.isPoc = !!pocData;
           if (pocData?.id) {
-            token.pocId = pocData.id;
+            token.pocId = Number(pocData.id);
           }
         } catch (err) {
           console.error("[Auth] POC catch error:", err);
@@ -142,15 +132,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         // ── Check Admin status ──
         try {
-          const { data: adminData, error: adminError } = await supabase
-            .from("admin")
-            .select("id")
-            .eq("email", token.email)
-            .single();
-
-          if (adminError && adminError.code !== 'PGRST116') {
-            console.error("[Auth] Admin check error:", adminError);
-          }
+          const adminData = await prisma.admin.findFirst({
+            where: { email: token.email },
+            select: { id: true }
+          });
 
           token.isAdmin = !!adminData;
           console.log(`[Auth] isAdmin for ${token.email}: ${token.isAdmin}`);

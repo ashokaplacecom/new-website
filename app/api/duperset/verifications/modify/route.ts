@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server'
 import { getRequestById, modifyRequest, RequestStatus } from '@/lib/supabase/db/requests'
 import { getPOCById } from '@/lib/supabase/db/pocs'
@@ -49,6 +50,9 @@ export async function POST(req: NextRequest) {
         }
 
         const request = await getRequestById(requestId)
+        if (!request) {
+            return NextResponse.json({ success: false, message: 'Request not found.' }, { status: 404 })
+        }
         if (request.status !== 'pending') {
             return NextResponse.json({ success: false, message: `Request is already ${request.status}.` }, { status: 409 })
         }
@@ -63,31 +67,27 @@ export async function POST(req: NextRequest) {
 
         // Background processing for email and audit (doing synchronously for now)
         try {
-            const supabase = (await import('@/lib/supabase/server')).createAdminClient()
-            const { data: student } = await supabase
-                .from('students')
-                .select('id, name, email')
-                .eq('id', request.student)
-                .single()
+            const { getStudentById } = await import('@/lib/supabase/db/students')
+            const student = await getStudentById(request.student || 0)
 
             if (student) {
                 const safePocNote = (pocNote || "").trim()
                 const template = method === 'approved'
-                    ? requestApprovedStudentEmail({ name: student.name, pocNote: safePocNote })
-                    : requestRejectedStudentEmail({ name: student.name, pocNote: safePocNote })
+                    ? requestApprovedStudentEmail({ name: student.name || '', pocNote: safePocNote })
+                    : requestRejectedStudentEmail({ name: student.name || '', pocNote: safePocNote })
 
-                await sendMail({ to: student.email, template })
+                await sendMail({ to: student.email || '', template })
             }
 
             await logAuditTrail(
-                request.student,
+                request.student || 0,
                 method === 'approved' ? 'REQUEST_APPROVED' : 'REQUEST_REJECTED',
                 { requestId, pocId, pocNote: (pocNote || "").trim(), status: method }
             )
         } catch (err: any) {
             console.error('[modify request] [Sync Processing] Failure:', err)
             try {
-                await logAuditTrail(request.student, 'MODIFY_REQUEST_EMAIL_FAILED', { 
+                await logAuditTrail(request.student || 0, 'MODIFY_REQUEST_EMAIL_FAILED', { 
                     requestId, 
                     error: err.message 
                 })

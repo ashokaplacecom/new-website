@@ -1,17 +1,14 @@
-import { createAdminClient } from '../server'
+import prisma from '@/lib/prisma'
 
 export async function hasPendingRequest(studentId: number): Promise<boolean> {
-    const supabase = createAdminClient()
+    const data = await prisma.verifications.findFirst({
+        where: {
+            student: BigInt(studentId),
+            status: 'pending'
+        },
+        select: { id: true }
+    })
 
-    const { data, error } = await supabase
-        .schema('requests')
-        .from('verifications')
-        .select('id')
-        .eq('student', studentId)
-        .eq('status', 'pending')
-        .maybeSingle()
-
-    if (error) throw new Error(`hasPendingRequest: ${error.message}`)
     return data !== null
 }
 
@@ -32,118 +29,135 @@ export interface CreatedRequest {
 }
 
 export async function createRequest(payload: CreateRequestPayload): Promise<CreatedRequest> {
-    const supabase = createAdminClient()
-
-    const { data, error } = await supabase
-        .schema('requests')
-        .from('verifications')
-        .insert({
-            student: payload.studentId,
-            student_message: payload.studentMessage,
-            is_emergency: payload.isEmergency,
-            status: 'pending',
-            deadline: payload.deadline.toISOString()
+    try {
+        const data = await prisma.verifications.create({
+            data: {
+                student: BigInt(payload.studentId),
+                student_message: payload.studentMessage,
+                is_emergency: payload.isEmergency,
+                status: 'pending',
+                deadline: payload.deadline
+            }
         })
-        .select()
-        .single()
-
-    if (error) throw new Error(`createRequest: ${error.message}`)
-    return data
+        
+        return {
+            id: Number(data.id),
+            requested_at: data.request_at.toISOString(),
+            student: Number(data.student),
+            status: data.status || 'pending',
+            student_message: data.student_message || '',
+            is_emergency: data.is_emergency
+        }
+    } catch (error: any) {
+        throw new Error(`createRequest: ${error.message}`)
+    }
 }
 
-
-export type RequestStatus = 'approved' | 'rejected'  // matches DB enum exactly (lowercase)
+export type RequestStatus = 'approved' | 'rejected'
 
 export interface ModifyRequestPayload {
     requestId: number
     status: RequestStatus
     pocNote: string
-    pocId: number      // FK to verifications.pocs.id — who is taking this action
+    pocId: number
 }
 
 export async function getRequestById(requestId: number) {
-    const supabase = createAdminClient()
-
-    const { data, error } = await supabase
-        .schema('requests')
-        .from('verifications')
-        .select(`
-      id,
-      status,
-      is_emergency,
-      student_message,
-      student,
-      poc_note,
-      modified_by
-    `)
-        .eq('id', requestId)
-        .single()
-
-    if (error) throw new Error(`getRequestById: ${error.message}`)
-    return data
+    try {
+        const data = await prisma.verifications.findUnique({
+            where: { id: BigInt(requestId) },
+            select: {
+                id: true,
+                status: true,
+                is_emergency: true,
+                student_message: true,
+                student: true,
+                poc_note: true,
+                modified_by: true
+            }
+        })
+        
+        if (!data) return null;
+        
+        return {
+            ...data,
+            id: Number(data.id),
+            student: data.student ? Number(data.student) : null,
+            modified_by: data.modified_by ? Number(data.modified_by) : null
+        }
+    } catch (error: any) {
+        throw new Error(`getRequestById: ${error.message}`)
+    }
 }
 
 export async function modifyRequest(payload: ModifyRequestPayload): Promise<void> {
-    const supabase = createAdminClient()
-
-    const { error } = await supabase
-        .schema('requests')
-        .from('verifications')
-        .update({
-            status: payload.status,
-            poc_note: payload.pocNote?.trim() || null,
-            modified_at: new Date().toISOString(),
-            modified_by: payload.pocId,
+    try {
+        await prisma.verifications.updateMany({
+            where: { 
+                id: BigInt(payload.requestId),
+                status: 'pending'
+            },
+            data: {
+                status: payload.status as any,
+                poc_note: payload.pocNote?.trim() || null,
+                modified_at: new Date(),
+                modified_by: BigInt(payload.pocId)
+            }
         })
-        .eq('id', payload.requestId)
-        .eq('status', 'pending')  // safety: only modify if still pending, never overwrite a closed request
-
-    if (error) throw new Error(`modifyRequest: ${error.message}`)
+    } catch (error: any) {
+        throw new Error(`modifyRequest: ${error.message}`)
+    }
 }
 
 export async function getLatestRequest(studentId: number) {
-    const supabase = createAdminClient()
-
-    const { data, error } = await supabase
-        .schema('requests')
-        .from('verifications')
-        .select(`
-            request_at,
-            modified_at,
-            modified_by,
-            status,
-            student_message,
-            poc_note,
-            is_emergency
-        `)
-        .eq('student', studentId)
-        .order('request_at', { ascending: false })
-        .limit(1)
-        .maybeSingle()
-
-    if (error) throw new Error(`getLatestRequest: ${error.message}`)
-    return data
+    try {
+        const data = await prisma.verifications.findFirst({
+            where: { student: BigInt(studentId) },
+            orderBy: { request_at: 'desc' },
+            select: {
+                request_at: true,
+                modified_at: true,
+                modified_by: true,
+                status: true,
+                student_message: true,
+                poc_note: true,
+                is_emergency: true
+            }
+        })
+        
+        if (!data) return null;
+        
+        return {
+            ...data,
+            modified_by: data.modified_by ? Number(data.modified_by) : null
+        }
+    } catch (error: any) {
+        throw new Error(`getLatestRequest: ${error.message}`)
+    }
 }
 
 export async function getArchivedRequests(studentId: number) {
-    const supabase = createAdminClient()
-
-    const { data, error } = await supabase
-        .schema('requests')
-        .from('verifications')
-        .select(`
-            request_at,
-            modified_at,
-            modified_by,
-            status,
-            student_message,
-            poc_note,
-            is_emergency
-        `)
-        .eq('student', studentId)
-        .order('request_at', { ascending: false })
-        .limit(10)
-
-    if (error) throw new Error(`getArchivedRequests: ${error.message}`)
-    return data || []
+    try {
+        const data = await prisma.verifications.findMany({
+            where: { student: BigInt(studentId) },
+            orderBy: { request_at: 'desc' },
+            take: 10,
+            select: {
+                request_at: true,
+                modified_at: true,
+                modified_by: true,
+                status: true,
+                student_message: true,
+                poc_note: true,
+                is_emergency: true
+            }
+        })
+        
+        return data.map(req => ({
+            ...req,
+            modified_by: req.modified_by ? Number(req.modified_by) : null
+        }))
+    } catch (error: any) {
+        throw new Error(`getArchivedRequests: ${error.message}`)
+    }
 }

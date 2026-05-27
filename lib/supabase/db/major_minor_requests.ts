@@ -1,24 +1,15 @@
-import { createAdminClient } from '../server'
+import prisma from '@/lib/prisma'
 import { RequestStatus } from './requests'
 
 export async function hasPendingMajorMinorRequest(studentId: number): Promise<boolean> {
-    const supabase = createAdminClient()
+    const data = await prisma.major_minor_change.findFirst({
+        where: {
+            student: BigInt(studentId),
+            status: 'pending'
+        },
+        select: { id: true }
+    })
 
-    const { data, error } = await supabase
-        .schema('requests')
-        .from('major-minor-change')
-        .select('id')
-        .eq('student', studentId)
-        .eq('status', 'pending')
-        .maybeSingle()
-
-    if (error) {
-        // PostgREST error code 42703 is "column does not exist"
-        // Let's assume there is a 'status' column. If not, we might need to add it to the schema.
-        // Wait, looking at the schema from mcp, there is no status column in major-minor-change!
-        // Let's modify the schema later, but for now we assume it exists as 'status'.
-        throw new Error(`hasPendingMajorMinorRequest: ${error.message}`)
-    }
     return data !== null
 }
 
@@ -42,122 +33,142 @@ export interface CreatedMajorMinorRequest {
 }
 
 export async function createMajorMinorRequest(payload: CreateMajorMinorRequestPayload): Promise<CreatedMajorMinorRequest> {
-    const supabase = createAdminClient()
-
-    const { data, error } = await supabase
-        .schema('requests')
-        .from('major-minor-change')
-        .insert({
-            student: payload.studentId,
-            current_major: payload.currentMajor,
-            current_minor: payload.currentMinor,
-            prospective_major: payload.prospectiveMajor,
-            prospective_minor: payload.prospectiveMinor,
-            status: 'pending',
+    try {
+        const data = await prisma.major_minor_change.create({
+            data: {
+                student: BigInt(payload.studentId),
+                current_major: payload.currentMajor,
+                current_minor: payload.currentMinor,
+                prospective_major: payload.prospectiveMajor,
+                prospective_minor: payload.prospectiveMinor,
+                status: 'pending'
+            }
         })
-        .select()
-        .single()
-
-    if (error) throw new Error(`createMajorMinorRequest: ${error.message}`)
-    return data
+        
+        return {
+            id: Number(data.id),
+            created_at: data.created_at.toISOString(),
+            student: Number(data.student),
+            current_major: data.current_major,
+            current_minor: data.current_minor,
+            prospective_major: data.prospective_major,
+            prospective_minor: data.prospective_minor,
+            status: (data.status || 'pending') as RequestStatus
+        }
+    } catch (error: any) {
+        throw new Error(`createMajorMinorRequest: ${error.message}`)
+    }
 }
 
 export interface ModifyMajorMinorRequestPayload {
     requestId: number
     status: RequestStatus
     pocNote: string
-    pocId: number      // FK to requests.pocs.id
+    pocId: number
 }
 
 export async function getMajorMinorRequestById(requestId: number) {
-    const supabase = createAdminClient()
-
-    const { data, error } = await supabase
-        .schema('requests')
-        .from('major-minor-change')
-        .select(`
-      id,
-      status,
-      current_major,
-      current_minor,
-      prospective_major,
-      prospective_minor,
-      student,
-      poc_note,
-      modified_by
-    `)
-        .eq('id', requestId)
-        .single()
-
-    if (error) throw new Error(`getMajorMinorRequestById: ${error.message}`)
-    return data
+    try {
+        const data = await prisma.major_minor_change.findUnique({
+            where: { id: requestId },
+            select: {
+                id: true,
+                status: true,
+                current_major: true,
+                current_minor: true,
+                prospective_major: true,
+                prospective_minor: true,
+                student: true,
+                poc_note: true,
+                modified_by: true
+            }
+        })
+        
+        if (!data) return null;
+        
+        return {
+            ...data,
+            id: Number(data.id),
+            student: data.student ? Number(data.student) : null,
+            modified_by: data.modified_by ? Number(data.modified_by) : null
+        }
+    } catch (error: any) {
+        throw new Error(`getMajorMinorRequestById: ${error.message}`)
+    }
 }
 
 export async function modifyMajorMinorRequest(payload: ModifyMajorMinorRequestPayload): Promise<void> {
-    const supabase = createAdminClient()
-
-    const { error } = await supabase
-        .schema('requests')
-        .from('major-minor-change')
-        .update({
-            status: payload.status,
-            poc_note: payload.pocNote?.trim() || null,
-            modified_at: new Date().toISOString(),
-            modified_by: payload.pocId,
+    try {
+        await prisma.major_minor_change.updateMany({
+            where: {
+                id: payload.requestId,
+                status: 'pending'
+            },
+            data: {
+                status: payload.status as any,
+                poc_note: payload.pocNote?.trim() || null,
+                modified_at: new Date(),
+                modified_by: BigInt(payload.pocId)
+            }
         })
-        .eq('id', payload.requestId)
-        .eq('status', 'pending')
-
-    if (error) throw new Error(`modifyMajorMinorRequest: ${error.message}`)
+    } catch (error: any) {
+        throw new Error(`modifyMajorMinorRequest: ${error.message}`)
+    }
 }
 
 export async function getLatestMajorMinorRequest(studentId: number) {
-    const supabase = createAdminClient()
-
-    const { data, error } = await supabase
-        .schema('requests')
-        .from('major-minor-change')
-        .select(`
-            created_at,
-            modified_at,
-            modified_by,
-            status,
-            current_major,
-            current_minor,
-            prospective_major,
-            prospective_minor,
-            poc_note
-        `)
-        .eq('student', studentId)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle()
-
-    if (error) throw new Error(`getLatestMajorMinorRequest: ${error.message}`)
-    return data
+    try {
+        const data = await prisma.major_minor_change.findFirst({
+            where: { student: BigInt(studentId) },
+            orderBy: { created_at: 'desc' },
+            select: {
+                created_at: true,
+                modified_at: true,
+                modified_by: true,
+                status: true,
+                current_major: true,
+                current_minor: true,
+                prospective_major: true,
+                prospective_minor: true,
+                poc_note: true
+            }
+        })
+        
+        if (!data) return null;
+        
+        return {
+            ...data,
+            modified_by: data.modified_by ? Number(data.modified_by) : null
+        }
+    } catch (error: any) {
+        throw new Error(`getLatestMajorMinorRequest: ${error.message}`)
+    }
 }
 
 export async function getArchivedMajorMinorRequests(studentId: number) {
-    const supabase = createAdminClient()
-
-    const { data, error } = await supabase
-        .schema('requests')
-        .from('major-minor-change')
-        .select(`
-            created_at,
-            modified_at,
-            modified_by,
-            status,
-            current_major,
-            current_minor,
-            prospective_major,
-            prospective_minor,
-            poc_note
-        `)
-        .eq('student', studentId)
-        .order('created_at', { ascending: false })
-        .limit(10)
-
-    if (error) throw new Error(`getArchivedMajorMinorRequests: ${error.message}`)
-    return data || []
+    try {
+        const data = await prisma.major_minor_change.findMany({
+            where: { student: BigInt(studentId) },
+            orderBy: { created_at: 'desc' },
+            take: 10,
+            select: {
+                created_at: true,
+                modified_at: true,
+                modified_by: true,
+                status: true,
+                current_major: true,
+                current_minor: true,
+                prospective_major: true,
+                prospective_minor: true,
+                poc_note: true
+            }
+        })
+        
+        return data.map(req => ({
+            ...req,
+            modified_by: req.modified_by ? Number(req.modified_by) : null
+        }))
+    } catch (error: any) {
+        throw new Error(`getArchivedMajorMinorRequests: ${error.message}`)
+    }
 }

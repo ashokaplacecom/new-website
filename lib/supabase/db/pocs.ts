@@ -1,4 +1,4 @@
-import { createAdminClient } from '../server'
+import prisma from '@/lib/prisma'
 
 export interface POC {
     id: number
@@ -7,63 +7,59 @@ export interface POC {
 }
 
 export async function getPOCByStudentId(studentId: number): Promise<POC | null> {
-    const supabase = createAdminClient()
+    const student = await prisma.students.findUnique({
+        where: { id: BigInt(studentId) },
+        select: { poc: true }
+    })
 
-    // 1. Get the POC id from the students table in public schema
-    const { data: student, error: studentError } = await supabase
-        .from('students')
-        .select('poc')
-        .eq('id', studentId)
-        .single()
-
-    if (studentError || !student?.poc) {
-        console.error('getPOCByStudentId: Student or POC ID not found', studentError)
+    if (!student?.poc) {
         return null
     }
 
-    // 2. Get the POC details from the pocs table in verifications schema
-    const { data: poc, error: pocError } = await supabase
-        .schema('requests')
-        .from('pocs')
-        .select('id, poc_name, email')
-        .eq('id', student.poc)
-        .single()
+    const poc = await prisma.pocs.findUnique({
+        where: { id: student.poc },
+        select: { id: true, poc_name: true, email: true }
+    })
 
-    if (pocError) {
-        console.error('getPOCByStudentId: POC details fetch failed', pocError)
+    if (!poc) {
         return null
     }
 
-    return poc as POC
+    return {
+        id: Number(poc.id),
+        poc_name: poc.poc_name || '',
+        email: poc.email || ''
+    }
 }
 
 export async function getPOCById(pocId: number): Promise<POC | null> {
-    const supabase = createAdminClient()
+    const poc = await prisma.pocs.findUnique({
+        where: { id: BigInt(pocId) },
+        select: { id: true, poc_name: true, email: true }
+    })
 
-    const { data, error } = await supabase
-        .schema('requests')
-        .from('pocs')
-        .select('id, poc_name, email')
-        .eq('id', pocId)
-        .single()
-
-    if (error) return null
-    return data
+    if (!poc) return null
+    return {
+        id: Number(poc.id),
+        poc_name: poc.poc_name || '',
+        email: poc.email || ''
+    }
 }
 
 export async function getLeadershipPOCs(): Promise<POC[]> {
-    const supabase = createAdminClient()
-
-    const { data, error } = await supabase
-        .schema('requests')
-        .from('pocs')
-        .select('id, poc_name, email')
-        .eq('role', 'leadership')
-
-    if (error) {
+    try {
+        const pocs = await prisma.pocs.findMany({
+            where: { role: 'leadership' },
+            select: { id: true, poc_name: true, email: true }
+        })
+        
+        return pocs.map(poc => ({
+            id: Number(poc.id),
+            poc_name: poc.poc_name || '',
+            email: poc.email || ''
+        }))
+    } catch (error) {
         console.error('getLeadershipPOCs error:', error)
         return []
     }
-    
-    return data as POC[]
 }

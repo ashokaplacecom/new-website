@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server'
 import { getStudentByEmail } from '@/lib/supabase/db/students'
 import { getArchivedRequests } from '@/lib/supabase/db/requests'

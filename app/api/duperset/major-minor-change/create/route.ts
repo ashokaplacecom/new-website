@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { after, NextRequest, NextResponse } from 'next/server'
 import { getStudentById, decrementMajorMinorCount } from '@/lib/supabase/db/students'
 import { hasPendingMajorMinorRequest, createMajorMinorRequest } from '@/lib/supabase/db/major_minor_requests'
@@ -60,7 +61,7 @@ export async function POST(req: NextRequest) {
         }
         
         // Validate email matches the student record
-        if (student.email.toLowerCase() !== email.toLowerCase()) {
+        if (student.email?.toLowerCase() !== email.toLowerCase()) {
             return NextResponse.json(
                 { success: false, message: 'Email does not match the student record.' },
                 { status: 403 }
@@ -77,7 +78,7 @@ export async function POST(req: NextRequest) {
         }
 
         // Check remaining count
-        if (student['major-minor-change-count'] <= 0) {
+        if ((student['major-minor-change-count'] ?? 0) <= 0) {
             return NextResponse.json(
                 { success: false, message: 'You have reached the maximum allowed number of major/minor changes.' },
                 { status: 403 }
@@ -106,14 +107,14 @@ export async function POST(req: NextRequest) {
 
                 // 1. Student Email
                 const studentTemplate = studentMajorMinorRequestEmail({
-                    name: student.name,
+                    name: student.name || '',
                     currentMajor,
                     currentMinor,
                     prospectiveMajor,
                     prospectiveMinor,
                 })
                 mailPromises.push(
-                    sendMail({ to: student.email, template: studentTemplate })
+                    sendMail({ to: student.email || '', template: studentTemplate })
                         .catch(err => console.error(`[major/minor change] Student email failed:`, err))
                 )
 
@@ -121,8 +122,8 @@ export async function POST(req: NextRequest) {
                 if (leadershipPOCs.length > 0) {
                     const pocTemplate = pocMajorMinorRequestEmail({
                         pocName: 'Leadership Team',
-                        studentName: student.name,
-                        studentEmail: student.email,
+                        studentName: student.name || '',
+                        studentEmail: student.email || '',
                         currentMajor,
                         currentMinor,
                         prospectiveMajor,

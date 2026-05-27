@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { after, NextRequest, NextResponse } from 'next/server'
 import { getStudentByEmail, decrementEmergencies } from '@/lib/supabase/db/students'
 import { hasPendingRequest, createRequest } from '@/lib/supabase/db/requests'
@@ -62,7 +63,7 @@ export async function POST(req: NextRequest) {
 
         // Emergency-specific: check remaining count
         if (isEmergency) {
-            if (student.emergencies_remaining <= 0) {
+            if ((student.emergencies_remaining ?? 0) <= 0) {
                 // Still send a denial email so student is informed
                 await sendMail({
                     to: email,
@@ -116,12 +117,12 @@ export async function POST(req: NextRequest) {
                 // 1. Student Email
                 const studentTemplate = isEmergency
                     ? requestStudentEmergencyEmail({
-                        name: student.name,
+                        name: student.name || '',
                         message: studentMessage,
-                        emergenciesRemaining: student.emergencies_remaining - 1,
+                        emergenciesRemaining: (student.emergencies_remaining ?? 0) - 1,
                     })
                     : requestStudentEmail({
-                        name: student.name,
+                        name: student.name || '',
                         message: studentMessage,
                     })
                 
@@ -135,7 +136,7 @@ export async function POST(req: NextRequest) {
                     const pocTemplate = isEmergency
                         ? requestPOCEmergencyEmail({
                             pocName: poc.poc_name,
-                            studentName: student.name,
+                            studentName: student.name || '',
                             studentEmail: email,
                             studentMessage,
                             portalLink: PORTAL_LINK,
@@ -143,7 +144,7 @@ export async function POST(req: NextRequest) {
                         })
                         : requestPOCEmail({
                             pocName: poc.poc_name,
-                            studentName: student.name,
+                            studentName: student.name || '',
                             studentEmail: email,
                             studentMessage,
                             portalLink: PORTAL_LINK,

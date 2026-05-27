@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server'
 import { getMajorMinorRequestById, modifyMajorMinorRequest } from '@/lib/supabase/db/major_minor_requests'
 import { RequestStatus } from '@/lib/supabase/db/requests'
@@ -68,6 +69,12 @@ export async function POST(req: NextRequest) {
 
         // Fetch the request
         const request = await getMajorMinorRequestById(requestId)
+        if (!request) {
+            return NextResponse.json(
+                { success: false, message: 'Request not found.' },
+                { status: 404 }
+            )
+        }
 
         // Check it's still pending
         if (request.status !== 'pending') {
@@ -88,7 +95,7 @@ export async function POST(req: NextRequest) {
         // Log audit trail immediately after DB update
         try {
             await logAuditTrail(
-                request.student, // User who this request belongs to
+                request.student || 0, // User who this request belongs to
                 method === 'approved' ? 'MAJOR_MINOR_REQUEST_APPROVED' : 'MAJOR_MINOR_REQUEST_REJECTED',
                 {
                     requestId,
@@ -102,16 +109,15 @@ export async function POST(req: NextRequest) {
         }
 
         // Fetch student details for the email
-        const student = await getStudentById(request.student)
+        const student = await getStudentById(request.student || 0)
 
-        // Send email to student
         if (student) {
             const safePocNote = (pocNote || "").trim()
             const template = method === 'approved'
-                ? majorMinorApprovedStudentEmail({ name: student.name, pocNote: safePocNote })
-                : majorMinorRejectedStudentEmail({ name: student.name, pocNote: safePocNote })
+                ? majorMinorApprovedStudentEmail({ name: student.name || '', pocNote: safePocNote })
+                : majorMinorRejectedStudentEmail({ name: student.name || '', pocNote: safePocNote })
 
-            await sendMail({ to: student.email, template })
+            await sendMail({ to: student.email || '', template })
         }
 
         return NextResponse.json({

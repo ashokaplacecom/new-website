@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
                 console.log(`[POST /api/duperset/otp/generate] [Background] Sending OTP email to ${email}...`)
                 const mailResult = await sendMail({
                     to: email,
-                    template: otpEmail({ name: student.name, otp }),
+                    template: otpEmail({ name: student.name || '', otp }),
                 })
                 console.log(`[POST /api/duperset/otp/generate] [Background] Mail sent:`, mailResult)
 

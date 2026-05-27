@@ -146,7 +146,10 @@ export function MajorMinorChangeForm() {
             setIsLoading(true);
             setApiError(null);
             try {
-                await generateOtpAction(values.email);
+                const res = await generateOtpAction(values.email);
+                if (!res?.success) {
+                    throw new Error(res?.message || "Failed to send OTP. Please try again.");
+                }
                 setEmail(values.email);
                 changeForm.setValue("email", values.email);
                 startResendTimer();
@@ -194,7 +197,7 @@ export function MajorMinorChangeForm() {
             setIsLoading(true);
             setApiError(null);
             try {
-                await verifyOtpAndCreateMajorMinorAction({
+                const res = await verifyOtpAndCreateMajorMinorAction({
                     email: values.email,
                     otp: otpValue,
                     ashokaId: values.ashokaId,
@@ -203,6 +206,9 @@ export function MajorMinorChangeForm() {
                     prospectiveMajor: values.prospectiveMajor,
                     prospectiveMinor: values.prospectiveMinor,
                 });
+                if (!res?.success) {
+                    throw new Error(res?.message || "Failed to submit request. Please try again.");
+                }
 
                 haptic("success");
                 setSuccessMessage(
@@ -225,7 +231,10 @@ export function MajorMinorChangeForm() {
         if (resendTimer > 0 || !email) return;
         haptic("selection");
         try {
-            await generateOtpAction(email);
+            const res = await generateOtpAction(email);
+            if (!res?.success) {
+                throw new Error(res?.message || "Failed to resend OTP.");
+            }
             startResendTimer();
             haptic("success");
         } catch (err: any) {

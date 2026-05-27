@@ -1,0 +1,214 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  schemas  = ["next_auth", "public", "requests"]
+}
+
+model admin {
+  id         BigInt   @id @default(autoincrement())
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  email      String?
+  name       String?
+
+  @@schema("public")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model audit_trail {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  action     String
+  user_id    BigInt?
+  metadata   Json?
+  created_at DateTime? @default(now()) @db.Timestamp(6)
+  students   students? @relation(fields: [user_id], references: [id], onDelete: NoAction)
+
+  @@schema("public")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model external_opportunities {
+  id                       BigInt    @id @default(autoincrement())
+  created_at               DateTime  @default(now()) @db.Timestamptz(6)
+  submitter_email          String?
+  title                    String?
+  recruiting_body          String?
+  deadline                 DateTime? @db.Timestamptz(6)
+  jd_link                  String?
+  isRolling                Boolean?  @default(false)
+  role                     String?
+  category                 String?
+  compensation             String?
+  duration                 String?
+  eligibility              String?
+  skills                   String[]
+  apply_url                String?
+  jd_storage_path          String?
+  is_active                Boolean   @default(true)
+  archived_at              DateTime? @db.Timestamptz(6)
+  work_arrangement         String?
+  compensation_type        String?
+  duration_weeks           String?
+  start_date               DateTime? @db.Timestamptz(6)
+  placecom_notes           String?
+  job_description          String?
+  eligibility_restrictions String?
+  apply_method             String?
+
+  @@index([is_active, deadline], map: "idx_opportunities_active")
+  @@schema("public")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model students {
+  id                       BigInt               @id(map: "Students_pkey") @default(autoincrement())
+  name                     String?
+  email                    String?              @unique(map: "Students_email_key")
+  program                  String?
+  emergencies_remaining    Int?                 @default(3) @db.SmallInt
+  poc                      BigInt?
+  otp                      Int?
+  otp_expiry               DateTime?            @db.Timestamptz(6)
+  major_minor_change_count Int?                 @map("major-minor-change-count") @db.SmallInt
+  audit_trail              audit_trail[]
+  pocs                     pocs?                @relation(fields: [poc], references: [id], onDelete: NoAction, map: "Students_poc_fkey")
+  major_minor_change       major_minor_change[]
+  verifications            verifications[]
+
+  @@schema("public")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model major_minor_change {
+  id                Int       @id @default(autoincrement())
+  created_at        DateTime  @default(now()) @db.Timestamptz(6)
+  student           BigInt?
+  current_major     String?
+  current_minor     String?
+  prospective_major String?
+  prospective_minor String?
+  modified_at       DateTime? @db.Timestamptz(6)
+  modified_by       BigInt?
+  poc_note          String?
+  status            status?   @default(pending)
+  pocs              pocs?     @relation(fields: [modified_by], references: [id], onDelete: NoAction)
+  students          students? @relation(fields: [student], references: [id], onDelete: NoAction)
+
+  @@map("major-minor-change")
+  @@schema("requests")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model pocs {
+  id                 BigInt               @id(map: "POCs_pkey") @default(autoincrement())
+  poc_name           String?
+  email              String?              @unique(map: "POCs_email_key")
+  role               poc_role?            @default(standard)
+  students           students[]
+  major_minor_change major_minor_change[]
+  verifications      verifications[]
+
+  @@schema("requests")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model verifications {
+  id              BigInt    @id(map: "requests_pkey") @default(autoincrement())
+  request_at      DateTime  @default(now()) @db.Timestamptz(6)
+  student         BigInt?
+  status          status?
+  student_message String?
+  is_emergency    Boolean   @default(false)
+  poc_note        String?
+  modified_at     DateTime? @db.Timestamptz(6)
+  modified_by     BigInt?
+  deadline        DateTime? @db.Timestamptz(6)
+  pocs            pocs?     @relation(fields: [modified_by], references: [id], onDelete: NoAction, map: "requests_modified_by_fkey")
+  students        students? @relation(fields: [student], references: [id], onDelete: NoAction, map: "requests_student_fkey")
+
+  @@schema("requests")
+}
+
+/// This enum is commented in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+enum poc_role {
+  standard
+  leadership
+
+  @@schema("requests")
+}
+
+enum status {
+  pending
+  rejected
+  approved
+
+  @@schema("requests")
+}
+
+model User {
+  id            String          @id @default(cuid())
+  name          String?
+  email         String?         @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@schema("next_auth")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@schema("next_auth")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@schema("next_auth")
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@schema("next_auth")
+}
