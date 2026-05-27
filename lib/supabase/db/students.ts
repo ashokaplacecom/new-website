@@ -2,7 +2,7 @@ import { createClient, createAdminClient } from '../server'
 
 // Check student exists and has no pending request
 export async function getStudentByEmail(email: string) {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     const { data, error } = await supabase
         .from('students')
