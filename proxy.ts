@@ -8,7 +8,7 @@ const ALLOWED_ORIGINS = [
 ];
 
 // Page routes that require an authenticated session
-const PROTECTED_ROUTES = ["/duperset", "/submit-opportunity", "/backend"];
+const PROTECTED_ROUTES = ["/duperset", "/submit-opportunity", "/backend", "/admin"];
 
 export async function proxy(req: NextRequest) {
     const { pathname } = req.nextUrl;
@@ -134,8 +134,8 @@ export async function proxy(req: NextRequest) {
             return NextResponse.redirect(new URL("/duperset", req.url));
         }
 
-        // Only admins can access the backend CMS
-        if ((pathname.startsWith("/backend") || pathname.startsWith("/keystatic")) && token.isAdmin !== true) {
+        // Only admins can access the backend CMS or the admin panel
+        if ((pathname.startsWith("/backend") || pathname.startsWith("/keystatic") || pathname.startsWith("/admin")) && token.isAdmin !== true) {
             return NextResponse.redirect(new URL("/", req.url));
         }
     }
@@ -154,5 +154,7 @@ export const config = {
         "/backend/:path*",
         "/keystatic",
         "/keystatic/:path*",
+        "/admin",
+        "/admin/:path*",
     ],
 };
