@@ -1,11 +1,11 @@
 ---
 title: Connect PlaceCom — Ashoka University
-description: Connecting Ashoka's brightest minds with the world's best opportunities.
+description: Connecting Ashoka's brightest minds with India's best opportunities.
 sections:
   - discriminant: about-hero
     value:
       heading: The Placement Committee
-      subheading: Connecting Ashoka's brightest minds with the world's best opportunities.
+      subheading: Connecting Ashoka's brightest minds with India's best opportunities.
       cta:
         label: Connect with Us
         href: /contact
