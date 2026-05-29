@@ -10,7 +10,7 @@ const ALLOWED_ORIGINS = [
 // Page routes that require an authenticated session
 const PROTECTED_ROUTES = ["/duperset", "/submit-opportunity", "/backend"];
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
     const { pathname } = req.nextUrl;
 
     // ── 1. API routes — CORS + API-key gate + Trailing Slash Bypass ─────────
