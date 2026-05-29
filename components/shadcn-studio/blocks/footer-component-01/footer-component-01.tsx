@@ -1,4 +1,4 @@
-import { FacebookIcon, InstagramIcon, TwitterIcon, YoutubeIcon } from 'lucide-react'
+import { FacebookIcon, InstagramIcon, LinkedinIcon, TwitterIcon, YoutubeIcon } from 'lucide-react'
 
 import { Separator } from '@/components/ui/separator'
 
@@ -30,10 +30,10 @@ const Footer = () => {
         </div>
 
         <div className='flex items-center gap-4'>
-          <a href='#'>
-            <FacebookIcon className='size-5' />
+          <a href='https://www.linkedin.com/showcase/ashoka-university-career-development-office' target='_blank'>
+            <LinkedinIcon className='size-5' />
           </a>
-          <a href='#'>
+          <a href='https://www.instagram.com/placecomashoka/' target='_blank'>
             <InstagramIcon className='size-5' />
           </a>
           <a href='#'>
@@ -51,9 +51,10 @@ const Footer = () => {
         <p className='text-center font-medium text-sm md:text-base text-balance'>
           {`©${new Date().getFullYear()}`}{' '}
           <a href='https://ashoka.edu.in' className='hover:underline'>
-            Connect Placecom Ashoka University
+            Connect Placement Committee, Ashoka University
           </a>
-          , Made by Soham Tulsyan. Maintained by Placecom.
+          <br />
+          <span className='font-medium text-primary font-900'> Made by Ananya Karel, Anshika Chaudhry, Ibrahim Khalil, Soham Tulsyan, & Saransh Goel</span>
         </p>
       </div>
     </footer>
