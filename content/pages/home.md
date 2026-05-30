@@ -6,7 +6,7 @@ sections:
     value:
       heading: The Placement Committee
       subheading: Connecting Ashoka's brightest minds with the world's best opportunities.
-      backgroundImage: /images/uploads/hero-bg.jpeg
+      backgroundImage: /images/uploads/sections/0/value/backgroundImage.jpeg
       cta:
         label: Connect with Us
         href: /contact
@@ -20,13 +20,13 @@ sections:
       columns: 4
       items:
         - label: Students Placed
-          value: '312'
+          value: '400'
           suffix: +
         - label: Recruiting Partners
-          value: '85'
+          value: '200'
           suffix: +
         - label: Verifications Processed
-          value: '1400'
+          value: '8000'
           suffix: +
         - label: Highest Package (LPA)
           value: '42'
