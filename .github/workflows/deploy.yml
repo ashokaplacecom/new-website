@@ -40,15 +40,6 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            cd ~/new-website
-            git pull
-            npm ci --omit=dev
-            npm install typescript --save-dev
-            NODE_OPTIONS="--max-old-space-size=512" npm run build
-            cp -r .next/static .next/standalone/.next/static
-            cp -r public .next/standalone/public
-            pm2 restart nextjs
-            echo "Deploy complete"
+          script: bash ~/deploy.sh
           script_stop: true
           command_timeout: 10m
