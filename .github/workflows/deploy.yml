@@ -8,7 +8,6 @@ on:
 jobs:
   build-and-verify:
     runs-on: ubuntu-latest
-    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -25,14 +24,25 @@ jobs:
       - name: Verify build
         run: npm run build
         env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DIRECT_URL: ${{ secrets.DIRECT_URL }}
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-          # add any other env vars your build needs here
+
+      - name: Notify on build failure
+        if: failure()
+        run: |
+          curl -L -X POST "${{ secrets.GAS_API_URL }}" \
+            -H "Content-Type: application/x-www-form-urlencoded" \
+            --data-urlencode "key=${{ secrets.GAS_API_KEY }}" \
+            --data-urlencode "to_email=${{ secrets.NOTIFY_EMAIL }}" \
+            --data-urlencode "from_alias=GitHub CI" \
+            --data-urlencode "email_subject=❌ Build failed on main" \
+            --data-urlencode "email_body=<h2>Build failed</h2><p><b>Commit:</b> ${{ github.sha }}</p><p><b>By:</b> ${{ github.actor }}</p><p><b>Message:</b> ${{ github.event.head_commit.message }}</p><p><a href='https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}'>View logs</a></p>"
 
   deploy:
     runs-on: ubuntu-latest
-    needs: build-and-verify  # only runs if build-and-verify passes
-    
+    needs: build-and-verify
     steps:
       - name: Deploy to server
         uses: appleboy/ssh-action@v1.0.3
@@ -43,3 +53,12 @@ jobs:
           script: bash ~/deploy.sh
           script_stop: true
           command_timeout: 10m
+
+      - name: Notify on deploy failure
+        if: failure()
+        run: |
+          curl -L -X POST "${{ secrets.GAS_API_URL }}" \
+            -H "Content-Type: application/x-www-form-urlencoded" \
+            --data-urlencode "key=${{ secrets.GAS_API_KEY }}" \
+            --data-urlencode "to_email=${{ secrets.NOTIFY_EMAIL }}" \
+            --data-urlencode "from_alias=GitHub CI" \
