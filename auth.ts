@@ -111,7 +111,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
 
       // Fetch roles if not already determined in the token
-      if (token.email) {
+      if (token.email && token.isPoc === undefined && token.isAdmin === undefined) {
         console.log(`[Auth] Checking roles for: ${token.email}`);
 
         // ── Check POC status ──

@@ -1,5 +1,5 @@
 "use server";
-import { createAdminClient } from "@/lib/supabase/server";
+import prisma from "@/lib/prisma";
 
 function getBaseUrl() {
     if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL}`;
@@ -8,15 +8,17 @@ function getBaseUrl() {
 
 export async function fetchAllPOCs() {
     try {
-        const supabase = createAdminClient();
-        const { data, error } = await supabase.schema("requests").from("pocs").select("poc_name");
-        if (error) throw error;
-        return data?.map(d => d.poc_name) || [];
+        const pocs = await prisma.pocs.findMany({
+            select: { poc_name: true },
+            orderBy: { poc_name: 'asc' },
+        });
+        return pocs.map(p => p.poc_name).filter(Boolean) as string[];
     } catch (e: any) {
         console.error("fetchAllPOCs Error:", e);
         return [];
     }
 }
+
 
 export async function fetchDashboardRequests() {
     try {

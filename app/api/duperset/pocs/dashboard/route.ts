@@ -1,86 +1,78 @@
 export const dynamic = 'force-dynamic';
 import { NextResponse } from "next/server";
-import { createAdminClient } from "@/lib/supabase/server";
+import prisma from "@/lib/prisma";
 
 export async function GET() {
     try {
-        const supabaseAdmin = createAdminClient();
-        const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+        const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
-        // 1. Fetch pending verifications OR from the last week
-        const { data: verifsData, error: verifsError } = await supabaseAdmin
-            .schema("requests")
-            .from("verifications")
-            .select('*')
-            .or(`status.eq.pending,request_at.gte.${oneWeekAgo}`);
-
-        if (verifsError) throw verifsError;
-
-        // 2. Fetch pending major-minor changes OR from the last week
-        const { data: mmcData, error: mmcError } = await supabaseAdmin
-            .schema("requests")
-            .from("major-minor-change")
-            .select('*')
-            .or(`status.eq.pending,created_at.gte.${oneWeekAgo}`);
-
-        if (mmcError) throw mmcError;
-
-        // 3. Extract unique student IDs
-        const studentIds = new Set<number>();
-        verifsData.forEach(v => studentIds.add(v.student));
-        mmcData.forEach(m => studentIds.add(m.student));
-
-        let studentsData: any[] = [];
-        if (studentIds.size > 0) {
-            // 4. Fetch students
-            const { data, error: studentsError } = await supabaseAdmin
-                .from('students')
-                .select('id, name, email, poc')
-                .in('id', Array.from(studentIds));
-
-            if (studentsError) throw studentsError;
-            studentsData = data || [];
-        }
-
-        // 5. Extract unique POC IDs
-        const pocIds = new Set<number>();
-        studentsData.forEach(s => {
-            if (s.poc) pocIds.add(s.poc);
+        // 1. Fetch ALL pending verifications + any from the last week (for metrics)
+        const verifsData = await prisma.verifications.findMany({
+            where: {
+                OR: [
+                    { status: 'pending' },
+                    { request_at: { gte: oneWeekAgo } },
+                ],
+            },
+            orderBy: { id: 'asc' },
         });
 
-        let pocsData: any[] = [];
-        if (pocIds.size > 0) {
-            // 6. Fetch POCs
-            const { data, error: pocsError } = await supabaseAdmin
-                .schema('requests')
-                .from('pocs')
-                .select('id, poc_name')
-                .in('id', Array.from(pocIds));
+        // 2. Fetch ALL pending major-minor changes + any from the last week (for metrics)
+        const mmcData = await prisma.major_minor_change.findMany({
+            where: {
+                OR: [
+                    { status: 'pending' },
+                    { created_at: { gte: oneWeekAgo } },
+                ],
+            },
+            orderBy: { id: 'asc' },
+        });
 
-            if (pocsError) throw pocsError;
-            pocsData = data || [];
+        // 3. Extract unique student IDs
+        const studentIds = new Set<bigint>();
+        for (const v of verifsData) { if (v.student) studentIds.add(v.student); }
+        for (const m of mmcData) { if (m.student) studentIds.add(m.student); }
+
+        let studentsData: { id: bigint; name: string | null; email: string | null; poc: bigint | null }[] = [];
+        if (studentIds.size > 0) {
+            studentsData = await prisma.students.findMany({
+                where: { id: { in: Array.from(studentIds) } },
+                select: { id: true, name: true, email: true, poc: true },
+            });
         }
 
-        // Create lookups
-        const studentMap = new Map(studentsData.map(s => [s.id, s]));
-        const pocMap = new Map(pocsData.map(p => [p.id, p]));
+        // 4. Extract unique POC IDs
+        const pocIds = new Set<bigint>();
+        studentsData.forEach(s => { if (s.poc) pocIds.add(s.poc); });
+
+        let pocsData: { id: bigint; poc_name: string | null }[] = [];
+        if (pocIds.size > 0) {
+            pocsData = await prisma.pocs.findMany({
+                where: { id: { in: Array.from(pocIds) } },
+                select: { id: true, poc_name: true },
+            });
+        }
+
+        // Create lookups (use Number for BigInt keys)
+        const studentMap = new Map(studentsData.map(s => [Number(s.id), s]));
+        const pocMap = new Map(pocsData.map(p => [Number(p.id), p]));
 
         // Format for frontend
         const formattedRequests = [];
 
         for (const v of verifsData) {
-            const student = studentMap.get(v.student);
-            const pocId = student?.poc;
+            const student = v.student ? studentMap.get(Number(v.student)) : null;
+            const pocId = student?.poc ? Number(student.poc) : null;
             const poc = pocId ? pocMap.get(pocId) : null;
 
             formattedRequests.push({
                 type: 'verification',
-                id: `VER-${v.id}`, 
-                baseId: v.id,
+                id: `VER-${Number(v.id)}`,
+                baseId: Number(v.id),
                 studentName: student?.name || "Unknown",
                 email: student?.email || "",
                 poc: poc?.poc_name || "Unassigned",
-                deadline: v.deadline, 
+                deadline: v.deadline?.toISOString() ?? null,
                 status: v.is_emergency ? "emergency" : v.status,
                 studentMessage: v.student_message,
                 pocMessage: v.poc_note || ""
@@ -88,12 +80,12 @@ export async function GET() {
         }
 
         for (const m of mmcData) {
-            const student = studentMap.get(m.student);
-            const pocId = student?.poc;
+            const student = m.student ? studentMap.get(Number(m.student)) : null;
+            const pocId = student?.poc ? Number(student.poc) : null;
             const poc = pocId ? pocMap.get(pocId) : null;
 
-            const defaultDeadline = new Date(new Date(m.created_at).getTime() + 48 * 60 * 60 * 1000).toISOString();
-            
+            const defaultDeadline = new Date(m.created_at.getTime() + 48 * 60 * 60 * 1000).toISOString();
+
             const messageParts = [];
             if (m.current_major) messageParts.push(`Current Major: ${m.current_major}`);
             if (m.current_minor) messageParts.push(`Current Minor: ${m.current_minor}`);
