@@ -8,6 +8,7 @@ export const metadata = { title: "View Requests – Toolbox" };
 type RequestData = {
     raised_at: string;
     status: string;
+    deadline?: string;
 };
 
 function getStatusIcon(status: string) {
@@ -89,8 +90,17 @@ export default async function ViewRequestsPage() {
                                                 <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-semibold">LATEST</span>
                                             </p>
                                             <p className="text-xs text-muted-foreground">
-                                                Raised: {new Date(data.verifications.active.raised_at).toLocaleDateString()}
+                                                Raised: {new Date(data.verifications.active.raised_at).toLocaleString('en-IN', {
+                                                    day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                                                })}
                                             </p>
+                                            {data.verifications.active.deadline && (
+                                                <p className="text-xs font-semibold text-primary/80">
+                                                    Deadline: {new Date(data.verifications.active.deadline).toLocaleString('en-IN', {
+                                                        day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                                                    })}
+                                                </p>
+                                            )}
                                         </div>
                                         <div className={cn("flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold uppercase tracking-wider w-fit", getStatusTextClass(data.verifications.active.status))}>
                                             {getStatusIcon(data.verifications.active.status)}
@@ -103,7 +113,9 @@ export default async function ViewRequestsPage() {
                                         <div className="space-y-1">
                                             <p className="text-sm font-medium text-muted-foreground">Verification Request</p>
                                             <p className="text-xs text-muted-foreground/80">
-                                                Raised: {new Date(req.raised_at).toLocaleDateString()}
+                                                Raised: {new Date(req.raised_at).toLocaleString('en-IN', {
+                                                    day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                                                })}
                                             </p>
                                         </div>
                                         <div className={cn("flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[11px] font-semibold uppercase tracking-wider w-fit", getStatusTextClass(req.status))}>
@@ -135,8 +147,17 @@ export default async function ViewRequestsPage() {
                                                 <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-semibold">LATEST</span>
                                             </p>
                                             <p className="text-xs text-muted-foreground">
-                                                Raised: {new Date(data.majorMinor.active.raised_at).toLocaleDateString()}
+                                                Raised: {new Date(data.majorMinor.active.raised_at).toLocaleString('en-IN', {
+                                                    day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                                                })}
                                             </p>
+                                            {data.majorMinor.active.deadline && (
+                                                <p className="text-xs font-semibold text-primary/80">
+                                                    Deadline: {new Date(data.majorMinor.active.deadline).toLocaleString('en-IN', {
+                                                        day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                                                    })}
+                                                </p>
+                                            )}
                                         </div>
                                         <div className={cn("flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold uppercase tracking-wider w-fit", getStatusTextClass(data.majorMinor.active.status))}>
                                             {getStatusIcon(data.majorMinor.active.status)}
@@ -149,7 +170,9 @@ export default async function ViewRequestsPage() {
                                         <div className="space-y-1">
                                             <p className="text-sm font-medium text-muted-foreground">Programme Change Request</p>
                                             <p className="text-xs text-muted-foreground/80">
-                                                Raised: {new Date(req.raised_at).toLocaleDateString()}
+                                                Raised: {new Date(req.raised_at).toLocaleString('en-IN', {
+                                                    day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                                                })}
                                             </p>
                                         </div>
                                         <div className={cn("flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[11px] font-semibold uppercase tracking-wider w-fit", getStatusTextClass(req.status))}>

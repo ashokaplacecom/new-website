@@ -49,7 +49,8 @@ export async function POST(req: NextRequest) {
             raised_at: request.request_at,
             modified_at: request.modified_at || null,
             modified_by: request.modified_by || null,
-            status: request.status
+            status: request.status,
+            deadline: request.deadline
         }
 
         if (body.include_created_at || body.created_at) {

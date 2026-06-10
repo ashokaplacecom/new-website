@@ -18,7 +18,9 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { Checkbox } from "@/components/ui/checkbox";
-import { fetchTablePage, updateRow, deleteRows } from "./actions";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { fetchTablePage, updateRow, deleteRows, bulkUpdateRows } from "./actions";
 import { type TableMeta, type ColumnDef, type FetchResult } from "./schema";
 
 const PAGE_SIZE = 50;
@@ -346,6 +348,15 @@ function TableView({ meta }: { meta: TableMeta }) {
               Delete Selected ({selectedIds.size})
             </Button>
           )}
+
+          <BulkUpdateDialog 
+            meta={meta}
+            selectedIds={Array.from(selectedIds)} 
+            onSuccess={() => {
+              setSelectedIds(new Set());
+              loadPage(page, debouncedSearchQuery);
+            }} 
+          />
         </div>
       </div>
 
@@ -585,5 +596,110 @@ function EditCell({
       onChange={(e) => onChange(e.target.value)}
       className="h-8 min-w-[140px]"
     />
+  );
+}
+
+function BulkUpdateDialog({
+  meta,
+  selectedIds,
+  onSuccess,
+}: {
+  meta: TableMeta;
+  selectedIds: number[];
+  onSuccess: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [columnKey, setColumnKey] = useState<string>("");
+  const [value, setValue] = useState<string>("");
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [target, setTarget] = useState<"all" | "selected">(selectedIds.length > 0 ? "selected" : "all");
+
+  const editableCols = meta.columns.filter(c => c.editable && (c.type === "number" || c.type === "string" || c.type === "boolean" || c.type === "enum"));
+
+  useEffect(() => {
+    if (selectedIds.length > 0 && target === "all") setTarget("selected");
+    if (selectedIds.length === 0) setTarget("all");
+  }, [selectedIds.length, target]);
+
+  const handleUpdate = async () => {
+    if (!columnKey) return;
+    setIsUpdating(true);
+    try {
+      const result = await bulkUpdateRows(meta.name, target === "all" ? "all" : selectedIds, columnKey, value);
+      if (result.success) {
+        toast.success(result.message);
+        setOpen(false);
+        onSuccess();
+      } else {
+        toast.error(result.message);
+      }
+    } catch {
+      toast.error("Failed to bulk update.");
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline" size="sm" className="h-9 ml-2">
+          Bulk Update
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Bulk Update</DialogTitle>
+          <DialogDescription>
+            Update a specific column for multiple rows in the <strong>{meta.label}</strong> table.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+          <div className="flex flex-col gap-2">
+            <Label>Target Rows</Label>
+            <Select value={target} onValueChange={(v: "all" | "selected") => setTarget(v)}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Rows</SelectItem>
+                <SelectItem value="selected" disabled={selectedIds.length === 0}>
+                  Selected Rows ({selectedIds.length})
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex flex-col gap-2">
+            <Label>Column to Update</Label>
+            <Select value={columnKey} onValueChange={setColumnKey}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a column" />
+              </SelectTrigger>
+              <SelectContent>
+                {editableCols.map(c => (
+                  <SelectItem key={c.key} value={c.key}>{c.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex flex-col gap-2">
+            <Label>New Value</Label>
+            <Input 
+              value={value} 
+              onChange={e => setValue(e.target.value)} 
+              placeholder="Enter new value" 
+              disabled={!columnKey}
+            />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setOpen(false)} disabled={isUpdating}>Cancel</Button>
+          <Button onClick={handleUpdate} disabled={!columnKey || isUpdating}>
+            {isUpdating && <Loader2 className="mr-2 size-4 animate-spin" />}
+            Update
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

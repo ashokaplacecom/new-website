@@ -72,8 +72,9 @@ export async function GET() {
                 studentName: student?.name || "Unknown",
                 email: student?.email || "",
                 poc: poc?.poc_name || "Unassigned",
+                pocId: pocId,
                 deadline: v.deadline?.toISOString() ?? null,
-                status: v.is_emergency ? "emergency" : v.status,
+                status: (v.is_emergency && v.status === "pending") ? "emergency" : v.status,
                 studentMessage: v.student_message,
                 pocMessage: v.poc_note || ""
             });
@@ -99,6 +100,7 @@ export async function GET() {
                 studentName: student?.name || "Unknown",
                 email: student?.email || "",
                 poc: poc?.poc_name || "Unassigned",
+                pocId: pocId,
                 deadline: defaultDeadline,
                 status: m.status,
                 studentMessage: messageParts.join("\n"),

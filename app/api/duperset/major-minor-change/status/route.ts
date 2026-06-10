@@ -49,7 +49,8 @@ export async function POST(req: NextRequest) {
             raised_at: request.created_at,
             modified_at: request.modified_at || null,
             modified_by: request.modified_by || null,
-            status: request.status
+            status: request.status,
+            deadline: new Date(new Date(request.created_at).getTime() + 48 * 60 * 60 * 1000).toISOString()
         }
 
         return NextResponse.json({ success: true, data })

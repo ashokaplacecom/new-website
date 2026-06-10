@@ -121,7 +121,8 @@ export async function getLatestRequest(studentId: number) {
                 status: true,
                 student_message: true,
                 poc_note: true,
-                is_emergency: true
+                is_emergency: true,
+                deadline: true
             }
         })
         
@@ -139,7 +140,10 @@ export async function getLatestRequest(studentId: number) {
 export async function getArchivedRequests(studentId: number) {
     try {
         const data = await prisma.verifications.findMany({
-            where: { student: BigInt(studentId) },
+            where: { 
+                student: BigInt(studentId),
+                status: { not: 'pending' }
+            },
             orderBy: { request_at: 'desc' },
             take: 10,
             select: {

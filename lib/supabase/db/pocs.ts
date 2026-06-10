@@ -4,6 +4,7 @@ export interface POC {
     id: number
     poc_name: string
     email: string
+    role?: 'standard' | 'leadership' | null
 }
 
 export async function getPOCByStudentId(studentId: number): Promise<POC | null> {
@@ -18,7 +19,7 @@ export async function getPOCByStudentId(studentId: number): Promise<POC | null> 
 
     const poc = await prisma.pocs.findUnique({
         where: { id: student.poc },
-        select: { id: true, poc_name: true, email: true }
+        select: { id: true, poc_name: true, email: true, role: true }
     })
 
     if (!poc) {
@@ -28,21 +29,23 @@ export async function getPOCByStudentId(studentId: number): Promise<POC | null> 
     return {
         id: Number(poc.id),
         poc_name: poc.poc_name || '',
-        email: poc.email || ''
+        email: poc.email || '',
+        role: poc.role
     }
 }
 
 export async function getPOCById(pocId: number): Promise<POC | null> {
     const poc = await prisma.pocs.findUnique({
         where: { id: BigInt(pocId) },
-        select: { id: true, poc_name: true, email: true }
+        select: { id: true, poc_name: true, email: true, role: true }
     })
 
     if (!poc) return null
     return {
         id: Number(poc.id),
         poc_name: poc.poc_name || '',
-        email: poc.email || ''
+        email: poc.email || '',
+        role: poc.role
     }
 }
 

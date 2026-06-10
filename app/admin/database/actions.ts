@@ -292,3 +292,63 @@ export async function deleteRows(
     return { success: false, message };
   }
 }
+
+// ---------------------------------------------------------------------------
+// bulkUpdateRows — bulk update a specific column
+// ---------------------------------------------------------------------------
+
+export async function bulkUpdateRows(
+  tableName: string,
+  ids: number[] | 'all',
+  columnKey: string,
+  value: unknown,
+): Promise<{ success: boolean; message: string }> {
+  try {
+    const meta = TABLE_META.find((t) => t.name === tableName);
+    if (!meta) return { success: false, message: `Unknown table: ${tableName}` };
+
+    // Type casting logic for the value based on column definition
+    let finalValue = value;
+    const colDef = meta.columns.find((c) => c.key === columnKey);
+    if (!colDef) return { success: false, message: `Unknown column: ${columnKey}` };
+
+    if (value === null || value === undefined || value === "") {
+        finalValue = null;
+    } else if (colDef.type === "number") {
+        finalValue = Number(value);
+    } else if (colDef.type === "boolean") {
+        finalValue = value === true || value === "true";
+    }
+
+    const dataObj = { [columnKey]: finalValue };
+    const isBigInt = tableName !== "major_minor_change";
+    const typedIds = ids === 'all' ? [] : (isBigInt ? ids.map((id) => BigInt(id)) : ids);
+    const whereClause: any = ids === 'all' ? {} : { id: { in: typedIds } };
+
+    switch (tableName) {
+      case "students":
+        await prisma.students.updateMany({ where: whereClause, data: dataObj });
+        break;
+      case "pocs":
+        await prisma.pocs.updateMany({ where: whereClause, data: dataObj as any });
+        break;
+      case "verifications":
+        await prisma.verifications.updateMany({ where: whereClause, data: dataObj as any });
+        break;
+      case "major_minor_change":
+        await prisma.major_minor_change.updateMany({ where: whereClause, data: dataObj as any });
+        break;
+      case "external_opportunities":
+        await prisma.external_opportunities.updateMany({ where: whereClause, data: dataObj as any });
+        break;
+      default:
+        return { success: false, message: `Unknown table: ${tableName}` };
+    }
+
+    return { success: true, message: `Successfully bulk updated rows.` };
+  } catch (error) {
+    console.error(`bulkUpdateRows(${tableName}) error:`, error);
+    const message = error instanceof Error ? error.message : "Unknown error during bulk update.";
+    return { success: false, message };
+  }
+}

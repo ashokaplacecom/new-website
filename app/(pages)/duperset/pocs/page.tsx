@@ -65,6 +65,7 @@ interface RequestEntry {
     studentName: string;
     email: string;
     poc: string;
+    pocId?: number | null;
     deadline: Date;
     status: Status;
     studentMessage: string | null;
@@ -193,9 +194,17 @@ function AddNoteDialog({
     entry: RequestEntry;
     onSave: (id: string, message: string) => void;
 }) {
+    const { data: session } = useSession();
     const [open, setOpen] = useState(false);
     const [draft, setDraft] = useState(entry.pocMessage);
     const hasPocMessage = !!entry.pocMessage;
+
+    const isLeadership = session?.user?.pocRole === "leadership";
+    const canModify = isLeadership || (
+        entry.type === "verification" &&
+        session?.user?.pocId !== undefined &&
+        entry.pocId === session.user.pocId
+    );
 
     const handleSave = () => {
         onSave(entry.id, draft);
@@ -204,18 +213,27 @@ function AddNoteDialog({
     };
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={canModify ? setOpen : undefined}>
             <DialogTrigger asChild>
                 <Button
                     variant="ghost"
                     size="sm"
+                    disabled={!canModify}
+                    title={!canModify ? (entry.type === "major-minor" ? "Only leadership POCs can modify major/minor requests" : "Only the assigned POC or Leadership can modify notes") : undefined}
                     className={cn(
                         "h-7 px-2 text-[11px] gap-1.5",
-                        hasPocMessage
+                        !canModify
+                            ? "opacity-40 cursor-not-allowed"
+                            : hasPocMessage
                             ? "text-primary hover:text-primary hover:bg-primary/10"
                             : "text-muted-foreground hover:text-foreground"
                     )}
-                    onClick={() => setDraft(entry.pocMessage)}
+                    onClick={() => {
+                        if (canModify) {
+                            setDraft(entry.pocMessage);
+                            setOpen(true);
+                        }
+                    }}
                 >
                     <MessageSquarePlus className="size-3.5" />
                     {hasPocMessage ? "Edit note" : "Add note"}
@@ -263,7 +281,15 @@ function ActionButton({
     hasViewedStudentMessage: boolean;
     onAction: (id: string, status: "approved" | "rejected") => Promise<void>;
 }) {
+    const { data: session } = useSession();
     const [loading, setLoading] = useState(false);
+
+    const isLeadership = session?.user?.pocRole === "leadership";
+    const canModify = isLeadership || (
+        entry.type === "verification" &&
+        session?.user?.pocId !== undefined &&
+        entry.pocId === session.user.pocId
+    );
 
     // Unlock rules:
     // • approve: must have viewed student message (if one exists) — no note required
@@ -271,10 +297,14 @@ function ActionButton({
     const studentMsgExists = !!entry.studentMessage;
     const approveUnlocked = studentMsgExists ? hasViewedStudentMessage : true;
     const rejectUnlocked = approveUnlocked && !!entry.pocMessage;
-    const unlocked = type === "approve" ? approveUnlocked : rejectUnlocked;
+    const unlocked = (type === "approve" ? approveUnlocked : rejectUnlocked) && canModify;
 
     let tooltipText = "";
-    if (!unlocked) {
+    if (!canModify) {
+        tooltipText = entry.type === "major-minor"
+            ? "Only leadership POCs can modify major/minor requests"
+            : "Only the assigned POC or Leadership can modify this request";
+    } else if (!unlocked) {
         if (type === "approve" && studentMsgExists && !hasViewedStudentMessage) {
             tooltipText = "Read the student's message first";
         } else if (type === "reject") {
@@ -370,7 +400,11 @@ export default function POCDashboard() {
         () => visibleEntries.filter((e) => 
             (pocFilter === "All" || e.poc === pocFilter) &&
             (typeFilter === "All" || e.type === typeFilter)
-        ),
+        ).sort((a, b) => {
+            const dateA = a.deadline ? new Date(a.deadline).getTime() : Infinity;
+            const dateB = b.deadline ? new Date(b.deadline).getTime() : Infinity;
+            return dateA - dateB;
+        }),
         [visibleEntries, pocFilter, typeFilter]
     );
 
@@ -395,6 +429,17 @@ export default function POCDashboard() {
         const pocId = session?.user?.pocId;
         if (!pocId || !entry) {
             toast.error("Error", { description: "You are not an authorized POC or entry invalid." });
+            return;
+        }
+
+        const isLeadership = session?.user?.pocRole === "leadership";
+        const canModify = isLeadership || (
+            entry.type === "verification" &&
+            entry.pocId === pocId
+        );
+
+        if (!canModify) {
+            toast.error("Unauthorized", { description: "You do not have permission to modify this request." });
             return;
         }
 
@@ -562,14 +607,21 @@ export default function POCDashboard() {
                                         <TableCell className="py-3 align-middle">
                                             <p className="text-sm font-medium leading-tight">{entry.studentName}</p>
                                             <p className="text-[11px] text-muted-foreground leading-tight mt-0.5">{entry.email}</p>
-                                            {isEmergency && (
-                                                <div className="flex items-center gap-1 mt-1">
-                                                    <AlertTriangle className="size-2.5 text-destructive" />
-                                                    <span className="text-[10px] font-bold text-destructive uppercase tracking-wider">
-                                                        Emergency
+                                            <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
+                                                {isEmergency && (
+                                                    <div className="flex items-center gap-1">
+                                                        <AlertTriangle className="size-2.5 text-destructive" />
+                                                        <span className="text-[10px] font-bold text-destructive uppercase tracking-wider">
+                                                            Emergency
+                                                        </span>
+                                                    </div>
+                                                )}
+                                                {entry.type === "major-minor" && (
+                                                    <span className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 px-1.5 py-0.5 rounded uppercase tracking-wider">
+                                                        Major/Minor Change
                                                     </span>
-                                                </div>
-                                            )}
+                                                )}
+                                            </div>
                                         </TableCell>
 
                                         <TableCell className="text-[12px] text-muted-foreground py-3 align-middle">

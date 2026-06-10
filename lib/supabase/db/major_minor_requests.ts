@@ -148,7 +148,10 @@ export async function getLatestMajorMinorRequest(studentId: number) {
 export async function getArchivedMajorMinorRequests(studentId: number) {
     try {
         const data = await prisma.major_minor_change.findMany({
-            where: { student: BigInt(studentId) },
+            where: { 
+                student: BigInt(studentId),
+                status: { not: 'pending' }
+            },
             orderBy: { created_at: 'desc' },
             take: 10,
             select: {

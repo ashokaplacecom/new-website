@@ -66,6 +66,12 @@ export async function POST(req: NextRequest) {
                 { status: 404 }
             )
         }
+        if (poc.role !== 'leadership') {
+            return NextResponse.json(
+                { success: false, message: 'Forbidden. Only leadership POCs can modify major/minor requests.' },
+                { status: 403 }
+            )
+        }
 
         // Fetch the request
         const request = await getMajorMinorRequestById(requestId)

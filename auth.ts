@@ -48,6 +48,7 @@ declare module "next-auth" {
       id: string;
       isPoc: boolean;
       pocId?: number;
+      pocRole?: "standard" | "leadership";
       isAdmin: boolean;
     } & DefaultSession["user"];
   }
@@ -58,6 +59,7 @@ declare module "next-auth/jwt" {
     userId?: string;
     isPoc?: boolean;
     pocId?: number;
+    pocRole?: "standard" | "leadership";
     isAdmin?: boolean;
     googlePicture?: string;
   }
@@ -118,16 +120,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         try {
           const pocData = await prisma.pocs.findUnique({
             where: { email: token.email },
-            select: { id: true }
+            select: { id: true, role: true }
           });
 
           token.isPoc = !!pocData;
           if (pocData?.id) {
             token.pocId = Number(pocData.id);
+            token.pocRole = pocData.role || "standard";
           }
         } catch (err) {
           console.error("[Auth] POC catch error:", err);
-          token.isPoc = false;
+          // Do not set token.isPoc so it retries next time
         }
 
         // ── Check Admin status ──
@@ -141,7 +144,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           console.log(`[Auth] isAdmin for ${token.email}: ${token.isAdmin}`);
         } catch (err) {
           console.error("[Auth] Admin catch error:", err);
-          token.isAdmin = false;
+          // Do not set token.isAdmin so it retries next time
         }
       }
 
@@ -162,6 +165,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         session.user.isPoc = token.isPoc ?? false;
         if (token.pocId !== undefined) session.user.pocId = token.pocId as number;
+        if (token.pocRole !== undefined) session.user.pocRole = token.pocRole as "standard" | "leadership";
         session.user.isAdmin = token.isAdmin ?? false;
       }
       return session;

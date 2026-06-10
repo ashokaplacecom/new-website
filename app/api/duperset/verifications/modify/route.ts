@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server'
 import { getRequestById, modifyRequest, RequestStatus } from '@/lib/supabase/db/requests'
 import { getPOCById } from '@/lib/supabase/db/pocs'
+import { getStudentById } from '@/lib/supabase/db/students'
 import { sendMail } from '@/app/api/_lib/mailer'
 import { requestApprovedStudentEmail } from '@/content/emails/templates/request_approved_student'
 import { requestRejectedStudentEmail } from '@/content/emails/templates/request_rejected_student'
@@ -57,6 +58,20 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ success: false, message: `Request is already ${request.status}.` }, { status: 409 })
         }
 
+        const student = await getStudentById(request.student || 0)
+        if (!student) {
+            return NextResponse.json({ success: false, message: 'Student not found.' }, { status: 404 })
+        }
+
+        if (poc.role !== 'leadership') {
+            if (!student.poc || Number(student.poc) !== pocId) {
+                return NextResponse.json({
+                    success: false,
+                    message: 'Forbidden. Standard POCs can only modify requests that list them as the POC.'
+                }, { status: 403 })
+            }
+        }
+
         // Apply status update in DB
         await modifyRequest({
             requestId,
@@ -67,8 +82,6 @@ export async function POST(req: NextRequest) {
 
         // Background processing for email and audit (doing synchronously for now)
         try {
-            const { getStudentById } = await import('@/lib/supabase/db/students')
-            const student = await getStudentById(request.student || 0)
 
             if (student) {
                 const safePocNote = (pocNote || "").trim()
