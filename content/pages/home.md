@@ -69,7 +69,7 @@ sections:
 ---
 ## About Us
 
-The **Placement Committee** at Ashoka University is a dedicated, student-led body functioning under the Career Development Office. Anchored in professionalism and efficient processes, the Committee works to uphold Ashoka’s eminence as a premier liberal arts institution by facilitating meaningful engagement between leading organizations and a highly capable, diverse student body. With a strong focus on quality, consistency, and integrity, we aim to ensure that every stage of the recruitment process reflects the University’s standards of excellence.
+The **Placement Committee** at **Ashoka University** is a dedicated, student-led body functioning under the Career Development Office. Anchored in professionalism and efficient processes, the Committee works to uphold Ashoka’s eminence as a premier liberal arts institution by facilitating meaningful engagement between leading organizations and a highly capable, diverse student body. With a strong focus on quality, consistency, and integrity, we aim to ensure that every stage of the recruitment process reflects the University’s standards of excellence.
 
 Our work extends far beyond coordination and is deeply invested in preparing students to meet the evolving demands of the professional world through structured, end-to-end support. This includes rigorous CV screening, personalised mentoring, and targeted training initiatives such as mock interviews, expert-led resume sessions, group discussions, and domain-specific preparation. In addition, the Committee also develops comprehensive resources, including casebooks and industry guides, while equipping students with insights into market trends and organisational expectations.
 
