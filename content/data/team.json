@@ -3,27 +3,42 @@
     {
       "name": "Aanya Sharma",
       "role": "Placement Coordinator",
-      "batch": "2026"
+      "batch": "2026",
+      "image": "/images/uploads/placeholder.jpg",
+      "bio": "Aanya is a highly motivated Placement Coordinator dedicated to bridging the gap between talent and opportunity. With a keen eye for detail, she manages recruiter relations and ensures a smooth hiring process for all students.",
+      "linkedinUrl": "https://linkedin.com/in/aanyasharma"
     },
     {
       "name": "Rohan Mehta",
       "role": "Outreach Lead",
-      "batch": "2026"
+      "batch": "2026",
+      "image": "/images/uploads/placeholder.jpg",
+      "bio": "Rohan leads the outreach efforts, expanding the university's corporate network. He specializes in establishing new partnerships and bringing top-tier companies to campus.",
+      "linkedinUrl": "https://linkedin.com/in/rohanmehta"
     },
     {
       "name": "Priya Iyer",
       "role": "Events & Communications",
-      "batch": "2027"
+      "batch": "2027",
+      "image": "/images/uploads/placeholder.jpg",
+      "bio": "Priya is the creative force behind PlaceCom's events and communications. She organizes workshops, mock interviews, and ensures students are well-prepared for their placement journeys.",
+      "linkedinUrl": "https://linkedin.com/in/priyaiyer"
     },
     {
       "name": "Karan Singh",
       "role": "Tech & Operations",
-      "batch": "2027"
+      "batch": "2027",
+      "image": "/images/uploads/placeholder.jpg",
+      "bio": "Karan manages the technical infrastructure and operations for the placement committee. He streamlines data flows and ensures the placement portal runs flawlessly during peak recruitment seasons.",
+      "linkedinUrl": "https://linkedin.com/in/karansingh"
     },
     {
       "name": "Soham Tulsyan",
       "role": "Chief Technology Office",
-      "batch": "UG2023"
+      "batch": "UG2023",
+      "image": "/images/uploads/placeholder.jpg",
+      "bio": "Soham drives the technological vision of the team, building scalable solutions to handle complex placement workflows. His expertise lies in web development, system architecture, and automation.",
+      "linkedinUrl": "https://linkedin.com/in/sohamtulsyan"
     }
   ]
 }

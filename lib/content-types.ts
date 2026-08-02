@@ -117,6 +117,17 @@ export interface TeamSection extends SectionBase {
     type: "team";
 }
 
+// ─── Team Data Types (loaded from team.json) ─────────────────────────
+
+export interface TeamMember {
+    name: string;
+    role: string;
+    batch: string;
+    image: string;
+    bio: string;
+    linkedinUrl: string;
+}
+
 // ─── Department Data Types (loaded from departments.json) ────────────
 
 export interface DepartmentLeader {

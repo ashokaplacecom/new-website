@@ -240,6 +240,8 @@ export default config({
               directory: 'public/images/uploads',
               publicPath: '/images/uploads/',
             }),
+            bio: fields.text({ label: 'Bio', multiline: true }),
+            linkedinUrl: fields.text({ label: 'LinkedIn Profile URL' }),
           }),
           { label: 'Members', itemLabel: (props) => props.fields.name.value },
         ),
