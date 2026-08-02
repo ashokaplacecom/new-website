@@ -55,7 +55,7 @@ export function TeamMemberCard({ member }: { member: TeamMember }) {
             <DialogContent className="sm:max-w-3xl overflow-hidden p-0 rounded-xl">
                 <div className="flex flex-col sm:flex-row h-full max-h-[80vh] sm:max-h-[600px]">
                     {/* Left side: Image */}
-                    <div className="relative w-full sm:w-2/5 aspect-square sm:aspect-auto sm:h-full bg-muted shrink-0">
+                    <div className="relative w-full sm:w-2/5 aspect-square sm:aspect-auto sm:h-full sm:min-h-[400px] bg-muted shrink-0">
                         <Image
                             src={member.image || "/images/uploads/placeholder.jpg"}
                             alt={member.name}
