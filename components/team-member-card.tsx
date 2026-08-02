@@ -24,6 +24,7 @@ export function TeamMemberCard({ member }: { member: TeamMember }) {
                             fill
                             className="object-cover transition-transform duration-500 group-hover:scale-105"
                             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                            unoptimized={process.env.NODE_ENV === "development"}
                         />
                         
                         {/* LinkedIn Icon on Hover (Top Right) */}
@@ -61,6 +62,7 @@ export function TeamMemberCard({ member }: { member: TeamMember }) {
                             fill
                             className="object-cover"
                             sizes="(max-width: 640px) 100vw, 40vw"
+                            unoptimized={process.env.NODE_ENV === "development"}
                         />
                     </div>
                     
@@ -77,7 +79,7 @@ export function TeamMemberCard({ member }: { member: TeamMember }) {
                             </div>
                             {member.linkedinUrl && (
                                 <a 
-                                    href={member.linkedinUrl} 
+                                    href={member.linkedinUrl.startsWith('http') ? member.linkedinUrl : `https://${member.linkedinUrl}`} 
                                     target="_blank" 
                                     rel="noopener noreferrer"
                                     className="shrink-0 bg-primary/10 text-primary hover:bg-primary hover:text-white rounded-full p-2.5 transition-colors"
