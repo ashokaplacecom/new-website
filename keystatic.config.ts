@@ -230,6 +230,14 @@ export default config({
       path: 'content/data/team',
       format: { data: 'json' },
       schema: {
+        title: fields.text({
+          label: 'Section Title',
+          defaultValue: 'Meet the Team',
+        }),
+        subtitle: fields.text({
+          label: 'Section Subtitle',
+          defaultValue: 'The people who set the questions and hold the standard.',
+        }),
         members: fields.array(
           fields.object({
             name: fields.text({ label: 'Full Name' }),

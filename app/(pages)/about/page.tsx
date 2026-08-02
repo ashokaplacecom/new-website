@@ -22,9 +22,9 @@ export const revalidate = 0;
 export default function AboutPage() {
     const { frontmatter, content } = getPageContent("about");
 
-    let teamData = { members: [] };
+    let teamData: { members: any[], title?: string, subtitle?: string } = { members: [] };
     try {
-        teamData = getJsonData<{ members: any[] }>("team");
+        teamData = getJsonData<{ members: any[], title?: string, subtitle?: string }>("team");
     } catch (e) {
         // Ignore if missing
     }
@@ -33,10 +33,10 @@ export default function AboutPage() {
         <section className="py-16 md:py-24 px-4 max-w-7xl mx-auto border-t border-border mt-16">
             <div className="mb-12 text-center">
                 <h2 className="font-serif text-3xl md:text-4xl font-bold tracking-tight text-foreground mb-4">
-                    Meet the Team
+                    {teamData.title || "Meet the Team"}
                 </h2>
                 <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-                    The people who set the questions and hold the standard.
+                    {teamData.subtitle || "The people who set the questions and hold the standard."}
                 </p>
             </div>
 
