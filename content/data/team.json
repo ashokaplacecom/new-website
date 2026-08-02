@@ -1,4 +1,6 @@
 {
+  "title": "Team PlaceCom",
+  "subtitle": "Behind every PlaceCom initiative is a team driven by purpose. Our people are the foundation of everything we do, working together to create opportunities and meaningful impact.",
   "members": [
     {
       "name": "Anushree Pareek",
@@ -143,7 +145,5 @@
       "bio": "Harjas has been a member of the Placement Committee since its inception and currently serves as the Systems & Automations Coordinator. Over the years, he has worked across student mentorship, quality assurance, and technology, leading the Placement Review & Audit Unit, reviewing 5,000+ resumes, and conducting 50+ office hours to support students. Today, he focuses on building scalable systems, including the Placement Committee website and AI-powered automation tools, to make the placement experience more efficient, accessible, and student-friendly for the Ashoka community.",
       "linkedinUrl": "www.linkedin.com/in/harjaschadha"
     }
-  ],
-  "title": "Meet the Team",
-  "subtitle": "The people who set the questions and hold the standard."
+  ]
 }
