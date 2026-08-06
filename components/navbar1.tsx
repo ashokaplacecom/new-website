@@ -100,8 +100,6 @@ const Navbar1 = ({
     {
       title: "Newsletter",
       url: "/newsletter",
-      disabled: true,
-      tooltip: "Coming Soon!",
     },
     {
       title: "List an Opportunity",

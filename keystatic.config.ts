@@ -1,4 +1,4 @@
-import { config, fields, singleton } from '@keystatic/core';
+import { config, fields, singleton, collection } from '@keystatic/core';
 
 export default config({
   storage: {
@@ -8,8 +8,27 @@ export default config({
     brand: { name: 'PlaceCom CMS' },
     navigation: {
       'Pages': ['homePage', 'aboutPage', 'podcastPage'],
+      'Collections': ['newsletters'],
       'Data': ['contactData', 'companiesData', 'podcastData', 'reportsData', 'teamData', 'resourcesData'],
     },
+  },
+  collections: {
+    newsletters: collection({
+      label: 'Newsletters',
+      slugField: 'title',
+      path: 'content/newsletters/*/',
+      format: { data: 'json' },
+      schema: {
+        title: fields.text({ label: 'Title', description: 'e.g., Weekly for 1st to 7th August' }),
+        fromDate: fields.date({ label: 'From Date' }),
+        toDate: fields.date({ label: 'To Date' }),
+        emlFile: fields.file({
+          label: 'Newsletter EML File',
+          directory: 'public/newsletters',
+          publicPath: '/newsletters/'
+        })
+      }
+    }),
   },
   singletons: {
     // ─── Markdown Pages ─────────────────────────────────────────────────────────
@@ -165,7 +184,12 @@ export default config({
         companies: fields.array(
           fields.object({
             name: fields.text({ label: 'Company Name' }),
-            src: fields.text({ label: 'Logo URL', description: 'Leave blank to show company name as text' }),
+            src: fields.image({
+              label: 'Logo',
+              directory: 'public/images/companies',
+              publicPath: '/images/companies/',
+              description: 'Upload company logo (leave blank to show company name as text)',
+            }),
           }),
           { label: 'Companies', itemLabel: (props) => props.fields.name.value },
         ),

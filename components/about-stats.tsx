@@ -18,16 +18,16 @@ interface CompanyLogo {
 
 function LogoCard({ logo }: { logo: CompanyLogo }) {
     return (
-        <div className="flex items-center justify-center px-6 py-3 min-w-max">
+        <div className="flex items-center justify-center px-12 py-6 min-w-max">
             {logo.src ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                     src={logo.src}
                     alt={logo.name}
-                    className="h-7 object-contain opacity-50 hover:opacity-80 transition-opacity grayscale"
+                    className="h-20 md:h-28 w-auto max-w-[200px] md:max-w-[280px] object-contain"
                 />
             ) : (
-                <span className="text-sm font-medium tracking-wide text-muted-foreground/60 hover:text-muted-foreground transition-colors whitespace-nowrap select-none">
+                <span className="text-2xl md:text-3xl font-semibold tracking-wider text-muted-foreground whitespace-nowrap select-none">
                     {logo.name}
                 </span>
             )}

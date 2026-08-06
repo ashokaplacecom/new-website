@@ -1,20 +1,68 @@
 {
-    "companies": [
-        { "name": "McKinsey & Company" },
-        { "name": "Bain & Company" },
-        { "name": "Boston Consulting Group" },
-        { "name": "Goldman Sachs" },
-        { "name": "JP Morgan" },
-        { "name": "Deloitte" },
-        { "name": "KPMG" },
-        { "name": "EY" },
-        { "name": "Teach For India" },
-        { "name": "Unilever" },
-        { "name": "Procter & Gamble" },
-        { "name": "Microsoft" },
-        { "name": "Google" },
-        { "name": "Amazon" },
-        { "name": "Zomato" },
-        { "name": "Swiggy" }
-    ]
+  "companies": [
+    {
+      "name": "McKinsey & Company",
+      "src": "/images/companies/companies/0/src.png"
+    },
+    {
+      "name": "Bain & Company",
+      "src": "/images/companies/companies/1/src.webp"
+    },
+    {
+      "name": "Boston Consulting Group",
+      "src": "/images/companies/companies/2/src.png"
+    },
+    {
+      "name": "Goldman Sachs",
+      "src": "/images/companies/companies/3/src.png"
+    },
+    {
+      "name": "JP Morgan",
+      "src": "/images/companies/companies/4/src.webp"
+    },
+    {
+      "name": "Deloitte",
+      "src": "/images/companies/companies/5/src.png"
+    },
+    {
+      "name": "KPMG",
+      "src": "/images/companies/companies/6/src.webp"
+    },
+    {
+      "name": "EY",
+      "src": "/images/companies/companies/7/src.webp"
+    },
+    {
+      "name": "Teach For India",
+      "src": "/images/companies/companies/8/src.png"
+    },
+    {
+      "name": "Unilever",
+      "src": "/images/companies/companies/9/src.png"
+    },
+    {
+      "name": "Procter & Gamble",
+      "src": "/images/companies/companies/10/src.webp"
+    },
+    {
+      "name": "Microsoft",
+      "src": "/images/companies/companies/11/src.webp"
+    },
+    {
+      "name": "Google",
+      "src": "/images/companies/companies/12/src.webp"
+    },
+    {
+      "name": "Amazon",
+      "src": "/images/companies/companies/13/src.png"
+    },
+    {
+      "name": "Zomato",
+      "src": "/images/companies/companies/14/src.webp"
+    },
+    {
+      "name": "Swiggy",
+      "src": "/images/companies/companies/15/src.webp"
+    }
+  ]
 }
