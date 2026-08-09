@@ -7,40 +7,32 @@ import Logo from '@/components/shadcn-studio/logo'
 const Footer = () => {
   return (
     <footer>
-      <div className='mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-4 max-md:flex-col sm:px-6 sm:py-6 md:gap-6 md:py-8'>
-        <a href='https://ashoka.edu.in'>
-          <div className='flex items-center gap-3'>
-            <Logo className='gap-3' />
-          </div>
-        </a>
+      <div className='mx-auto flex max-w-7xl items-center justify-between gap-3 px-0 py-4 max-md:flex-col sm:px-2 sm:py-6 md:gap-6 md:py-8'>
+        <div className='flex flex-1 items-center justify-start gap-3 pl-4 md:pl-0'>
+          <Logo className='gap-2 [&>img]:h-6 [&>span]:text-lg' />
+        </div>
 
-        <div className='flex items-center gap-5 whitespace-nowrap'>
-          <a href='#' className='opacity-80 transition-opacity duration-300 hover:opacity-100'>
+        <div className='flex flex-1 items-center justify-center gap-5 whitespace-nowrap'>
+          <a href='/about' className='opacity-80 transition-opacity duration-300 hover:opacity-100'>
             About
           </a>
-          <a href='#' className='opacity-80 transition-opacity duration-300 hover:opacity-100'>
+          <a href='/contact' className='opacity-80 transition-opacity duration-300 hover:opacity-100'>
             Feedback
           </a>
           <a href='/contact' className='opacity-80 transition-opacity duration-300 hover:opacity-100'>
             Contact
           </a>
-          {/* <a href='#' className='opacity-80 transition-opacity duration-300 hover:opacity-100'>
-            Career
-          </a> */}
         </div>
 
-        <div className='flex items-center gap-4'>
-          <a href='https://www.linkedin.com/showcase/ashoka-university-career-development-office' target='_blank'>
-            <LinkedinIcon className='size-5' />
+        <div className='flex flex-1 items-center justify-end gap-4 pr-4 md:pr-0'>
+          <a href='https://www.linkedin.com/showcase/ashoka-university-career-development-office' target='_blank' className='transition-transform hover:scale-110'>
+            <LinkedinIcon className='size-5 text-[#0077b5]' />
           </a>
-          <a href='https://www.instagram.com/placecomashoka/' target='_blank'>
-            <InstagramIcon className='size-5' />
+          <a href='https://www.instagram.com/placecomashoka/' target='_blank' className='transition-transform hover:scale-110'>
+            <InstagramIcon className='size-5 text-[#E1306C]' />
           </a>
-          {/* <a href='#'>
-            <TwitterIcon className='size-5' />
-          </a> */}
-          <a href='mailto:connect.placecom@ashoka.edu.in'>
-            <MailIcon className='size-5' />
+          <a href='mailto:connect.placecom@ashoka.edu.in' className='transition-transform hover:scale-110'>
+            <MailIcon className='size-5 text-[#D14836]' />
           </a>
         </div>
       </div>
