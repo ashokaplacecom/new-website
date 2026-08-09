@@ -29,17 +29,17 @@ export default function Home() {
         const markdownMap = {
             "about-us": (
                 <div id="about" className="max-w-5xl mx-auto px-4 md:px-8 pt-4 pb-4">
-                    <MarkdownRenderer content={aboutContent} />
+                    <MarkdownRenderer content={aboutContent} variant="landing" />
                 </div>
             ),
             "get-in-touch": (
                 <div id="contact" className="max-w-5xl mx-auto px-4 md:px-8 pt-4 pb-16">
-                    <MarkdownRenderer content={getInTouchContent} />
+                    <MarkdownRenderer content={getInTouchContent} variant="landing" />
                 </div>
             ),
             "default": (
                 <div id="about" className="max-w-5xl mx-auto px-4 md:px-8 pt-4 pb-16">
-                    <MarkdownRenderer content={content} />
+                    <MarkdownRenderer content={content} variant="landing" />
                 </div>
             )
         };

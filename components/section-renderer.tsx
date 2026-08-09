@@ -163,9 +163,9 @@ function CardsBlock({ section }: { section: CardsSection }) {
             id="metrics"
             aria-label="PlaceCom metrics"
         >
-            <div className="max-w-2xl mx-auto">
+            <div className="max-w-5xl mx-auto">
             {section.heading && (
-                <h2 className="font-serif text-2xl md:text-3xl font-semibold text-foreground mb-10">
+                <h2 className="font-serif text-3xl md:text-4xl font-semibold text-center text-foreground mb-10">
                     {section.heading}
                 </h2>
             )}
