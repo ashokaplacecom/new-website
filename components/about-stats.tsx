@@ -24,7 +24,7 @@ function LogoCard({ logo }: { logo: CompanyLogo }) {
                 <img
                     src={logo.src}
                     alt={logo.name}
-                    className="h-20 md:h-28 w-auto max-w-[200px] md:max-w-[280px] object-contain"
+                    className="h-12 md:h-16 w-auto max-w-[140px] md:max-w-[200px] object-contain"
                 />
             ) : (
                 <span className="text-2xl md:text-3xl font-semibold tracking-wider text-muted-foreground whitespace-nowrap select-none">

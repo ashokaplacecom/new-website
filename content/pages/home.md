@@ -10,9 +10,6 @@ sections:
       cta:
         label: Connect with Us
         href: /contact
-      secondaryCta:
-        label: About Us
-        href: /about
   - discriminant: about-stats
     value:
       heading: PlaceCom at a Glance

@@ -76,22 +76,6 @@ const Navbar1 = ({
     {
       title: "About",
       url: "/about",
-      // items: [
-      //   {
-      //     title: "The Team",
-      //     url: "/about/team",
-      //     icon: <Users className="size-5 shrink-0" />,
-      //     description: "Something about the team",
-      //   },
-      //   {
-      //     title: "Progress Reports",
-      //     url: "/about/reports",
-      //     icon: <ChartLine className="size-5 shrink-0" />,
-      //     description: "Something about progress reports",
-      //   },
-      // ],
-      disabled: true,
-      tooltip: "Coming Soon!"
     },
     {
       title: "Podcast",

@@ -85,11 +85,11 @@ export default async function NewsletterPage() {
       </div>
 
       <div 
-        className="bg-white border rounded-xl shadow-sm overflow-hidden"
+        className="bg-white border rounded-xl shadow-sm overflow-x-auto"
         style={{ minHeight: "60vh" }}
       >
         <div 
-          className="p-8 w-full prose prose-slate max-w-none newsletter-content"
+          className="p-4 md:p-8 w-full prose prose-slate max-w-none newsletter-content"
           dangerouslySetInnerHTML={{ __html: htmlContent }} 
         />
       </div>
@@ -99,14 +99,21 @@ export default async function NewsletterPage() {
           .newsletter-content {
             font-family: inherit;
             color: #333;
+            overflow-wrap: break-word;
+            word-break: break-word;
           }
           .newsletter-content a {
             color: #0056b3;
             text-decoration: underline;
           }
           .newsletter-content img {
-            max-width: 100%;
-            height: auto;
+            max-width: 100% !important;
+            height: auto !important;
+          }
+          .newsletter-content table, 
+          .newsletter-content div,
+          .newsletter-content td {
+            max-width: 100% !important;
           }
         `
       }} />
