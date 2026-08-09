@@ -41,15 +41,17 @@ export default async function NewsletterPage() {
 
   // 2. Read the actual .eml file and parse it
   try {
-    // Keystatic saves publicPath as something like /newsletters/... 
-    // We need to read it from public directory
-    const emlFilePath = path.join(process.cwd(), "public", latestNewsletterData.emlFile);
-    const emlBuffer = await fs.readFile(emlFilePath);
-    
-    const parsed = await simpleParser(emlBuffer);
-    htmlContent = parsed.html || parsed.textAsHtml || "<p>No content</p>";
+    if (!latestNewsletterData.emlFile.toLowerCase().endsWith('.eml')) {
+      htmlContent = "<div class='p-4 bg-red-50 text-red-700 border border-red-200 rounded-md'><strong>Error:</strong> The uploaded file does not appear to be an email (.eml). Please upload a valid .eml exported from your email client.</div>";
+    } else {
+      // Keystatic saves publicPath as something like /newsletters/... 
+      // We need to read it from public directory
+      const emlFilePath = path.join(process.cwd(), "public", latestNewsletterData.emlFile);
+      const emlBuffer = await fs.readFile(emlFilePath);
+      
+      const parsed = await simpleParser(emlBuffer);
+      htmlContent = parsed.html || parsed.textAsHtml || "<p>No content</p>";
 
-    // Replace CID images with base64 data URIs
     if (parsed.attachments && parsed.attachments.length > 0) {
       for (const attachment of parsed.attachments) {
         if (attachment.contentId && attachment.content) {
@@ -61,6 +63,7 @@ export default async function NewsletterPage() {
         }
       }
     }
+    } // Close the else block
   } catch (error) {
     console.error("Error parsing EML file", error);
     htmlContent = "<p>Error loading the newsletter content.</p>";
