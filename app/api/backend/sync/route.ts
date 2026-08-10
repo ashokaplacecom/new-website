@@ -14,10 +14,19 @@ export async function POST() {
   }
 
   try {
-    // We navigate to the content folder to add changes, commit them and push.
-    // Ensure you are pushing to the branch that CI/CD tracks.
-    // If the working tree is clean, git commit will throw an error, which we catch.
-    const command = `git add content/ public/images/uploads/ 2>/dev/null || true; git commit -m "Update CMS content" || true; git push -u origin HEAD`;
+    // Stage CMS content changes, commit (noop if nothing changed), then
+    // pull --rebase to fast-forward over any commits that landed on remote
+    // since our last sync, and finally push. Using semicolons so each step
+    // runs regardless of the previous exit code (git commit exits 1 when
+    // the tree is clean, which is fine).
+    const cwd = process.cwd();
+    const command = [
+      `git -C "${cwd}" add content/`,
+      `git -C "${cwd}" add public/images/uploads/ 2>/dev/null || true`,
+      `git -C "${cwd}" commit -m "Update CMS content" || true`,
+      `git -C "${cwd}" pull --rebase origin HEAD`,
+      `git -C "${cwd}" push -u origin HEAD`,
+    ].join(" && ");
 
     const { stdout, stderr } = await execAsync(command);
 
