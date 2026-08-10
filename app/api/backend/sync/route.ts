@@ -24,7 +24,10 @@ export async function POST() {
       `git -C "${cwd}" add content/`,
       `git -C "${cwd}" add public/images/uploads/ 2>/dev/null || true`,
       `git -C "${cwd}" commit -m "Update CMS content" || true`,
-      `git -C "${cwd}" pull --rebase origin HEAD`,
+      // --autostash stashes any dirty working-tree files (e.g. package-lock.json
+      // from npm ci) before the rebase and restores them after, so the pull
+      // never aborts due to unstaged changes on the server.
+      `git -C "${cwd}" pull --rebase --autostash origin HEAD`,
       `git -C "${cwd}" push -u origin HEAD`,
     ].join(" && ");
 
