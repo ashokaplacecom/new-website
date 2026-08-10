@@ -7,8 +7,8 @@ export default config({
   ui: {
     brand: { name: 'PlaceCom CMS' },
     navigation: {
-      'Pages': ['homePage', 'aboutPage', 'podcastPage', 'teamPage'],
-      'Data': ['contactData', 'companiesData', 'podcastData', 'reportsData', 'teamData', 'departmentsData', 'resourcesData'],
+      'Pages': ['homePage', 'aboutPage', 'podcastPage'],
+      'Data': ['contactData', 'companiesData', 'podcastData', 'reportsData', 'teamData', 'resourcesData'],
     },
   },
   singletons: {
@@ -133,25 +133,6 @@ export default config({
       },
     }),
 
-    teamPage: singleton({
-      label: 'Team Page',
-      path: 'content/pages/team',
-      format: { contentField: 'body' },
-      schema: {
-        title: fields.text({ label: 'Title' }),
-        description: fields.text({ label: 'Description' }),
-        sections: fields.array(
-          fields.object({
-            type: fields.text({ label: 'Type' }),
-            heading: fields.text({ label: 'Heading' }),
-            subheading: fields.text({ label: 'Subheading' }),
-            backgroundImage: fields.text({ label: 'Background Image URL' }),
-          }),
-          { label: 'Sections', itemLabel: (props) => props.fields.type.value },
-        ),
-        body: fields.markdoc({ label: 'Body', extension: 'md' }),
-      },
-    }),
 
     // ─── JSON Data Singletons ───────────────────────────────────────────────────
     contactData: singleton({
@@ -230,6 +211,14 @@ export default config({
       path: 'content/data/team',
       format: { data: 'json' },
       schema: {
+        title: fields.text({
+          label: 'Section Title',
+          defaultValue: 'Meet the Team',
+        }),
+        subtitle: fields.text({
+          label: 'Section Subtitle',
+          defaultValue: 'The people who set the questions and hold the standard.',
+        }),
         members: fields.array(
           fields.object({
             name: fields.text({ label: 'Full Name' }),
@@ -240,46 +229,14 @@ export default config({
               directory: 'public/images/uploads',
               publicPath: '/images/uploads/',
             }),
+            bio: fields.text({ label: 'Bio', multiline: true }),
+            linkedinUrl: fields.text({ label: 'LinkedIn Profile URL' }),
           }),
           { label: 'Members', itemLabel: (props) => props.fields.name.value },
         ),
       },
     }),
 
-    departmentsData: singleton({
-      label: 'Departments',
-      path: 'content/data/departments',
-      format: { data: 'json' },
-      schema: {
-        departments: fields.array(
-          fields.object({
-            id: fields.text({ label: 'ID' }),
-            name: fields.text({ label: 'Department Name' }),
-            writeup: fields.text({ label: 'Writeup', multiline: true }),
-            leaders: fields.array(
-              fields.object({
-                name: fields.text({ label: 'Name' }),
-                role: fields.text({ label: 'Role' }),
-                image: fields.image({
-                  label: 'Photo',
-                  directory: 'public/images/uploads',
-                  publicPath: '/images/uploads/',
-                }),
-              }),
-              { label: 'Leaders', itemLabel: (props) => props.fields.name.value },
-            ),
-            members: fields.array(
-              fields.object({
-                name: fields.text({ label: 'Name' }),
-                role: fields.text({ label: 'Role' }),
-              }),
-              { label: 'Members', itemLabel: (props) => props.fields.name.value },
-            ),
-          }),
-          { label: 'Departments', itemLabel: (props) => props.fields.name.value },
-        ),
-      },
-    }),
 
     resourcesData: singleton({
       label: 'Resources Library',

@@ -50,8 +50,14 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          script: bash ~/deploy.sh
-          script_stop: true
+          script: |
+            DIR=$(find ~ -type d -name "*new-website*" -maxdepth 2 | head -n 1)
+            if [ -n "$DIR" ]; then
+              cd "$DIR"
+              git fetch origin
+              git reset --hard origin/main
+            fi
+            bash ~/deploy.sh
           command_timeout: 10m
 
       - name: Notify on deploy failure

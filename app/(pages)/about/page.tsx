@@ -1,6 +1,7 @@
-import { getPageContent } from "@/lib/content";
+import { getPageContent, getJsonData } from "@/lib/content";
 import { MarkdownRenderer } from "@/components/markdown-renderer";
 import { SectionRenderer } from "@/components/section-renderer";
+import { TeamMemberCard } from "@/components/team-member-card";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -21,6 +22,34 @@ export const revalidate = 0;
 export default function AboutPage() {
     const { frontmatter, content } = getPageContent("about");
 
+    let teamData: { members: any[], title?: string, subtitle?: string } = { members: [] };
+    try {
+        teamData = getJsonData<{ members: any[], title?: string, subtitle?: string }>("team");
+    } catch (e) {
+        // Ignore if missing
+    }
+
+    const teamSection = (
+        <section className="py-16 md:py-24 px-4 max-w-7xl mx-auto border-t border-border mt-16">
+            <div className="mb-12 text-center">
+                <h2 className="font-serif text-3xl md:text-4xl font-bold tracking-tight text-foreground mb-4">
+                    {teamData.title || "Meet the Team"}
+                </h2>
+                <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+                    {teamData.subtitle || "The people who set the questions and hold the standard."}
+                </p>
+            </div>
+
+            {teamData.members.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-12">
+                    {teamData.members.map((member: any, index: number) => (
+                        <TeamMemberCard key={index} member={member} />
+                    ))}
+                </div>
+            ) : null}
+        </section>
+    );
+
     if (frontmatter.sections && frontmatter.sections.length > 0) {
         // Detect if there's a full-viewport section (about-hero) to decide layout
         const hasFullBleedHero = frontmatter.sections.some(
@@ -37,6 +66,7 @@ export default function AboutPage() {
                         </div>
                     }
                 />
+                {teamSection}
             </main>
         );
     }
@@ -53,6 +83,7 @@ export default function AboutPage() {
                 </p>
             )}
             <MarkdownRenderer content={content} />
+            {teamSection}
         </main>
     );
 }

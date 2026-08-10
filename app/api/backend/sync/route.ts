@@ -17,7 +17,7 @@ export async function POST() {
     // We navigate to the content folder to add changes, commit them and push.
     // Ensure you are pushing to the branch that CI/CD tracks.
     // If the working tree is clean, git commit will throw an error, which we catch.
-    const command = `git add content/ && (git add public/images/uploads/ 2>/dev/null || true) && (git diff-index --quiet HEAD || git commit -m "Update CMS content" && git push)`;
+    const command = `git add content/ public/images/uploads/ 2>/dev/null || true; git commit -m "Update CMS content" || true; git push -u origin HEAD`;
 
     const { stdout, stderr } = await execAsync(command);
 

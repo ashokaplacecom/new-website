@@ -1,29 +1,150 @@
 {
+  "title": "Team PlaceCom",
+  "subtitle": "Behind every PlaceCom initiative is a team driven by purpose. Our people are the foundation of everything we do, working together to create opportunities and meaningful impact.",
   "members": [
     {
-      "name": "Aanya Sharma",
-      "role": "Placement Coordinator",
-      "batch": "2026"
+      "name": "Anushree Pareek",
+      "role": "President",
+      "batch": "2028",
+      "image": "/images/uploads/members/0/image.jpeg",
+      "bio": "Anushree is someone who believes that meaningful impact begins with people. Thoughtful, dependable, and driven by empathy, she approaches every responsibility with sincerity and a genuine desire to make a difference. For her, the Placement Committee has never been just about placements; it has been about building a supportive community where every student feels guided, heard, and empowered. She hopes to leave behind a PlaceCom that students trust, value, and genuinely enjoy being a part of.",
+      "linkedinUrl": "www.linkedin.com/in/anushree-pareek-47946027b"
     },
     {
-      "name": "Rohan Mehta",
-      "role": "Outreach Lead",
-      "batch": "2026"
+      "name": "Bhavya Sood",
+      "role": "President",
+      "batch": "2028",
+      "image": "/images/uploads/members/1/image.jpg",
+      "bio": "Bhavya sees himself eventually working as an international civil servant, particularly with global intergovernmental organisations working at the intersection of transnational development and international cooperation. He is also keen to explore development consulting, especially with organisations such as Dalberg, The Bridgespan Group, and WJCF, where he can work closely on complex development challenges across countries and sectors. In the long run, he hopes to build a career that allows him to move between diplomacy, institutions, and implementation while contributing meaningfully to international development.",
+      "linkedinUrl": "https://www.linkedin.com/in/bhavya-sood-a43203327/"
     },
     {
-      "name": "Priya Iyer",
-      "role": "Events & Communications",
-      "batch": "2027"
+      "name": "Ananya Makkar ",
+      "role": "Vice President- Careers & Skills Development Division and Systems & Automation",
+      "batch": "2028",
+      "image": "/images/uploads/members/2/image.jpg",
+      "bio": "Ananya is a third-year Political Science major with minors in Economics and International Relations. Alongside serving as the Political Science Student Representative and Deputy Minister of the Ministry of Academic Affairs, she is driven by purpose and believes in creating spaces where others can realize their potential. She hopes to make PlaceCom a collaborative space where opportunities are accessible, inclusive, and supportive for all.",
+      "linkedinUrl": "https://www.linkedin.com/in/ananya-makkar-15080a23b/"
     },
     {
-      "name": "Karan Singh",
-      "role": "Tech & Operations",
-      "batch": "2027"
+      "name": "Shana Saiesh",
+      "role": "Vice President- Internships & Skills Development Division and Systems and Automation",
+      "batch": "2028",
+      "image": "/images/uploads/members/3/image.png",
+      "bio": "Shana Saiesh believes that some of the most meaningful work happens behind the scenes. She enjoys paying attention to the details, thinking a few steps ahead, and building systems that are thoughtful, reliable, and easy to engage with. That's the approach she tries to bring to PlaceCom. She hopes every interaction with the committee leaves students feeling informed, supported, and confident, whether they're navigating internships, placements, or just looking for guidance.",
+      "linkedinUrl": "https://in.linkedin.com/in/shana-saiesh"
     },
     {
-      "name": "Soham Tulsyan",
-      "role": "Chief Technology Office",
-      "batch": "UG2023"
+      "name": "Pranjal Shevadekar ",
+      "role": "Vice President- Outreach and Public Relations, Research Analytics and Development and MA & YIF Council",
+      "batch": "2027",
+      "image": "/images/uploads/members/4/image.JPG",
+      "bio": "Pranjal is an Economics and Finance major with minors in Computer Science and Entrepreneurial Leadership & Strategy. She is currently interested in exploring opportunities in consulting, finance, fintech, and AI, and is excited by the intersection of technology and business. Outside of academics, she is a night owl who runs on iced coffee and enjoys meeting new people and learning from different perspectives.",
+      "linkedinUrl": "https://linkedin.com/in/sohamtulsyan"
+    },
+    {
+      "name": "Gahan Naren",
+      "role": "Vice President- Media and Content Strategy and Events and Operations",
+      "batch": "2028",
+      "image": "/images/uploads/members/5/image.jpeg",
+      "bio": "Gahan is deeply passionate about startups, early-stage investing, and understanding what drives businesses from zero to scale. He is particularly interested in identifying high-potential ideas, analysing markets, and working closely with founders to build and refine products. His experience in startup ecosystems gave him hands-on exposure to operating in fast-paced environments and solving real business problems. He is deeply passionate about VC, PE, and all things investing.",
+      "linkedinUrl": "https://www.linkedin.com/in/gahan-naren-171175326/"
+    },
+    {
+      "name": "Malavika Kishore ",
+      "role": "HoD- Careers & Skills Development Division",
+      "batch": "2024",
+      "image": "/images/uploads/members/6/image.jpg",
+      "bio": "Malavika is a third-year Economics & Finance major with a minor in Entrepreneurship at Ashoka University. She has always enjoyed trying different things, whether that's through her work with the Placement Committee, internships, or just picking up something new along the way. At PlaceCom, she enjoys working on initiatives that make the otherwise overwhelming process of preparing for placement processes and figuring out careers a little easier for students. Outside of work and academics, she is happiest when she is learning something new, meeting interesting people, or getting involved in something she cares about.",
+      "linkedinUrl": "https://www.linkedin.com/in/malavikakishore/"
+    },
+    {
+      "name": "Jiya Vaya ",
+      "role": "HoD- Careers & Skills Development Division",
+      "batch": "2028",
+      "image": "/images/uploads/members/7/image.jpeg",
+      "bio": "Jiya is a third-year Psychology major at Ashoka University. A lot of what she enjoys comes from working with people, whether that's collaborating with a team or helping someone figure something out. At PlaceCom, she works on initiatives that help students navigate the career preparation process and make resources more accessible. Outside of academics, she enjoys exploring new ideas and being involved in work that creates a meaningful impact.",
+      "linkedinUrl": "https://www.linkedin.com/in/jiya-vaya-953592369"
+    },
+    {
+      "name": "Antara Malhotra",
+      "role": "HoD- Outreach & Public Relations",
+      "batch": "2028",
+      "image": "/images/uploads/members/8/image.jpeg",
+      "bio": "Antara is a student at Ashoka University, majoring in Sociology and Anthropology with a double minor in Psychology and Environmental Studies. She is passionate about the environment and aspires to work in the field of sustainability, exploring the intersection of ecological issues and systemic social hierarchies. Her academic journey is rooted in critically understanding how structures of power and inequality contribute to societal fragmentation and thus environmental degradation. She is committed to developing informed, interdisciplinary perspectives that challenge the status quo and promote more equitable and sustainable futures.",
+      "linkedinUrl": "https://www.linkedin.com/in/antara-malhotra-107a38358/"
+    },
+    {
+      "name": "Vidishaa Mundhra",
+      "role": "HoD- Outreach & Public Relations",
+      "batch": "2029",
+      "image": "/images/uploads/members/9/image.png",
+      "bio": "Vidishaa is an Economics and Public Policy student who enjoys exploring the intersection of research, business, and public policy. Whether it's solving complex problems, working with data, or building strategies, she loves taking on projects that create meaningful impact. She is eager to learn, collaborate, and turn ideas into action.",
+      "linkedinUrl": "https://www.linkedin.com/in/vidishaa-mundhra-a52a42357/"
+    },
+    {
+      "name": "Samantha Ann Thomas",
+      "role": "HoD- Events & Operations",
+      "batch": "2029",
+      "image": "/images/uploads/members/10/image.jpeg",
+      "bio": "Samantha is a rising second-year student at Ashoka University, majoring in Economics and Finance with a minor in Math. She is someone who enjoys exploring different interests, meeting new people, and getting involved in things that challenge her to learn and grow. Professionally, she is particularly interested in understanding how businesses and people work, and enjoys roles that involve problem-solving, collaboration, and turning ideas into action. Outside of work and academics, you'll usually find her playing badminton, watching a TV show, or simply spending time with friends.",
+      "linkedinUrl": "https://www.linkedin.com/in/samantha-ann-thomas-46b600230?utm_source=share_via&utm_content=profile&utm_medium=member_ios"
+    },
+    {
+      "name": "Siddharth Bhatnagar",
+      "role": "HoD- Events & Operations",
+      "batch": "2028",
+      "image": "/images/uploads/members/11/image.jpg",
+      "bio": "Siddharth is a third-year PPE major with an IR minor. He is passionate about public policy, politics, and political theory. He is particularly interested in how policy is formulated in consultation with various stakeholders and how political ideas are reflected in government policy. Additionally, he has a growing interest in Political Theory, particularly how public interest is represented through a state. Outside of academics, he likes football and geography.",
+      "linkedinUrl": "https://www.linkedin.com/in/siddharth-anmol-bhatnagar-2514a8237/"
+    },
+    {
+      "name": "Ayushman Sinha",
+      "role": "HoD- Research Analytics & Development",
+      "batch": "2028",
+      "image": "/images/uploads/members/12/image.jpeg",
+      "bio": "Ayushman is a third-year Economics major with a minor in Mathematics at Ashoka University, focused on quantitative research, applied economics, and public policy. He enjoys tackling problems that require rigorous analysis and has built his experience across independent research, data-driven projects, and leadership roles. From developing analytical tools and conducting economic research to leading research and strategy initiatives for the Placement Committee, he has consistently sought out work that combines technical depth with real-world impact. He is most motivated by questions that demand structured thinking, intellectual curiosity, and evidence-based decision-making.",
+      "linkedinUrl": "https://www.linkedin.com/in/aks-ayushman-sinha/"
+    },
+    {
+      "name": "Sreejit Dey",
+      "role": "HoD- Research Analytics & Development",
+      "batch": "2028",
+      "image": "/images/uploads/members/13/image.jpg",
+      "bio": "Sreejit is a third-year Math major with a CS minor at Ashoka University. He is particularly drawn to the intersection of quantitative research, finance, and various areas of pure math like optimization and topology. His experience spans independent research, data-focused projects, and leadership roles, through which he has built analytical tools and led research and strategy initiatives. Ultimately, he is driven by deep intellectual curiosity and a passion for translating technical insights into real-world impact.",
+      "linkedinUrl": "linkedin.com/in/sreejitdey"
+    },
+    {
+      "name": "Priyanshi Kanodia",
+      "role": "HoD- Media & Content Strategy",
+      "batch": "2029",
+      "image": "/images/uploads/members/14/image.png",
+      "bio": "Priyanshi is a second-year Economics and Finance major with a minor in Entrepreneurship at Ashoka University. She is from Kolkata and enjoys exploring business, entrepreneurship, and problem-solving. She likes taking on new opportunities, working with people, and learning through hands-on experiences.",
+      "linkedinUrl": "https://www.linkedin.com/in/priyanshi-kanodia-96a678279"
+    },
+    {
+      "name": "Lakshita Panghal",
+      "role": "HoD- Media & Content Strategy",
+      "batch": "2029",
+      "image": "/images/uploads/members/15/image.png",
+      "bio": "Lakshita believes the coolest thing about her is that she's a national-level pistol shooter. She recently completed the Annapurna Base Camp trek, with plenty more treks to come. She has an unreasonable love for jumping into any body of water she comes across, but on the flip side, she has had a long-standing fear of maths that she's actively working on overcoming.",
+      "linkedinUrl": "www.linkedin.com/in/lakshita-panghal-762645338"
+    },
+    {
+      "name": "Mrida Arora",
+      "role": "HoD- Internships & Skills Development Division",
+      "batch": "2028",
+      "image": "/images/uploads/members/16/image.jpeg",
+      "bio": "Mrida is a major in International Relations with a minor in Economics. She is passionate about policy research, resource allocation, and political risk analysis. She is looking to get her academic writing published and working towards building a strong research and analysis portfolio.",
+      "linkedinUrl": "linkedin.com/in/mrida-arora-b28441285"
+    },
+    {
+      "name": "Harjas Chadha",
+      "role": "Systems and Automations Coordinator",
+      "batch": "2028",
+      "image": "/images/uploads/members/17/image.jpg",
+      "bio": "Harjas has been a member of the Placement Committee since its inception and currently serves as the Systems & Automations Coordinator. Over the years, he has worked across student mentorship, quality assurance, and technology, leading the Placement Review & Audit Unit, reviewing 5,000+ resumes, and conducting 50+ office hours to support students. Today, he focuses on building scalable systems, including the Placement Committee website and AI-powered automation tools, to make the placement experience more efficient, accessible, and student-friendly for the Ashoka community.",
+      "linkedinUrl": "www.linkedin.com/in/harjaschadha"
     }
   ]
 }
