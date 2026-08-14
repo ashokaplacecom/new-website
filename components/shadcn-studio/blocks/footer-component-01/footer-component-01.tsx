@@ -31,7 +31,7 @@ const Footer = () => {
           <a href='https://www.instagram.com/placecomashoka/' target='_blank' className='transition-transform hover:scale-110'>
             <InstagramIcon className='size-5 text-[#E1306C]' />
           </a>
-          <a href='https://mail.google.com/mail/?view=cm&fs=1&to=connect.placecom@ashoka.edu.in' target='_blank' rel='noopener noreferrer' className='transition-transform hover:scale-110'>
+          <a href='mailto:connect.placecom@ashoka.edu.in' className='transition-transform hover:scale-110'>
             <MailIcon className='size-5 text-[#D14836]' />
           </a>
         </div>
