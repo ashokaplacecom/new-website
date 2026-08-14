@@ -10,25 +10,19 @@ sections:
       cta:
         label: Connect with Us
         href: /contact
+      secondaryCta: {}
   - discriminant: about-stats
     value:
       heading: PlaceCom at a Glance
       subheading: Numbers that reflect our commitment to every student's career journey.
       columns: 4
       items:
-        - label: Students Placed
-          value: '400'
+        - label: Student Resources
+          value: '18'
           suffix: +
-        - label: Recruiting Partners
-          value: '200'
+        - label: Office Hours
+          value: '150'
           suffix: +
-        - label: Verifications Processed
-          value: '8000'
-          suffix: +
-        - label: Highest Package (LPA)
-          value: '42'
-          prefix: ₹
-          suffix: L
   - discriminant: content
     value:
       id: about-us
