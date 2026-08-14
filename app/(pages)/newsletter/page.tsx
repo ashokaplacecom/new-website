@@ -79,20 +79,20 @@ export default async function NewsletterPage() {
   const titleText = latestNewsletterData.title || `Weekly for ${formatDay(from)} to ${formatDay(to)} ${month}`;
 
   return (
-    <div className="container mx-auto px-4 py-12 max-w-5xl">
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold tracking-tight mb-2">{titleText}</h1>
-        <p className="text-muted-foreground">
+    <div className="container mx-auto px-1 md:px-4 py-8 md:py-12 max-w-5xl">
+      <div className="mb-6 md:mb-8 px-3 md:px-0">
+        <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-2">{titleText}</h1>
+        <p className="text-muted-foreground text-sm md:text-base">
           Showing updates from {latestNewsletterData.fromDate} to {latestNewsletterData.toDate}
         </p>
       </div>
 
       <div 
-        className="bg-white border rounded-xl shadow-sm overflow-x-auto"
+        className="bg-white md:border md:rounded-xl md:shadow-sm overflow-x-auto w-full"
         style={{ minHeight: "60vh" }}
       >
         <div 
-          className="p-4 md:p-8 w-full prose prose-slate max-w-none newsletter-content"
+          className="p-0 md:p-8 w-full prose prose-slate max-w-none newsletter-content"
           dangerouslySetInnerHTML={{ __html: htmlContent }} 
         />
       </div>
