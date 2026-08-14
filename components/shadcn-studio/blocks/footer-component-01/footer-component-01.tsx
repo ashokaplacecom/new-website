@@ -1,3 +1,5 @@
+'use client'
+
 import { InstagramIcon, LinkedinIcon, TwitterIcon, MailIcon } from 'lucide-react'
 
 import { Separator } from '@/components/ui/separator'
@@ -5,6 +7,19 @@ import { Separator } from '@/components/ui/separator'
 import Logo from '@/components/shadcn-studio/logo'
 
 const Footer = () => {
+  const handleEmailClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const width = 600;
+    const height = 650;
+    const left = (window.screen.width - width) / 2;
+    const top = (window.screen.height - height) / 2;
+    window.open(
+      'https://mail.google.com/mail/?view=cm&fs=1&to=connect.placecom@ashoka.edu.in',
+      'GmailCompose',
+      `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no,scrollbars=yes,resizable=yes`
+    );
+  };
+
   return (
     <footer>
       <div className='mx-auto flex max-w-7xl items-center justify-between gap-3 px-0 py-4 max-md:flex-col sm:px-2 sm:py-6 md:gap-6 md:py-8'>
@@ -31,7 +46,7 @@ const Footer = () => {
           <a href='https://www.instagram.com/placecomashoka/' target='_blank' className='transition-transform hover:scale-110'>
             <InstagramIcon className='size-5 text-[#E1306C]' />
           </a>
-          <a href='https://mail.google.com/mail/?extsrc=mailto&url=mailto%3Aconnect.placecom%40ashoka.edu.in' target='_blank' rel='noopener noreferrer' className='transition-transform hover:scale-110'>
+          <a href='#' onClick={handleEmailClick} className='transition-transform hover:scale-110'>
             <MailIcon className='size-5 text-[#D14836]' />
           </a>
         </div>
