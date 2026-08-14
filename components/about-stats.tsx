@@ -47,7 +47,19 @@ interface AboutStatsProps {
 export function AboutStats({ section }: AboutStatsProps) {
     const tickerRef = useRef<HTMLDivElement>(null);
     const tickerInView = useInView(tickerRef, { once: true, margin: "0px" });
-    const cols = section.columns ?? Math.min(section.items.length, 4);
+    const cols = section.items.length;
+    let gridClass = "grid-cols-2 lg:grid-cols-4";
+    let maxWidthClass = "max-w-4xl";
+    if (cols === 1) {
+        gridClass = "grid-cols-1";
+        maxWidthClass = "max-w-xs";
+    } else if (cols === 2) {
+        gridClass = "grid-cols-2";
+        maxWidthClass = "max-w-lg";
+    } else if (cols === 3) {
+        gridClass = "grid-cols-1 md:grid-cols-3";
+        maxWidthClass = "max-w-3xl";
+    }
 
     return (
         <section
@@ -55,7 +67,7 @@ export function AboutStats({ section }: AboutStatsProps) {
             id="metrics"
             aria-label="PlaceCom metrics"
         >
-            <div className="max-w-3xl mx-auto">
+            <div className="max-w-5xl mx-auto">
                 {/* Section heading */}
                 {section.heading && (
                     <motion.div
@@ -84,11 +96,11 @@ export function AboutStats({ section }: AboutStatsProps) {
                     </motion.p>
                 )}
 
-                {/* Stats grid — 2-col on mobile, dynamic cols on lg */}
+                {/* Stats grid — dynamically sized and centered */}
                 <div ref={tickerRef} className={cn(
-                    "grid grid-cols-2 gap-4 sm:gap-6",
-                    cols === 4 && "lg:grid-cols-4",
-                    cols === 3 && "lg:grid-cols-3",
+                    "grid gap-4 sm:gap-6 mx-auto",
+                    gridClass,
+                    maxWidthClass
                 )}>
                     {section.items.map((item, i) => (
                         <motion.div

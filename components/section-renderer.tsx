@@ -120,21 +120,30 @@ function HeroBlock({ section }: { section: HeroSection }) {
 // ─── Stats Section ────────────────────────────────────────────────────
 
 function StatsBlock({ section }: { section: StatsSection }) {
-    const cols = section.columns ?? Math.min(section.items.length, 4);
-    const gridClass = {
-        1: "grid-cols-1",
-        2: "grid-cols-1 sm:grid-cols-2",
-        3: "grid-cols-1 sm:grid-cols-2 md:grid-cols-3",
-        4: "grid-cols-2 sm:grid-cols-2 md:grid-cols-4",
-    }[cols] ?? "grid-cols-2 sm:grid-cols-2 md:grid-cols-4";
+    const cols = section.items.length;
+    let gridClass = "grid-cols-2 sm:grid-cols-2 md:grid-cols-4";
+    let maxWidthClass = "max-w-4xl";
+    
+    if (cols === 1) {
+        gridClass = "grid-cols-1";
+        maxWidthClass = "max-w-sm";
+    } else if (cols === 2) {
+        gridClass = "grid-cols-1 sm:grid-cols-2";
+        maxWidthClass = "max-w-lg";
+    } else if (cols === 3) {
+        gridClass = "grid-cols-1 sm:grid-cols-3";
+        maxWidthClass = "max-w-3xl";
+    }
+
     return (
         <section className={cn("py-8", section.className)}>
-            {section.heading && (
-                <h2 className="font-serif text-2xl md:text-3xl font-semibold text-center text-foreground mb-10">
-                    {section.heading}
-                </h2>
-            )}
-            <div className={cn("grid gap-6", gridClass)}>
+            <div className="max-w-5xl mx-auto">
+                {section.heading && (
+                    <h2 className="font-serif text-2xl md:text-3xl font-semibold text-center text-foreground mb-10">
+                        {section.heading}
+                    </h2>
+                )}
+                <div className={cn("grid gap-6 mx-auto", gridClass, maxWidthClass)}>
                 {section.items.map((item, i) => (
                     <div
                         key={i}
@@ -148,6 +157,7 @@ function StatsBlock({ section }: { section: StatsSection }) {
                         </span>
                     </div>
                 ))}
+                </div>
             </div>
         </section>
     );
