@@ -105,12 +105,9 @@ export default function ContactPage() {
                             </div>
                             <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
                         </a>
-                        {/* Icon + Title */}
+                        {/* Title */}
                         <div>
-                            <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-primary/10 mb-5">
-                                <Mail className="w-6 h-6 text-primary" />
-                            </div>
-                            <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground leading-tight mb-4">
+                            <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground leading-tight mb-4 mt-2">
                                 Contact us
                             </h1>
                             <p className="text-base text-muted-foreground leading-relaxed max-w-md">
