@@ -5,7 +5,7 @@ import { motion } from "motion/react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Mail, Phone, Loader2, CheckCircle2, AlertTriangle, Send } from "lucide-react";
+import { Mail, Phone, Loader2, CheckCircle2, AlertTriangle, Send, Briefcase, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { sendContactEmail } from "./actions";
@@ -89,6 +89,22 @@ export default function ContactPage() {
 
                     {/* ── Left Column ── */}
                     <div className="flex flex-col gap-8">
+                        {/* Recruiter Banner */}
+                        <a 
+                            href="/recruiters"
+                            className="group relative flex items-center justify-between rounded-2xl border border-primary/20 bg-primary/5 p-4 transition-all hover:bg-primary/10"
+                        >
+                            <div className="flex items-center gap-3">
+                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                                    <Briefcase className="h-5 w-5" />
+                                </div>
+                                <div>
+                                    <p className="font-semibold text-foreground">Are you a recruiter?</p>
+                                    <p className="text-sm text-muted-foreground">Click here to partner with us</p>
+                                </div>
+                            </div>
+                            <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
+                        </a>
                         {/* Icon + Title */}
                         <div>
                             <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-primary/10 mb-5">

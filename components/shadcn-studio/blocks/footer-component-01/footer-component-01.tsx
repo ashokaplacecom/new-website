@@ -60,8 +60,6 @@ const Footer = () => {
           <a href='https://ashoka.edu.in' className='hover:underline'>
             Connect Placement Committee, Ashoka University
           </a>
-          <br />
-          <span className='font-medium text-primary font-900'> Made by Ananya Karel, Anshika Chaudhry, Ibrahim Khalil, Saransh Goel, & Soham Tulsyan</span>
         </p>
       </div>
     </footer>

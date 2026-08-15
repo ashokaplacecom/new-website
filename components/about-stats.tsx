@@ -156,7 +156,7 @@ export function AboutStats({ section }: AboutStatsProps) {
                 className="mt-10"
             >
                 <p className="text-center text-xs tracking-[0.2em] uppercase text-muted-foreground/50 mb-6 font-medium">
-                    Recruiting partners across sectors
+                    Received offers from
                 </p>
                 <div className="relative">
                     {/* Fade edges */}

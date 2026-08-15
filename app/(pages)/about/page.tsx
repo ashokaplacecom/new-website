@@ -29,9 +29,13 @@ export default function AboutPage() {
         // Ignore if missing
     }
 
+    const presidents = teamData.members.filter((m: any) => m.role === "President");
+    const vps = teamData.members.filter((m: any) => m.role.startsWith("Vice President"));
+    const others = teamData.members.filter((m: any) => m.role !== "President" && !m.role.startsWith("Vice President"));
+
     const teamSection = (
         <section className="py-16 md:py-24 px-4 max-w-7xl mx-auto border-t border-border mt-16">
-            <div className="mb-12 text-center">
+            <div className="mb-16 text-center">
                 <h2 className="font-serif text-3xl md:text-4xl font-bold tracking-tight text-foreground mb-4">
                     {teamData.title || "Meet the Team"}
                 </h2>
@@ -41,10 +45,38 @@ export default function AboutPage() {
             </div>
 
             {teamData.members.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-12">
-                    {teamData.members.map((member: any, index: number) => (
-                        <TeamMemberCard key={index} member={member} />
-                    ))}
+                <div className="space-y-16">
+                    {presidents.length > 0 && (
+                        <div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-12">
+                                {presidents.map((member: any, index: number) => (
+                                    <div key={index} className={index === 0 ? "lg:col-start-2" : ""}>
+                                        <TeamMemberCard member={member} />
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                    
+                    {vps.length > 0 && (
+                        <div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-12">
+                                {vps.map((member: any, index: number) => (
+                                    <TeamMemberCard key={index} member={member} />
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {others.length > 0 && (
+                        <div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-12">
+                                {others.map((member: any, index: number) => (
+                                    <TeamMemberCard key={index} member={member} />
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
             ) : null}
         </section>

@@ -23,6 +23,9 @@ sections:
         - label: Office Hours
           value: '150'
           suffix: +
+        - label: 'Verifications Processed '
+          value: '8000'
+          suffix: +
   - discriminant: content
     value:
       id: about-us
