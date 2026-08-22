@@ -24,10 +24,10 @@ function LogoCard({ logo }: { logo: CompanyLogo }) {
                 <img
                     src={logo.src}
                     alt={logo.name}
-                    className="h-12 md:h-16 w-auto max-w-[140px] md:max-w-[200px] object-contain"
+                    className="w-28 h-8 md:w-40 md:h-12 object-contain opacity-80 hover:opacity-100 transition-opacity"
                 />
             ) : (
-                <span className="text-2xl md:text-3xl font-semibold tracking-wider text-muted-foreground whitespace-nowrap select-none">
+                <span className="text-xl md:text-2xl font-bold tracking-wider text-muted-foreground/60 whitespace-nowrap select-none">
                     {logo.name}
                 </span>
             )}

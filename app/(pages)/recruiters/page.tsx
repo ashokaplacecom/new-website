@@ -16,20 +16,27 @@ const recruiterSchema = z.object({
     fullName: z.string().min(2, "Name must be at least 2 characters"),
     email: z.string().min(1, "Work email is required").email("Please enter a valid email address"),
     company: z.string().min(2, "Company name is required"),
-    opportunityType: z.string().min(2, "Please select an opportunity type"),
+    opportunityType: z.string().min(2, "Please select an option"),
     subject: z.string().min(2, "Subject line is required"),
     message: z.string().min(10, "Please provide at least 10 characters").max(20000, "Message is too long"),
 });
 
 type RecruiterValues = z.infer<typeof recruiterSchema>;
 
-const OPP_TYPES = [
+const HIRE_OPP_TYPES = [
     "Full-time Role",
     "Summer Internship",
     "Winter Internship",
     "Research/Academic Project",
     "Campus Ambassador Program",
     "Other/Exploring Options"
+];
+
+const KNOW_OPP_TYPES = [
+    "Campus Visit",
+    "Guest Speaker / Talk",
+    "Explore Partnerships",
+    "General Inquiry"
 ];
 
 const inputClass = (hasError?: boolean) =>
@@ -43,12 +50,15 @@ const inputClass = (hasError?: boolean) =>
     );
 
 export default function RecruiterPage() {
+    const [activeTab, setActiveTab] = useState<"hire" | "know">("hire");
     const [isLoading, setIsLoading] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
     const [apiError, setApiError] = useState<string | null>(null);
     const [documentFile, setDocumentFile] = useState<File | null>(null);
     const [fileError, setFileError] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const currentOppTypes = activeTab === "hire" ? HIRE_OPP_TYPES : KNOW_OPP_TYPES;
 
     const form = useForm<RecruiterValues>({
         resolver: zodResolver(recruiterSchema),
@@ -81,6 +91,11 @@ export default function RecruiterPage() {
     };
 
     const handleSubmit = useCallback(async (values: RecruiterValues) => {
+        if (activeTab === "hire" && !documentFile) {
+            setFileError("Please attach a Job Description or relevant document.");
+            return;
+        }
+
         setIsLoading(true);
         setApiError(null);
         
@@ -89,6 +104,7 @@ export default function RecruiterPage() {
             fd.append("fullName", values.fullName);
             fd.append("email", values.email);
             fd.append("company", values.company);
+            // Append tab indicator so we know what they chose if needed, but opportunityType handles it
             fd.append("opportunityType", values.opportunityType);
             fd.append("subject", values.subject);
             fd.append("message", values.message);
@@ -110,7 +126,7 @@ export default function RecruiterPage() {
         } finally {
             setIsLoading(false);
         }
-    }, [form, documentFile]);
+    }, [form, documentFile, activeTab]);
 
     return (
         <main className="min-h-screen w-full bg-gradient-to-b from-background to-muted/20">
@@ -127,10 +143,10 @@ export default function RecruiterPage() {
                             Corporate Partnerships
                         </div>
                         <h1 className="text-4xl md:text-6xl font-bold tracking-tight leading-tight mb-6">
-                            Hire from Ashoka
+                            Partner with Ashoka
                         </h1>
                         <p className="text-lg md:text-xl text-muted/80 max-w-2xl mx-auto font-light leading-relaxed">
-                            Partner with our Placement Committee to recruit exceptional talent across liberal arts, sciences, and economics for your organization.
+                            Connect with our Placement Committee to recruit exceptional talent or explore long-term institutional partnerships.
                         </p>
                     </motion.div>
                 </div>
@@ -152,7 +168,7 @@ export default function RecruiterPage() {
                             </div>
                             <h2 className="text-3xl font-bold text-foreground mb-4">Inquiry Received</h2>
                             <p className="text-base text-muted-foreground max-w-md mx-auto mb-8">
-                                Thank you for your interest in partnering with Ashoka University. Our Career Development Office and PlaceCom will reach out to you shortly.
+                                Thank you for your interest in partnering with Ashoka University. Our team will reach out to you shortly.
                             </p>
                             <Button
                                 variant="outline"
@@ -164,12 +180,50 @@ export default function RecruiterPage() {
                         </motion.div>
                     ) : (
                         <form onSubmit={form.handleSubmit(handleSubmit)} className="p-8 md:p-12" noValidate>
+                            {/* Tab Switcher */}
+                            <div className="flex p-1.5 bg-muted/40 border rounded-xl mb-10 mx-auto max-w-md">
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setActiveTab("hire");
+                                        form.setValue("opportunityType", "");
+                                        form.clearErrors("opportunityType");
+                                    }}
+                                    className={cn(
+                                        "flex-1 py-3 text-sm font-semibold rounded-lg transition-all",
+                                        activeTab === "hire" 
+                                            ? "bg-background shadow-sm text-foreground border border-border/50" 
+                                            : "text-muted-foreground hover:text-foreground"
+                                    )}
+                                >
+                                    Hire from Us
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setActiveTab("know");
+                                        form.setValue("opportunityType", "Get to Know Us");
+                                        form.clearErrors("opportunityType");
+                                    }}
+                                    className={cn(
+                                        "flex-1 py-3 text-sm font-semibold rounded-lg transition-all",
+                                        activeTab === "know" 
+                                            ? "bg-background shadow-sm text-foreground border border-border/50" 
+                                            : "text-muted-foreground hover:text-foreground"
+                                    )}
+                                >
+                                    Get to Know Us
+                                </button>
+                            </div>
+
                             <div className="mb-10 text-center md:text-left">
                                 <h2 className="text-2xl md:text-3xl font-semibold text-foreground tracking-tight">
-                                    Initiate Partnership
+                                    {activeTab === "hire" ? "Initiate Hiring Partnership" : "Connect with Us"}
                                 </h2>
                                 <p className="text-sm md:text-base text-muted-foreground mt-2">
-                                    Leave your details below and a dedicated team member will contact you to facilitate the hiring process.
+                                    {activeTab === "hire" 
+                                        ? "Leave your details below and a dedicated team member will contact you to facilitate the hiring process." 
+                                        : "Leave your details below and we will reach out to discuss talks, visits, and other collaborations."}
                                 </p>
                             </div>
 
@@ -219,36 +273,38 @@ export default function RecruiterPage() {
                                     {errors.company && <p className="text-xs text-destructive">{errors.company.message}</p>}
                                 </div>
 
-                                {/* Opportunity Type */}
-                                <div className="space-y-2 md:col-span-2">
-                                    <label className="text-sm font-semibold text-foreground flex items-center gap-2">
-                                        <Briefcase className="w-4 h-4 text-primary" /> Opportunity Type <span className="text-destructive">*</span>
-                                    </label>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-2">
-                                        {OPP_TYPES.map((type) => {
-                                            const isSelected = form.watch("opportunityType") === type;
-                                            return (
-                                                <button
-                                                    key={type}
-                                                    type="button"
-                                                    onClick={() => {
-                                                        form.setValue("opportunityType", type);
-                                                        form.clearErrors("opportunityType");
-                                                    }}
-                                                    className={cn(
-                                                        "text-left px-4 py-3 rounded-xl border text-sm font-medium transition-all",
-                                                        isSelected
-                                                            ? "bg-primary border-primary text-primary-foreground shadow-md"
-                                                            : "bg-background border-border text-foreground hover:border-primary/50"
-                                                    )}
-                                                >
-                                                    {type}
-                                                </button>
-                                            );
-                                        })}
+                                {/* Opportunity Type (Only for Hire from Us) */}
+                                {activeTab === "hire" && (
+                                    <div className="space-y-2 md:col-span-2">
+                                        <label className="text-sm font-semibold text-foreground flex items-center gap-2">
+                                            <Briefcase className="w-4 h-4 text-primary" /> Opportunity Type <span className="text-destructive">*</span>
+                                        </label>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-2">
+                                            {HIRE_OPP_TYPES.map((type) => {
+                                                const isSelected = form.watch("opportunityType") === type;
+                                                return (
+                                                    <button
+                                                        key={type}
+                                                        type="button"
+                                                        onClick={() => {
+                                                            form.setValue("opportunityType", type);
+                                                            form.clearErrors("opportunityType");
+                                                        }}
+                                                        className={cn(
+                                                            "text-left px-4 py-3 rounded-xl border text-sm font-medium transition-all",
+                                                            isSelected
+                                                                ? "bg-primary border-primary text-primary-foreground shadow-md"
+                                                                : "bg-background border-border text-foreground hover:border-primary/50"
+                                                        )}
+                                                    >
+                                                        {type}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                        {errors.opportunityType && <p className="text-xs text-destructive mt-1">{errors.opportunityType.message}</p>}
                                     </div>
-                                    {errors.opportunityType && <p className="text-xs text-destructive mt-1">{errors.opportunityType.message}</p>}
-                                </div>
+                                )}
                                 
                                 {/* Subject Line */}
                                 <div className="space-y-2 md:col-span-2">
@@ -257,7 +313,7 @@ export default function RecruiterPage() {
                                     </label>
                                     <input
                                         type="text"
-                                        placeholder="e.g. Campus Recruitment Drive 2026"
+                                        placeholder={activeTab === "hire" ? "e.g. Campus Recruitment Drive 2026" : "e.g. Exploring Institutional Partnership"}
                                         {...form.register("subject")}
                                         disabled={isLoading}
                                         className={inputClass(!!errors.subject)}
@@ -268,9 +324,13 @@ export default function RecruiterPage() {
                                 {/* Message (Rich Text) */}
                                 <div className="space-y-2 md:col-span-2">
                                     <label className="text-sm font-semibold text-foreground flex items-center gap-2">
-                                        <FileText className="w-4 h-4 text-primary" /> Job Description & Details <span className="text-destructive">*</span>
+                                        <FileText className="w-4 h-4 text-primary" /> {activeTab === "hire" ? "Job Description & Details" : "Message & Details"} <span className="text-destructive">*</span>
                                     </label>
-                                    <p className="text-xs text-muted-foreground mb-2">Provide a job description, roles, timeline, or questions you have.</p>
+                                    <p className="text-xs text-muted-foreground mb-2">
+                                        {activeTab === "hire" 
+                                            ? "Provide a job description, roles, timeline, or questions you have." 
+                                            : "Provide details about your organization, proposed visit, or questions you have."}
+                                    </p>
                                     <RichTextEditor
                                         value={form.watch("message")}
                                         onChange={(val) => {
@@ -286,9 +346,13 @@ export default function RecruiterPage() {
                                 {/* File Upload */}
                                 <div className="space-y-2 md:col-span-2">
                                     <label className="text-sm font-semibold text-foreground flex items-center gap-2">
-                                        <Paperclip className="w-4 h-4 text-primary" /> Attach Documents (Optional)
+                                        <Paperclip className="w-4 h-4 text-primary" /> Attach Documents {activeTab === "hire" ? <span className="text-destructive">*</span> : "(Optional)"}
                                     </label>
-                                    <p className="text-xs text-muted-foreground mb-2">Attach JD PDFs, brochures, or other supporting documents (Max 5MB).</p>
+                                    <p className="text-xs text-muted-foreground mb-2">
+                                        {activeTab === "hire" 
+                                            ? "Attach JD PDFs, brochures, or other supporting documents (Max 5MB)."
+                                            : "Attach company profiles, brochures, or other supporting documents (Max 5MB)."}
+                                    </p>
                                     <div 
                                         className={cn(
                                             "flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-xl transition-all",

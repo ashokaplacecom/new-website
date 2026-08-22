@@ -272,34 +272,40 @@ const renderMenuItem = (item: MenuItem, isAuthenticated: boolean) => {
     );
   }
 
-  // Items that require auth: treat as disabled when not signed in
-  const isDisabled = item.disabled || (item.requiresAuth && !isAuthenticated);
-  const tooltip = item.disabled
-    ? item.tooltip
-    : item.requiresAuth && !isAuthenticated
-      ? item.tooltip ?? "Sign in with your @ashoka.edu.in account to access this!"
-      : undefined;
+  const needsAuth = item.requiresAuth && !isAuthenticated;
+  const isHardDisabled = item.disabled;
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (isHardDisabled) {
+      e.preventDefault();
+      return;
+    }
+    if (needsAuth) {
+      e.preventDefault();
+      signIn("google", { callbackUrl: item.url });
+    }
+  };
 
   const link = (
     <NavigationMenuLink
-      href={isDisabled ? undefined : item.url}
+      href={isHardDisabled ? undefined : item.url}
       className={cn(
-        "group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-muted hover:text-accent-foreground",
-        isDisabled && "cursor-not-allowed opacity-50"
+        "group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-muted hover:text-accent-foreground cursor-pointer",
+        isHardDisabled && "cursor-not-allowed opacity-50"
       )}
-      onClick={isDisabled ? (e) => e.preventDefault() : undefined}
+      onClick={handleClick}
     >
       {item.title}
     </NavigationMenuLink>
   );
 
-  if (tooltip) {
+  if (isHardDisabled && item.tooltip) {
     return (
       <NavigationMenuItem key={item.title}>
         <Tooltip>
           <TooltipTrigger asChild>{link}</TooltipTrigger>
           <TooltipContent>
-            <p>{tooltip}</p>
+            <p>{item.tooltip}</p>
           </TooltipContent>
         </Tooltip>
       </NavigationMenuItem>
@@ -310,12 +316,8 @@ const renderMenuItem = (item: MenuItem, isAuthenticated: boolean) => {
 };
 
 const renderMobileMenuItem = (item: MenuItem, isAuthenticated: boolean) => {
-  const isDisabled = item.disabled || (item.requiresAuth && !isAuthenticated);
-  const tooltip = item.disabled
-    ? item.tooltip
-    : item.requiresAuth && !isAuthenticated
-      ? item.tooltip ?? "Sign in with your @ashoka.edu.in account to access this!"
-      : undefined;
+  const needsAuth = item.requiresAuth && !isAuthenticated;
+  const isHardDisabled = item.disabled;
 
   if (item.items) {
     return (
@@ -332,26 +334,37 @@ const renderMobileMenuItem = (item: MenuItem, isAuthenticated: boolean) => {
     );
   }
 
+  const handleClick = (e: React.MouseEvent) => {
+    if (isHardDisabled) {
+      e.preventDefault();
+      return;
+    }
+    if (needsAuth) {
+      e.preventDefault();
+      signIn("google", { callbackUrl: item.url });
+    }
+  };
+
   const link = (
     <a
       key={item.title}
-      href={isDisabled ? undefined : item.url}
+      href={isHardDisabled ? undefined : item.url}
       className={cn(
-        "text-md font-semibold",
-        isDisabled && "cursor-not-allowed opacity-50"
+        "text-md font-semibold cursor-pointer",
+        isHardDisabled && "cursor-not-allowed opacity-50"
       )}
-      onClick={isDisabled ? (e) => e.preventDefault() : undefined}
+      onClick={handleClick}
     >
       {item.title}
     </a>
   );
 
-  if (tooltip) {
+  if (isHardDisabled && item.tooltip) {
     return (
       <Tooltip key={item.title}>
         <TooltipTrigger asChild>{link}</TooltipTrigger>
         <TooltipContent>
-          <p>{tooltip}</p>
+          <p>{item.tooltip}</p>
         </TooltipContent>
       </Tooltip>
     );
