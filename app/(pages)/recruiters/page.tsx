@@ -18,7 +18,7 @@ const recruiterSchema = z.object({
     company: z.string().min(2, "Company name is required"),
     opportunityType: z.string().min(2, "Please select an option"),
     subject: z.string().min(2, "Subject line is required"),
-    message: z.string().min(10, "Please provide at least 10 characters").max(20000, "Message is too long"),
+    message: z.string().max(20000, "Message is too long").optional().or(z.literal("")),
 });
 
 type RecruiterValues = z.infer<typeof recruiterSchema>;
@@ -324,7 +324,7 @@ export default function RecruiterPage() {
                                 {/* Message (Rich Text) */}
                                 <div className="space-y-2 md:col-span-2">
                                     <label className="text-sm font-semibold text-foreground flex items-center gap-2">
-                                        <FileText className="w-4 h-4 text-primary" /> {activeTab === "hire" ? "Job Description & Details" : "Message & Details"} <span className="text-destructive">*</span>
+                                        <FileText className="w-4 h-4 text-primary" /> {activeTab === "hire" ? "Job Description & Details" : "Message & Details"}
                                     </label>
                                     <p className="text-xs text-muted-foreground mb-2">
                                         {activeTab === "hire" 

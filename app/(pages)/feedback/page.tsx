@@ -23,7 +23,6 @@ const ISSUE_TYPES = [
     "Internships",
     "Placements",
     "Connect Website",
-    "Social Media / Instagram",
     "General / Other"
 ];
 

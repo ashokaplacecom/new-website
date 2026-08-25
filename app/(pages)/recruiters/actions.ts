@@ -12,7 +12,7 @@ const recruiterSchema = z.object({
     company: z.string().min(2),
     opportunityType: z.string().min(2),
     subject: z.string().optional(),
-    message: z.string().min(10),
+    message: z.string().optional().or(z.literal('')),
 });
 
 export type RecruiterFormState =
