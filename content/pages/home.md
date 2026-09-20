@@ -10,28 +10,22 @@ sections:
       cta:
         label: Connect with Us
         href: /contact
-      secondaryCta:
-        label: About Us
-        href: /about
+      secondaryCta: {}
   - discriminant: about-stats
     value:
       heading: PlaceCom at a Glance
       subheading: Numbers that reflect our commitment to every student's career journey.
       columns: 4
       items:
-        - label: Students Placed
-          value: '400'
+        - label: Student Resources
+          value: '18'
           suffix: +
-        - label: Recruiting Partners
-          value: '200'
+        - label: Office Hours
+          value: '150'
           suffix: +
-        - label: Verifications Processed
+        - label: 'Verifications Processed '
           value: '8000'
           suffix: +
-        - label: Highest Package (LPA)
-          value: '42'
-          prefix: ₹
-          suffix: L
   - discriminant: content
     value:
       id: about-us
@@ -42,26 +36,39 @@ sections:
       items:
         - title: Campus Placements
           description: >-
-            We coordinate end-to-end campus recruitment drives, connecting top
-            employers with Ashoka talent across sectors — consulting, finance,
-            tech, development, and more.
+            We work closely with recruiters, students, and the Career
+            Development Office to coordinate end-to-end placement processes
+            across consulting, finance, technology, development, and beyond.
+            From recruitment cycles and employer engagement to placement
+            coordination, we help create a seamless experience for both students
+            and organisations.
           text: Something something
-        - title: Career Resources
+        - title: Internships & Career Resources
           description: >-
-            Resume reviews, mock interviews, SOP guides, and workshops to help
-            every student put their best foot forward — regardless of their
-            academic background.
+            We equip students with the tools and confidence to navigate every
+            stage of the recruitment journey. By analysing past data to curate
+            resources that provide actionable insights, proven pathways of
+            successfully placed students, industry insights and market trends.
+            Additionally through resume reviews, mock interviews, SOP guidance,
+            office hours, and skill-building workshops, we provide practical
+            support tailored to students across academic backgrounds and career
+            interests.
           text: Hoga kuch
         - title: Industry Connects
           description: >-
-            Curated speaker sessions, panel discussions, and networking events
-            with professionals across industries, bringing real-world
-            perspectives to campus.
+            We build meaningful connections between the Ashoka community and the
+            professional world. Through curated speaker sessions, panel
+            discussions, networking opportunities, engagements with alumni and
+            industry leaders and the PlaceCom podcast we bring diverse
+            perspectives and real-world insights to campus.
           text: Idk
         - title: Verification & Documentation
           description: >-
-            We handle offer letter verifications, degree attestations, and all
-            documentation support students need during the placement process.
+            We streamline the administrative processes that support students
+            throughout recruitment and placement. From offer letter verification
+            and degree attestations to profile checks and other essential
+            documentation, we ensure that every step is handled accurately and
+            efficiently.
           text: IDek what ts is
   - discriminant: content
     value:

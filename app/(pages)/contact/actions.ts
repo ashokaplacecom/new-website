@@ -56,9 +56,6 @@ export async function sendContactEmail(
             to: recipient,
             template,
             fromAlias: 'PlaceCom Website',
-            // CC the user so they have a copy of their message.
-            // This also acts as an implicit "reply-to" since replies will go to the recipient.
-            cc: email,
         });
 
         return { status: 'success' };

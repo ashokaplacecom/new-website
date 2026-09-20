@@ -18,16 +18,16 @@ interface CompanyLogo {
 
 function LogoCard({ logo }: { logo: CompanyLogo }) {
     return (
-        <div className="flex items-center justify-center px-6 py-3 min-w-max">
+        <div className="flex items-center justify-center px-12 py-6 min-w-max">
             {logo.src ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                     src={logo.src}
                     alt={logo.name}
-                    className="h-7 object-contain opacity-50 hover:opacity-80 transition-opacity grayscale"
+                    className="w-28 h-8 md:w-40 md:h-12 object-contain opacity-80 hover:opacity-100 transition-opacity"
                 />
             ) : (
-                <span className="text-sm font-medium tracking-wide text-muted-foreground/60 hover:text-muted-foreground transition-colors whitespace-nowrap select-none">
+                <span className="text-xl md:text-2xl font-bold tracking-wider text-muted-foreground/60 whitespace-nowrap select-none">
                     {logo.name}
                 </span>
             )}
@@ -47,7 +47,19 @@ interface AboutStatsProps {
 export function AboutStats({ section }: AboutStatsProps) {
     const tickerRef = useRef<HTMLDivElement>(null);
     const tickerInView = useInView(tickerRef, { once: true, margin: "0px" });
-    const cols = section.columns ?? Math.min(section.items.length, 4);
+    const cols = section.items.length;
+    let gridClass = "grid-cols-2 lg:grid-cols-4";
+    let maxWidthClass = "max-w-4xl";
+    if (cols === 1) {
+        gridClass = "grid-cols-1";
+        maxWidthClass = "max-w-xs";
+    } else if (cols === 2) {
+        gridClass = "grid-cols-2";
+        maxWidthClass = "max-w-lg";
+    } else if (cols === 3) {
+        gridClass = "grid-cols-1 md:grid-cols-3";
+        maxWidthClass = "max-w-3xl";
+    }
 
     return (
         <section
@@ -55,7 +67,7 @@ export function AboutStats({ section }: AboutStatsProps) {
             id="metrics"
             aria-label="PlaceCom metrics"
         >
-            <div className="max-w-3xl mx-auto">
+            <div className="max-w-5xl mx-auto">
                 {/* Section heading */}
                 {section.heading && (
                     <motion.div
@@ -84,11 +96,11 @@ export function AboutStats({ section }: AboutStatsProps) {
                     </motion.p>
                 )}
 
-                {/* Stats grid — 2-col on mobile, dynamic cols on lg */}
+                {/* Stats grid — dynamically sized and centered */}
                 <div ref={tickerRef} className={cn(
-                    "grid grid-cols-2 gap-4 sm:gap-6",
-                    cols === 4 && "lg:grid-cols-4",
-                    cols === 3 && "lg:grid-cols-3",
+                    "grid gap-4 sm:gap-6 mx-auto",
+                    gridClass,
+                    maxWidthClass
                 )}>
                     {section.items.map((item, i) => (
                         <motion.div
@@ -144,7 +156,7 @@ export function AboutStats({ section }: AboutStatsProps) {
                 className="mt-10"
             >
                 <p className="text-center text-xs tracking-[0.2em] uppercase text-muted-foreground/50 mb-6 font-medium">
-                    Recruiting partners across sectors
+                    Received offers from
                 </p>
                 <div className="relative">
                     {/* Fade edges */}

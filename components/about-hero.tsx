@@ -118,28 +118,28 @@ export function AboutHero({ section }: AboutHeroProps) {
                 )}
 
                 {/* CTA buttons */}
-                {(section.cta || section.secondaryCta) && (
+                {(section.cta?.href || section.secondaryCta?.href) && (
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 1.4, duration: 0.5, ease: "easeOut" }}
                         className="flex flex-col sm:flex-row items-center justify-center gap-4"
                     >
-                        {section.cta && (
+                        {section.cta?.href && (
                             <Link href={section.cta.href} className="w-full sm:w-auto">
                                 <InteractiveHoverButton
                                     className="rounded-md w-full sm:w-auto bg-white text-foreground border-white hover:border-white font-semibold text-sm px-8 py-3"
                                 >
-                                    {section.cta.label}
+                                    {section.cta.label || "Learn More"}
                                 </InteractiveHoverButton>
                             </Link>
                         )}
-                        {section.secondaryCta && (
+                        {section.secondaryCta?.href && (
                             <Link
                                 href={section.secondaryCta.href}
                                 className="inline-flex items-center gap-2 text-sm font-medium text-white/80 hover:text-white border border-white/30 hover:border-white/60 rounded-md px-8 py-3 transition-all duration-200"
                             >
-                                {section.secondaryCta.label}
+                                {section.secondaryCta.label || "View More"}
                             </Link>
                         )}
                     </motion.div>
