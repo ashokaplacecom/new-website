@@ -13,6 +13,20 @@ const nextConfig: NextConfig = {
     // Fixes the 10MB request body size limit for API routes
     proxyClientMaxBodySize: '50mb',
   },
+  async redirects() {
+    return [
+      {
+        source: '/duperset',
+        destination: '/toolbox',
+        permanent: true,
+      },
+      {
+        source: '/duperset/:path*',
+        destination: '/toolbox/:path*',
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

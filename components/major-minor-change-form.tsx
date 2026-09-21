@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
 import { OtpInput } from "@/components/ui/otp-input";
 import { Button } from "@/components/ui/button";
 
-import { generateOtpAction, verifyOtpAndCreateMajorMinorAction } from "@/app/(pages)/duperset/major-minor-change/actions";
+import { generateOtpAction, verifyOtpAndCreateMajorMinorAction } from "@/app/(pages)/toolbox/major-minor-change/actions";
 
 /* ─── Schemas ─── */
 const emailSchema = z.object({

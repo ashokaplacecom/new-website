@@ -4,14 +4,12 @@ import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useWebHaptics } from "web-haptics/react";
 import {
-    BadgeCheck,
     Briefcase,
-    ScrollText,
-    GraduationCap,
     Library,
     CircleHelp,
     CircleUserRound,
     Users,
+    CalendarDays,
 } from "lucide-react";
 import { FloatingDock } from "@/components/ui/floating-dock";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -20,42 +18,32 @@ const dockItems = [
     {
         title: "POC",
         icon: <Users className="h-full w-full" />,
-        href: "/duperset/pocs",
-    },
-    {
-        title: "Verifications",
-        icon: <BadgeCheck className="h-full w-full" />,
-        href: "/duperset/verifications",
+        href: "/toolbox/pocs",
     },
     {
         title: "External Opportunities",
         icon: <Briefcase className="h-full w-full" />,
-        href: "/duperset/external-opportunities",
+        href: "/toolbox/external-opportunities",
     },
     {
-        title: "Requests",
-        icon: <ScrollText className="h-full w-full" />,
-        href: "/duperset/view-requests",
-    },
-    {
-        title: "Academic",
-        icon: <GraduationCap className="h-full w-full" />,
-        href: "/duperset/major-minor-change",
+        title: "Events Calendar",
+        icon: <CalendarDays className="h-full w-full" />,
+        href: "/toolbox/events-calendar",
     },
     {
         title: "Resources",
         icon: <Library className="h-full w-full" />,
-        href: "/duperset/resources",
+        href: "/toolbox/resources",
     },
     {
         title: "FAQs",
         icon: <CircleHelp className="h-full w-full" />,
-        href: "/duperset/faqs",
+        href: "/toolbox/faqs",
     },
     {
         title: "Profile",
         icon: <CircleUserRound className="h-full w-full" />,
-        href: "/duperset/profile",
+        href: "/toolbox/profile",
     },
 ];
 
@@ -66,7 +54,7 @@ export function ToolboxDock() {
 
     const visibleItems = session?.user?.isPoc
         ? dockItems
-        : dockItems.filter(item => item.href !== "/duperset/pocs");
+        : dockItems.filter(item => item.href !== "/toolbox/pocs");
 
     const links = visibleItems.map(item => {
         let icon = item.icon;

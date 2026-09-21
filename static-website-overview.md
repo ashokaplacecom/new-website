@@ -16,7 +16,7 @@ Nav links:
 - **List an Opportunity** — active, but requires @ashoka.edu.in Google sign-in
 - **Contact Us** — active
 
-When logged in, the right side shows a user avatar and a "Duperset" button that takes you into the portal. On mobile it collapses into a hamburger drawer.
+When logged in, the right side shows a user avatar and a "Toolbox" button that takes you into the portal. On mobile it collapses into a hamburger drawer.
 
 ---
 

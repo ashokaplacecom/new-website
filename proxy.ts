@@ -8,10 +8,16 @@ const ALLOWED_ORIGINS = [
 ];
 
 // Page routes that require an authenticated session
-const PROTECTED_ROUTES = ["/duperset", "/submit-opportunity", "/backend", "/admin"];
+const PROTECTED_ROUTES = ["/toolbox", "/submit-opportunity", "/backend", "/admin"];
 
 export async function proxy(req: NextRequest) {
     const { pathname } = req.nextUrl;
+
+    // ── Redirect legacy /duperset URLs to /toolbox ─────────
+    if (pathname === "/duperset" || pathname.startsWith("/duperset/")) {
+        const newPath = pathname.replace(/^\/duperset/, "/toolbox");
+        return NextResponse.redirect(new URL(newPath, req.url), 307);
+    }
 
     // ── 1. API routes — CORS + API-key gate + Trailing Slash Bypass ─────────
     if (pathname.startsWith("/api/")) {
@@ -130,8 +136,8 @@ export async function proxy(req: NextRequest) {
         }
 
         // ── 3. Role-based access control ──────────────────────────────────────────
-        if (pathname.startsWith("/duperset/pocs") && token.isPoc !== true) {
-            return NextResponse.redirect(new URL("/duperset", req.url));
+        if (pathname.startsWith("/toolbox/pocs") && token.isPoc !== true) {
+            return NextResponse.redirect(new URL("/toolbox", req.url));
         }
 
         // Only admins can access the backend CMS or the admin panel
@@ -146,6 +152,8 @@ export async function proxy(req: NextRequest) {
 export const config = {
     matcher: [
         "/api/:path*",
+        "/toolbox",
+        "/toolbox/:path*",
         "/duperset",
         "/duperset/:path*",
         "/submit-opportunity",

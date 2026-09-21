@@ -72,7 +72,7 @@ These control structured information that appears on the website — lists, entr
 
 **Departments** — Department entries with a name, a writeup, department leaders (with photos), and a list of regular members.
 
-**Resources Library** — The resources available inside Duperset. Each resource can be a file or a folder, with a URL, description, and optional badges. Nested folders are supported but require pasting JSON manually into the Children field (this one is a bit fiddly — ask a developer if you're unsure).
+**Resources Library** — The resources available inside Toolbox. Each resource can be a file or a folder, with a URL, description, and optional badges. Nested folders are supported but require pasting JSON manually into the Children field (this one is a bit fiddly — ask a developer if you're unsure).
 
 ---
 
@@ -87,4 +87,4 @@ The CMS covers most day-to-day content updates, but the following things are har
 - **New section types** — if you want a layout block that doesn't exist yet (e.g., a photo gallery or an FAQ accordion on a public page), that needs code.
 - **The contact form behavior** — where form submissions are sent, validation rules, and the success message are all in code.
 - **The "List an Opportunity" form** — fields, validation, and submission logic are hardcoded.
-- **Anything inside the Duperset portal** — the CMS only manages the public static website.
+- **Anything inside the Toolbox portal** — the CMS only manages the public static website.

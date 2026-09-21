@@ -58,9 +58,9 @@ export function UserNav({ session }: UserNavProps) {
         <DropdownMenuSeparator />
 
         <DropdownMenuItem asChild>
-          <Link href="/duperset" className="flex items-center gap-2 cursor-pointer">
+          <Link href="/toolbox" className="flex items-center gap-2 cursor-pointer">
             <Wrench className="h-4 w-4" />
-            <span>Duperset</span>
+            <span>Toolbox</span>
           </Link>
         </DropdownMenuItem>
 

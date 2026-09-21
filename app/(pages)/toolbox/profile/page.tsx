@@ -181,7 +181,7 @@ export default async function ProfilePage() {
                             </div>
 
                             <div className="pt-2 flex justify-end">
-                                <Link href="/duperset/view-requests" className="flex items-center gap-1 text-xs font-semibold text-primary hover:underline">
+                                <Link href="/toolbox/view-requests" className="flex items-center gap-1 text-xs font-semibold text-primary hover:underline">
                                     View All Requests <ArrowRight className="h-3.5 w-3.5" />
                                 </Link>
                             </div>

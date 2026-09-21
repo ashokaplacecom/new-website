@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils";
 import { OtpInput } from "@/components/ui/otp-input";
 import { Button } from "@/components/ui/button";
 
-import { generateOtpAction, verifyOtpAndCreateVerificationAction } from "@/app/(pages)/duperset/verifications/actions";
+import { generateOtpAction, verifyOtpAndCreateVerificationAction } from "@/app/(pages)/toolbox/verifications/actions";
 
 /* ─── Schemas ─── */
 const emailSchema = z.object({

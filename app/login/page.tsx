@@ -8,7 +8,7 @@ import Image from "next/image";
 function LoginContent() {
   const searchParams = useSearchParams();
   const error = searchParams.get("error");
-  const callbackUrl = searchParams.get("callbackUrl") ?? "/duperset";
+  const callbackUrl = searchParams.get("callbackUrl") ?? "/toolbox";
 
   const isAccessDenied = error === "AccessDenied";
 
