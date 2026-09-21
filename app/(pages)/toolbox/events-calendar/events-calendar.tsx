@@ -1,396 +1,270 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { Calendar, ChevronLeft, ChevronRight, Filter, Eye, EyeOff } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Calendar, ChevronLeft, ChevronRight, Search, X } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { AnimatedSearch } from "./components/animated-search";
 import { EventDialog } from "./components/event-dialog";
-import { TourStep, useTour } from "@/components/guided-tour"; // Import useTour hook
-import { PreferencesSidebar } from "./components/preference-sidebar";
-import { OrientationDialog } from "@/components/orientation-dialog";
-import {
-  MonthView,
-  ListView,
-  WeekView,
-  TodayView,
-} from "./components/calendar-views";
-import PageTitle from "@/components/page-title";
-import {
-  sampleEvents,
-  organizations as defaultOrganizations,
-  defaultColors,
-} from "./data/calendar-data";
-import type { Event, CalendarView, Preferences, Organization } from "./types/calendar";
+import { MonthView, ListView, WeekView, TodayView } from "./components/calendar-views";
+import { cn } from "@/lib/utils";
+import type { Event } from "./types/calendar";
 
-type EventsCalendarProps = {
-  events: Event[];
-  initialPreferences?: Preferences | null;
-  apiEndpoint?: string;
-  organizations: Organization[];
-};
+type DesktopView = "month" | "week" | "today";
+type MobileView = "list" | "today";
+type AnyView = DesktopView | MobileView;
 
-export default function EventsCalendar({
-  events,
-  initialPreferences,
-  apiEndpoint = "/api/platform/events/preferences",
-  organizations
-}: EventsCalendarProps) {
+const DESKTOP_VIEWS: { key: DesktopView; label: string }[] = [
+  { key: "month", label: "Month" },
+  { key: "week", label: "Week" },
+  { key: "today", label: "Today" },
+];
+
+const MOBILE_VIEWS: { key: MobileView; label: string }[] = [
+  { key: "list", label: "List" },
+  { key: "today", label: "Today" },
+];
+
+function getIST() {
+  return new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+}
+
+// ─── Search bar ───────────────────────────────────────────────────────────────
+function SearchBar({ onSearch }: { onSearch: (q: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+
+  const handleChange = (v: string) => { setQuery(v); onSearch(v); };
+  const handleClose = () => { setQuery(""); onSearch(""); setOpen(false); };
+
+  if (open) {
+    return (
+      <div className="flex items-center gap-1.5 border border-border/60 rounded-2xl bg-muted/40 px-3 py-1.5 w-48 sm:w-56">
+        <Search className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+        <Input
+          autoFocus
+          value={query}
+          onChange={e => handleChange(e.target.value)}
+          placeholder="Search…"
+          className="border-0 bg-transparent p-0 h-auto text-sm focus-visible:ring-0 placeholder:text-muted-foreground/60"
+        />
+        <button onClick={handleClose} className="text-muted-foreground hover:text-foreground">
+          <X className="w-3.5 h-3.5" />
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <button
+      onClick={() => setOpen(true)}
+      className="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-muted/60 transition-colors text-muted-foreground hover:text-foreground"
+      aria-label="Search events"
+    >
+      <Search className="w-4 h-4" />
+    </button>
+  );
+}
+
+// ─── Segmented view picker ────────────────────────────────────────────────────
+function ViewPicker<T extends string>({
+  views, current, onChange,
+}: {
+  views: { key: T; label: string }[];
+  current: T;
+  onChange: (v: T) => void;
+}) {
+  return (
+    <div className="flex items-center gap-0.5 bg-muted/50 rounded-2xl p-1 border border-border/30">
+      {views.map(v => (
+        <button
+          key={v.key}
+          onClick={() => onChange(v.key)}
+          className={cn(
+            "px-3 py-1.5 text-xs font-semibold rounded-xl transition-all duration-150",
+            current === v.key
+              ? "bg-card text-foreground shadow-sm"
+              : "text-muted-foreground hover:text-foreground",
+          )}
+        >
+          {v.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+// ─── Navigation (month/week) ──────────────────────────────────────────────────
+function NavRow({ label, onPrev, onNext, onToday, isToday }: {
+  label: string; onPrev: () => void; onNext: () => void; onToday: () => void; isToday: boolean;
+}) {
+  return (
+    <div className="flex items-center gap-1.5">
+      <button onClick={onPrev} className="w-7 h-7 flex items-center justify-center rounded-xl hover:bg-muted/60 transition-colors text-muted-foreground hover:text-foreground">
+        <ChevronLeft className="w-4 h-4" />
+      </button>
+      <button onClick={onToday} className={cn(
+        "px-2.5 py-1 rounded-xl text-xs font-semibold transition-all",
+        isToday ? "bg-primary text-primary-foreground" : "hover:bg-muted/60 text-muted-foreground hover:text-foreground",
+      )}>
+        Today
+      </button>
+      <button onClick={onNext} className="w-7 h-7 flex items-center justify-center rounded-xl hover:bg-muted/60 transition-colors text-muted-foreground hover:text-foreground">
+        <ChevronRight className="w-4 h-4" />
+      </button>
+      <span className="text-sm font-semibold text-foreground">{label}</span>
+    </div>
+  );
+}
+
+// ─── Main component ───────────────────────────────────────────────────────────
+export default function EventsCalendar({ events: initialEvents }: { events: Event[] }) {
   const isMobile = useIsMobile();
   const [mounted, setMounted] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(() => {
-    const now = new Date();
-    // Create a date object that matches IST wall-clock time
-    const istString = now.toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
-    return new Date(istString);
-  });
-  const [currentView, setCurrentView] = useState<CalendarView>("list");
+  const [events, setEvents] = useState<Event[]>(initialEvents);
+  const [selectedDate, setSelectedDate] = useState(getIST);
+  const [desktopView, setDesktopView] = useState<DesktopView>("month");
+  const [mobileView, setMobileView] = useState<MobileView>("list");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
-  const [showEventDialog, setShowEventDialog] = useState(false);
+  const [showDialog, setShowDialog] = useState(false);
 
-  const [usePreferencesFilter, setUsePreferencesFilter] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  useEffect(() => { setSelectedDate(getIST()); setMounted(true); }, []);
 
-  // State for the preferences sidebar is now managed locally
-  const [showPreferences, setShowPreferences] = useState(false);
+  const currentView: AnyView = mounted ? (isMobile ? mobileView : desktopView) : "list";
 
-  // Handle client-side only rendering
+  // When selectedDate or currentView changes, fetch events for that month or week
   useEffect(() => {
-    // Re-calculate IST date on mount to ensure consistency
-    const now = new Date();
-    const istString = now.toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
-    setSelectedDate(new Date(istString));
+    if (!mounted) return;
 
-    setMounted(true);
+    const fetchView = currentView === "week" ? "week" : "month";
+    const dateStr = selectedDate.toISOString();
+    let cancelled = false;
 
-    // Set default view based on screen size after component mounts
-    if (mounted && !isMobile) {
-      setCurrentView("month");
-    }
-
-  }, [isMobile, mounted]);
-
-  // Use the tour hook to get the current tour state
-  const { isActive, currentStepId } = useTour();
-
-  // Use a useEffect to listen for changes in the tour's current step.
-  // This is the core logic that connects the tour to your component's state.
-  useEffect(() => {
-    // When the tour is active and we are on the 'event-filters' step, show the sidebar.
-    // Otherwise, ensure the sidebar is closed.
-    if (
-      isActive &&
-      (currentStepId === "event-filters" || currentStepId === "calendar-preferences")
-    ) {
-      setShowPreferences(true);
-    } else {
-      setShowPreferences(false);
-    }
-    // The dependency array ensures this effect runs only when these values change.
-  }, [isActive, currentStepId]);
-
-  // Initialize preferences with initialPreferences if provided, otherwise use defaults
-  const [preferences, setPreferences] = useState<Preferences>(() => {
-    if (initialPreferences) {
-      return initialPreferences;
-    }
-    return {
-      selectedOrganizations: organizations.map(org => org.id), // Use organizations from props
-      selectedCategories: ["clubs", "societies", "departments", "ministries", "others"],
-      categoryColors: {
-        clubs: defaultColors[0],
-        societies: defaultColors[3],
-        departments: defaultColors[6],
-        ministries: defaultColors[9],
-        others: defaultColors[12],
-      },
-    };
-  });
-
-  // Log events for debugging
-  useEffect(() => {
-    platform.log('Events received by EventsCalendar:', events);
-    platform.log('Organizations received by EventsCalendar:', organizations);
-  }, [events, organizations]);
-
-  const filteredEvents = useMemo(() => {
-    platform.log('Filtering events, count before filter:', events.length);
-
-    // Make a copy to avoid mutation issues
-    let filtered = [...events];
-
-    // Filter by search query if there is one
-    if (searchQuery) {
-      filtered = filtered.filter(
-        (event) =>
-          event.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          (event.organizingBody &&
-            event.organizingBody.toLowerCase().includes(searchQuery.toLowerCase())) ||
-          (event.venue &&
-            event.venue.toLowerCase().includes(searchQuery.toLowerCase()))
-      );
-    }
-
-    // Apply preference filters only if usePreferencesFilter is enabled
-    if (usePreferencesFilter) {
-      // Filter by selected categories
-      filtered = filtered.filter((event) =>
-        preferences.selectedCategories.includes(event.category)
-      );
-
-      // Filter by selected organizations if we have organizations and selections
-      if (organizations.length > 0 && preferences.selectedOrganizations.length > 0) {
-        filtered = filtered.filter((event) => {
-          // Check if the event's organization ID matches any selected organization
-          // Or if the organizingBody matches the name of any selected organization
-          return preferences.selectedOrganizations.some(orgId => {
-            // Direct ID match
-            if (event.organization === orgId) return true;
-
-            // Match by name through organizations list
-            const org = organizations.find(o => o.id === orgId);
-            if (org && (event.organizingBody === org.name ||
-              event.organizingBody.toLowerCase() === org.name.toLowerCase())) {
-              return true;
-            }
-
-            // Try matching the normalized organizingBody with organization ID
-            const normalizedOrgName = event.organizingBody.toLowerCase().replace(/\s+/g, '-');
-            return normalizedOrgName === orgId;
+    async function loadEvents() {
+      try {
+        const res = await fetch(`/api/events?view=${fetchView}&date=${encodeURIComponent(dateStr)}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (cancelled) return;
+        if (data.success && Array.isArray(data.data)) {
+          setEvents(prev => {
+            const map = new Map<string, Event>();
+            prev.forEach(e => map.set(e.id, e));
+            data.data.forEach((e: Event) => map.set(e.id, e));
+            return Array.from(map.values());
           });
-        });
+        }
+      } catch (err) {
+        console.error("Failed to fetch events for view:", err);
       }
     }
 
-    platform.log('Events after filtering:', filtered.length);
-    return filtered;
-  }, [searchQuery, preferences, events, usePreferencesFilter]);
+    loadEvents();
+    return () => { cancelled = true; };
+  }, [selectedDate, currentView, mounted]);
 
-  const handleEventClick = (event: Event) => {
-    setSelectedEvent(event);
-    setShowEventDialog(true);
+  const filteredEvents = useMemo(() => {
+    if (!searchQuery.trim()) return events;
+    const q = searchQuery.toLowerCase();
+    return events.filter(e =>
+      e.title?.toLowerCase().includes(q) ||
+      e.venue?.toLowerCase().includes(q)
+    );
+  }, [searchQuery, events]);
+
+  const handleEventClick = (event: Event) => { setSelectedEvent(event); setShowDialog(true); };
+
+  const navigateMonth = (dir: "prev" | "next") => {
+    const d = new Date(selectedDate);
+    d.setMonth(d.getMonth() + (dir === "next" ? 1 : -1));
+    setSelectedDate(d);
+  };
+  const navigateWeek = (dir: "prev" | "next") => {
+    const d = new Date(selectedDate);
+    d.setDate(d.getDate() + (dir === "next" ? 7 : -7));
+    setSelectedDate(d);
+  };
+  const goToToday = () => setSelectedDate(getIST());
+  const isAtToday = selectedDate.toDateString() === getIST().toDateString();
+  const handleNav = (dir: "prev" | "next") => {
+    if (currentView === "month") navigateMonth(dir);
+    else if (currentView === "week") navigateWeek(dir);
   };
 
-  const navigateMonth = (direction: "prev" | "next") => {
-    const newDate = new Date(selectedDate);
-    if (direction === "prev") {
-      newDate.setMonth(newDate.getMonth() - 1);
-    } else {
-      newDate.setMonth(newDate.getMonth() + 1);
+  const navigationLabel = (() => {
+    if (currentView === "month") return selectedDate.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+    if (currentView === "week") {
+      const s = new Date(selectedDate);
+      s.setDate(selectedDate.getDate() - selectedDate.getDay());
+      const e = new Date(s); e.setDate(s.getDate() + 6);
+      return `${s.toLocaleDateString("en-US", { month: "short", day: "numeric" })} – ${e.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`;
     }
-    setSelectedDate(newDate);
-  };
+    return "";
+  })();
 
-  const navigateWeek = (direction: "prev" | "next") => {
-    const newDate = new Date(selectedDate);
-    if (direction === "prev") {
-      newDate.setDate(newDate.getDate() - 7);
-    } else {
-      newDate.setDate(newDate.getDate() + 7);
-    }
-    setSelectedDate(newDate);
-  };
+  const showNavigation = currentView === "month" || currentView === "week";
 
-  const goToToday = () => {
-    const now = new Date();
-    const istString = now.toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
-    setSelectedDate(new Date(istString));
-  };
-
-  const getNavigationLabel = () => {
-    if (currentView === "month") {
-      return selectedDate.toLocaleDateString("en-US", {
-        month: "long",
-        year: "numeric",
-      });
-    } else if (currentView === "week") {
-      const startOfWeek = new Date(selectedDate);
-      startOfWeek.setDate(selectedDate.getDate() - selectedDate.getDay());
-      const endOfWeek = new Date(startOfWeek);
-      endOfWeek.setDate(startOfWeek.getDate() + 6);
-      return `${startOfWeek.toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-      })} - ${endOfWeek.toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      })}`;
-    }
-    return selectedDate.toLocaleDateString("en-US", {
-      month: "long",
-      year: "numeric",
-    });
-  };
-
-  const handleNavigation = (direction: "prev" | "next") => {
-    if (currentView === "month" || currentView === "list") {
-      navigateMonth(direction);
-    } else if (currentView === "week") {
-      navigateWeek(direction);
-    }
-  };
-
-  // Handle view change
-  const handleViewChange = (view: CalendarView) => {
-    setCurrentView(view);
-  };
-
-  const renderCalendarView = () => {
-    const viewProps = {
-      events: filteredEvents,
-      selectedDate,
-      onEventClick: handleEventClick,
-      categoryColors: preferences.categoryColors,
-    };
-    switch (currentView) {
-      case "month":
-        return <MonthView {...viewProps} />;
-      case "week":
-        return <WeekView {...viewProps} />;
-      case "list":
-        return <ListView {...viewProps} />;
-      case "today":
-        return <TodayView {...viewProps} />;
-      default:
-        return <MonthView {...viewProps} />;
-    }
-  };
+  const viewProps = { events: filteredEvents, selectedDate, onEventClick: handleEventClick, categoryColors: {} };
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto p-6 space-y-6">
-        {/* Header with integrated controls for larger screens */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-
-          <PageTitle text="Events Calendar" icon={Calendar} subheading="Discover events happening around campus" />
-
-
-          {/* Controls - moved to header row on larger screens */}
-          <div className="flex items-center gap-2 mt-4 sm:mt-0">
-            <TourStep
-              id="event-search"
-              order={1}
-              title="Search for Events!"
-              content="Find events by name, category, or description."
-              position="right"
-            >
-              <AnimatedSearch onSearch={setSearchQuery} />
-            </TourStep>
-
-            <Button
-              variant={usePreferencesFilter ? "default" : "outline"}
-              size="sm"
-              onClick={() => setUsePreferencesFilter(!usePreferencesFilter)}
-              className="mr-2"
-            >
-              {usePreferencesFilter ? <Eye className="h-4 w-4 mr-2" /> : <EyeOff className="h-4 w-4 mr-2" />}
-              Show Filtered: {usePreferencesFilter ? "on" : "off"}
-            </Button>
-
-            <TourStep
-              id="event-filters"
-              order={2}
-              title="Filter Events!"
-              content="Filter events by category, organization, or date."
-              position="right"
-            >
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowPreferences(true)} // Now uses local state
-              >
-                <Filter className="h-4 w-4 mr-2" />
-                Preferences
-              </Button>
-            </TourStep>
+    <div className="container max-w-6xl mx-auto px-4 pt-8 pb-12 sm:pt-12">
+      {/* ── Page header ── */}
+      <div className="flex items-start justify-between gap-4 mb-6 sm:mb-8">
+        <div className="flex items-center gap-3 sm:gap-4">
+          <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-primary/10 text-primary border border-primary/5 flex-shrink-0">
+            <Calendar className="w-5 h-5 sm:w-6 sm:h-6" />
+          </div>
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground font-apple-sans leading-tight">
+              Talks, Sessions, and Events
+            </h1>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 leading-relaxed">
+              Discover events happening around campus
+            </p>
           </div>
         </div>
-
-        {/* Calendar Navigation */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleNavigation("prev")}
-                disabled={currentView === "today"}
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={
-                  selectedDate.toDateString() === new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" })).toDateString()
-                    ? "default"
-                    : "outline"
-                }
-                size="sm"
-                onClick={goToToday}
-              >
-                Today
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleNavigation("next")}
-                disabled={currentView === "today"}
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
-            <h2 className="font-semibold text-2xl text-center">
-              {getNavigationLabel()}
-            </h2>
-          </div>
-
-          <div className="flex items-center gap-1">
-            {(["month", "week", "list", "today"] as CalendarView[]).map(
-              (view) => (
-                <Button
-                  key={view}
-                  variant={currentView === view ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => handleViewChange(view)}
-                  className="capitalize"
-                >
-                  {view}
-                </Button>
-              )
-            )}
-          </div>
-        </div>
-
-        {/* Calendar Content */}
-        <div className="bg-card rounded-lg border p-4">
-          {renderCalendarView()}
-        </div>
-
-        {/* Event Dialog */}
-        {selectedEvent && (
-          <EventDialog
-            event={selectedEvent}
-            open={showEventDialog}
-            onOpenChange={setShowEventDialog}
-          />
-        )}
-
-        {/* Preferences Sidebar */}
-        <PreferencesSidebar
-          open={showPreferences}
-          onOpenChange={setShowPreferences} // Use local state setter
-          preferences={preferences}
-          onPreferencesChange={setPreferences}
-          selectedDate={selectedDate}
-          onDateSelect={setSelectedDate}
-          apiEndpoint={apiEndpoint}
-          organizations={organizations}
-        />
-
-        {/* Orientation Dialog — only for grid views (month/week) that need landscape */}
-        {(currentView === "month" || currentView === "week") && <OrientationDialog />}
       </div>
+
+      {/* ── Controls row: nav + view picker + search (all in one line) ── */}
+      <div className="flex items-center justify-between gap-3 mb-4">
+        {/* Left: navigation label (month/week only) */}
+        <div className="min-w-0 flex-1">
+          {showNavigation && (
+            <NavRow
+              label={navigationLabel}
+              onPrev={() => handleNav("prev")}
+              onNext={() => handleNav("next")}
+              onToday={goToToday}
+              isToday={isAtToday}
+            />
+          )}
+        </div>
+
+        {/* Right: view picker + search */}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          {mounted && (
+            isMobile ? (
+              <ViewPicker views={MOBILE_VIEWS} current={mobileView} onChange={setMobileView} />
+            ) : (
+              <ViewPicker views={DESKTOP_VIEWS} current={desktopView} onChange={setDesktopView} />
+            )
+          )}
+          <SearchBar onSearch={setSearchQuery} />
+        </div>
+      </div>
+
+      {/* ── Calendar content ── */}
+      <div className={cn(
+        "rounded-3xl border border-border/40 bg-card shadow-sm",
+        (currentView === "list" || currentView === "today") ? "p-4 sm:p-6" : "overflow-hidden",
+      )}>
+        {currentView === "month" && <MonthView  {...viewProps} />}
+        {currentView === "week" && <WeekView   {...viewProps} />}
+        {currentView === "list" && <ListView events={filteredEvents} onEventClick={handleEventClick} />}
+        {currentView === "today" && <TodayView events={filteredEvents} onEventClick={handleEventClick} />}
+      </div>
+
+      <EventDialog event={selectedEvent} open={showDialog} onOpenChange={setShowDialog} />
     </div>
   );
 }

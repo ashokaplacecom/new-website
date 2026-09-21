@@ -26,7 +26,7 @@ const dockItems = [
         href: "/toolbox/external-opportunities",
     },
     {
-        title: "Events Calendar",
+        title: "Events",
         icon: <CalendarDays className="h-full w-full" />,
         href: "/toolbox/events-calendar",
     },

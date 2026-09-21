@@ -1,117 +1,29 @@
-"use server";
 import { NextRequest, NextResponse } from 'next/server';
-import { strapiGet, strapiPut } from '@/lib/apis/strapi';
+import { cookies } from 'next/headers';
 
-// Define the interface for events calendar filter preferences
+const PREFS_COOKIE = 'events_calendar_preferences';
+const COOKIE_MAX_AGE = 60 * 60 * 24 * 365; // 1 year
+
 interface EventsCalendarPreferences {
   selectedOrganizations: string[];
   selectedCategories: string[];
   categoryColors: Record<string, string>;
 }
 
-/**
- * GET handler for /api/events/preferences
- * Returns the user's event calendar preferences
- */
-export async function GET(request: NextRequest) {
-  try {
-    // For now, hardcode the user ID as 1
-    const userId = 1;
-
-    // Fetch the user's preferences from Strapi
-    const userData = await strapiGet(`/users/${userId}`, {
-      fields: ['id', 'username', 'events_calendar_filter_preferences'],
-    });
-
-    let preferences: EventsCalendarPreferences | null = null;
-
-    // Check if the user has saved preferences
-    if (userData.events_calendar_filter_preferences) {
-      try {
-        // Try to parse if it's a JSON string
-        if (typeof userData.events_calendar_filter_preferences === 'string') {
-          preferences = JSON.parse(userData.events_calendar_filter_preferences);
-        } else {
-          // If it's already an object, use it directly
-          preferences = userData.events_calendar_filter_preferences;
-        }
-
-        // Validate that the preferences match our expected format
-        if (!validatePreferences(preferences)) {
-          platform.log('Invalid preferences format, resetting to default');
-          preferences = null;
-        }
-      } catch (error) {
-        console.error('Error parsing preferences:', error);
-        preferences = null;
-      }
-    }
-
-    // Return the preferences or default values
-    return NextResponse.json({
-      success: true,
-      data: preferences || getDefaultPreferences()
-    });
-  } catch (error) {
-    console.error("Error fetching user preferences:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: (error as Error).message
-      },
-      { status: 500 }
-    );
-  }
+function getDefaultPreferences(): EventsCalendarPreferences {
+  return {
+    selectedOrganizations: [],
+    selectedCategories: ['clubs', 'societies', 'departments', 'ministries', 'others'],
+    categoryColors: {
+      clubs: '#c89188',
+      societies: '#f4b448',
+      departments: '#519872',
+      ministries: '#5197d6',
+      others: '#767371',
+    },
+  };
 }
 
-/**
- * POST handler for /api/events/preferences
- * Saves the user's event calendar preferences
- */
-export async function POST(request: NextRequest) {
-  try {
-    // Parse the request body
-    const body = await request.json();
-    const { preferences } = body;
-
-    // Validate the preferences
-    if (!validatePreferences(preferences)) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Invalid preferences format"
-        },
-        { status: 400 }
-      );
-    }
-
-    // For now, hardcode the user ID as 1
-    const userId = 1;
-
-    // Save the preferences to Strapi
-    await strapiPut(`/users/${userId}`, {
-      events_calendar_filter_preferences: preferences
-    });
-
-    return NextResponse.json({
-      success: true,
-      message: "Preferences saved successfully"
-    });
-  } catch (error) {
-    console.error("Error saving user preferences:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: (error as Error).message
-      },
-      { status: 500 }
-    );
-  }
-}
-
-/**
- * Validates that the preferences object has the expected structure
- */
 function validatePreferences(preferences: any): preferences is EventsCalendarPreferences {
   return (
     preferences &&
@@ -122,18 +34,72 @@ function validatePreferences(preferences: any): preferences is EventsCalendarPre
 }
 
 /**
- * Returns default preferences for a new user
+ * GET /api/events/preferences
+ * Returns the user's saved calendar preferences from a cookie.
  */
-function getDefaultPreferences(): EventsCalendarPreferences {
-  return {
-    selectedOrganizations: [], // Empty array means all organizations
-    selectedCategories: ["clubs", "societies", "departments", "ministries", "others"], // All categories selected by default
-    categoryColors: {
-      clubs: "#FF5A5F",
-      societies: "#0088CC",
-      departments: "#FFA500",
-      ministries: "#8A2BE2",
-      others: "#3CB371",
-    },
-  };
+export async function GET() {
+  try {
+    const cookieStore = await cookies();
+    const raw = cookieStore.get(PREFS_COOKIE)?.value;
+
+    let preferences: EventsCalendarPreferences | null = null;
+
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw);
+        if (validatePreferences(parsed)) {
+          preferences = parsed;
+        }
+      } catch {
+        // malformed cookie — fall back to defaults
+      }
+    }
+
+    return NextResponse.json({
+      success: true,
+      data: preferences ?? getDefaultPreferences(),
+    });
+  } catch (error) {
+    console.error('Error fetching preferences:', error);
+    return NextResponse.json({ success: true, data: getDefaultPreferences() });
+  }
+}
+
+/**
+ * POST /api/events/preferences
+ * Saves the user's calendar preferences in a cookie.
+ */
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { preferences } = body;
+
+    if (!validatePreferences(preferences)) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid preferences format' },
+        { status: 400 }
+      );
+    }
+
+    const response = NextResponse.json({
+      success: true,
+      message: 'Preferences saved successfully',
+      data: preferences,
+    });
+
+    response.cookies.set(PREFS_COOKIE, JSON.stringify(preferences), {
+      maxAge: COOKIE_MAX_AGE,
+      path: '/',
+      sameSite: 'lax',
+      httpOnly: false, // readable client-side is fine for non-sensitive prefs
+    });
+
+    return response;
+  } catch (error) {
+    console.error('Error saving preferences:', error);
+    return NextResponse.json(
+      { success: false, error: (error as Error).message },
+      { status: 500 }
+    );
+  }
 }

@@ -8,11 +8,11 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import {
-  Accordion11,
-  Accordion11Content,
-  Accordion11Item,
-  Accordion11Trigger,
-} from "@/components/ui/shadcn-io/accordion-11";
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Calendar } from "@/components/ui/calendar";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -20,7 +20,6 @@ import { Search, Save } from "lucide-react";
 import { defaultColors } from "../data/calendar-data";
 import type { Preferences, Organization } from "../types/calendar";
 import { Button } from "@/components/ui/button";
-import { TourStep } from "@/components/guided-tour";
 import {
   Popover,
   PopoverTrigger,
@@ -46,7 +45,7 @@ export function PreferencesSidebar({
   onPreferencesChange,
   selectedDate,
   onDateSelect,
-  apiEndpoint = "/api/platform/events/preferences",
+  apiEndpoint = "/api/events/preferences",
   organizations = []
 }: PreferencesSidebarProps) {
   const [searchTerms, setSearchTerms] = useState<Record<string, string>>({});
@@ -88,24 +87,18 @@ export function PreferencesSidebar({
   };
 
   const handleCategoryToggle = (category: string) => {
-    // Simply toggle the current category
     const isCurrentlySelected = preferences.selectedCategories.includes(category);
     let newSelected: string[];
 
     if (isCurrentlySelected) {
-      // If deselecting, remove from the list
       newSelected = preferences.selectedCategories.filter(cat => cat !== category);
 
-      // Make sure we have at least one category selected
       if (newSelected.length === 0) {
-        // If we're removing the last category, ensure we keep it selected
         newSelected = [category];
       }
     } else {
-      // If selecting, add to the list
       newSelected = [...preferences.selectedCategories, category];
 
-      // Remove "all" if it exists and we have specific categories
       if (newSelected.includes("all") && newSelected.length > 1) {
         newSelected = newSelected.filter(cat => cat !== "all");
       }
@@ -136,22 +129,19 @@ export function PreferencesSidebar({
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ preferences }) // Wrap preferences in an object
+        body: JSON.stringify({ preferences })
       });
 
       if (!response.ok) {
         throw new Error(`Failed to save preferences: ${response.statusText}`);
       }
 
-      // Get response data
       const data = await response.json();
 
-      // Update preferences with the saved data if it's returned
       if (data && data.data) {
         onPreferencesChange(data.data);
       }
 
-      // Show success message
       alert("Preferences saved successfully!");
     } catch (error) {
       console.error('Error saving preferences:', error);
@@ -170,63 +160,51 @@ export function PreferencesSidebar({
 
         <div className="space-y-6">
           {/* Mini Calendar */}
-          <TourStep
-            id="calendar-preferences"
-            order={3}
-            title="Select a Date!"
-            content="Select a date to view events for that date."
-            position="right"
-          >
-            {mounted && (
-              <Calendar
-                mode="single"
-                selected={selectedDate}
-                onSelect={(date) => date && onDateSelect(date)}
-                className="rounded-md border mx-auto max-w-full w-85"
-                today={new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }))}
-              />
-            )}
-          </TourStep>
+          {mounted && (
+            <Calendar
+              mode="single"
+              selected={selectedDate}
+              onSelect={(date) => date && onDateSelect(date)}
+              className="rounded-md border mx-auto max-w-full w-85"
+              today={new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }))}
+            />
+          )}
 
           {/* Organization Preferences with Category Checkboxes */}
           <div>
             <h3 className="font-medium mb-3">Categories and Organizations</h3>
-            <Accordion11
+            <Accordion
               type="single"
               collapsible
-              className="w-full max-w-2xl"
-              defaultValue="3"
+              className="w-full"
             >
               {categories.map((category) => (
-                <Accordion11Item
+                <AccordionItem
                   key={category}
                   value={category}
                   className="flex flex-col justify-start !w-full"
                 >
-                  {/* Custom header instead of Accordion11Trigger */}
+                  {/* Custom header with checkbox and color picker */}
                   <div className="capitalize text-sm text-left flex items-center w-full py-2 border-b">
                     {/* Left: Checkbox + Category */}
                     <div className="flex items-center space-x-2">
                       <Checkbox
                         id={`cat-${category}`}
-                        checked={preferences.selectedCategories.includes(
-                          category
-                        )}
+                        checked={preferences.selectedCategories.includes(category)}
                         onCheckedChange={() => handleCategoryToggle(category)}
                         className="rounded-xs mx-3 w-4 h-4 transition-transform duration-200 ease-in-out data-[state=checked]:scale-110"
                       />
                       <span className="font-semibold text-sm">{category}</span>
                     </div>
 
-                    {/* Right: Palette */}
+                    {/* Right: Color palette */}
                     <div className="flex items-center space-x-2 ml-auto">
                       <Popover>
                         <PopoverTrigger asChild>
                           <button
                             className="w-5 h-5 rounded border hover:scale-110 transition-transform"
                             style={{
-                              backgroundColor:
-                                preferences.categoryColors[category],
+                              backgroundColor: preferences.categoryColors[category],
                             }}
                           />
                         </PopoverTrigger>
@@ -234,15 +212,12 @@ export function PreferencesSidebar({
                           {defaultColors.map((color) => (
                             <button
                               key={color}
-                              onClick={() =>
-                                handleColorChange(category, color)
-                              }
+                              onClick={() => handleColorChange(category, color)}
                               className="w-6 h-6 rounded border-2 border-gray-300 hover:scale-110 transition-transform"
                               style={{
                                 backgroundColor: color,
                                 borderColor:
-                                  preferences.categoryColors[category] ===
-                                    color
+                                  preferences.categoryColors[category] === color
                                     ? "#000"
                                     : "#d1d5db",
                               }}
@@ -252,14 +227,14 @@ export function PreferencesSidebar({
                       </Popover>
                     </div>
 
-                    {/* Separate accordion trigger with just the chevron */}
-                    <Accordion11Trigger className="ml-2 p-0">
+                    {/* Accordion trigger chevron */}
+                    <AccordionTrigger className="ml-2 p-0 hover:no-underline">
                       <span className="sr-only">Toggle {category}</span>
-                    </Accordion11Trigger>
+                    </AccordionTrigger>
                   </div>
 
-                  <Accordion11Content>
-                    <div className="space-y-3">
+                  <AccordionContent>
+                    <div className="space-y-3 pt-2">
                       <div className="relative">
                         <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                         <Input
@@ -283,12 +258,8 @@ export function PreferencesSidebar({
                             >
                               <Checkbox
                                 id={org.id}
-                                checked={preferences.selectedOrganizations.includes(
-                                  org.id
-                                )}
-                                onCheckedChange={() =>
-                                  handleOrganizationToggle(org.id)
-                                }
+                                checked={preferences.selectedOrganizations.includes(org.id)}
+                                onCheckedChange={() => handleOrganizationToggle(org.id)}
                                 className="rounded-md w-5 h-5 transition-transform duration-200 ease-in-out data-[state=checked]:scale-110"
                               />
                               <label htmlFor={org.id} className="text-sm">
@@ -303,10 +274,10 @@ export function PreferencesSidebar({
                         )}
                       </div>
                     </div>
-                  </Accordion11Content>
-                </Accordion11Item>
+                  </AccordionContent>
+                </AccordionItem>
               ))}
-            </Accordion11>
+            </Accordion>
           </div>
 
 
