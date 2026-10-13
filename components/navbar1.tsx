@@ -93,6 +93,12 @@ const Navbar1 = ({
       description: "Share an opportunity with us to provide to Ashokan students!",
     },
     {
+      title: "Resources",
+      url: "/resources",
+      requiresAuth: true,
+      description: "Access all PlaceCom resources — guides, templates, and more.",
+    },
+    {
       title: "Contact Us",
       url: "/contact",
     },
