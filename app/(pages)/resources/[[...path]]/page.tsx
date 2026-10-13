@@ -1,7 +1,6 @@
 import { getResourceTree, findNodeByPath, getBreadcrumbs, ResourceNode } from '@/lib/resources';
 import { ResourceExplorer } from '@/components/resource-explorer';
 import { notFound } from 'next/navigation';
-import { auth } from '@/auth';
 
 interface PageProps {
   params: Promise<{ path?: string[] }>;
@@ -10,10 +9,7 @@ interface PageProps {
 export const dynamic = 'force-dynamic';
 
 export default async function ResourcesPage({ params }: PageProps) {
-  const [{ path: pathSegments }, session] = await Promise.all([
-    params,
-    auth(),
-  ]);
+  const { path: pathSegments } = await params;
 
   let currentNodes: ResourceNode[];
   let breadcrumbs: { name: string; href: string }[];
@@ -42,7 +38,6 @@ export default async function ResourcesPage({ params }: PageProps) {
       nodes={currentNodes}
       breadcrumbs={breadcrumbs}
       currentNode={currentNode}
-      isAdmin={!!session?.user?.isAdmin}
     />
   );
 }

@@ -31,7 +31,6 @@ interface ResourceExplorerProps {
   nodes: ResourceNode[];
   breadcrumbs: BreadcrumbItem[];
   currentNode: ResourceNode | null;
-  isAdmin?: boolean;
 }
 
 function getFileIcon(ext?: string) {
@@ -229,7 +228,7 @@ function countFiles(node: ResourceNode): number {
   return (node.children ?? []).reduce((sum, child) => sum + countFiles(child), 0);
 }
 
-export function ResourceExplorer({ nodes, breadcrumbs, currentNode, isAdmin }: ResourceExplorerProps) {
+export function ResourceExplorer({ nodes, breadcrumbs, currentNode }: ResourceExplorerProps) {
   const [previewNode, setPreviewNode] = useState<ResourceNode | null>(null);
 
   const folders = nodes.filter(n => n.type === 'folder');
@@ -247,7 +246,7 @@ export function ResourceExplorer({ nodes, breadcrumbs, currentNode, isAdmin }: R
       <main className="min-h-screen bg-gradient-to-b from-background to-muted/20 pb-24">
         {/* Hero / Header */}
         <div className="w-full bg-foreground text-background py-12">
-          <div className="max-w-5xl mx-auto px-4 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div className="max-w-5xl mx-auto px-4">
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
@@ -264,21 +263,6 @@ export function ResourceExplorer({ nodes, breadcrumbs, currentNode, isAdmin }: R
                 All PlaceCom resources in one place — from resume guides to case interview textbooks.
               </p>
             </motion.div>
-
-            {isAdmin && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="shrink-0"
-              >
-                <Link
-                  href="/admin/resources"
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20"
-                >
-                  ⚙️ Manage Resources (Admin)
-                </Link>
-              </motion.div>
-            )}
           </div>
         </div>
 
