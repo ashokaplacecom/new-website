@@ -21,7 +21,6 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ResourceNode } from '@/lib/resources';
-import { DocxViewer } from './docx-viewer';
 
 interface BreadcrumbItem {
   name: string;
@@ -63,8 +62,7 @@ function FilePreviewModal({
 }) {
   const isPdf = node.ext === 'pdf';
   const isVideo = ['mp4', 'mov', 'avi'].includes(node.ext ?? '');
-  const isDocx = ['docx', 'doc'].includes(node.ext ?? '');
-  const isPreviewable = isPdf || isVideo || isDocx;
+  const isPreviewable = isPdf || isVideo;
 
   return (
     <motion.div
@@ -133,9 +131,6 @@ function FilePreviewModal({
                 Your browser does not support video playback.
               </video>
             </div>
-          )}
-          {isDocx && (
-            <DocxViewer url={node.publicUrl} />
           )}
           {!isPreviewable && (
             <div className="flex flex-col items-center justify-center h-full min-h-[40vh] gap-4 text-muted-foreground">
@@ -331,9 +326,6 @@ export function ResourceExplorer({ nodes, breadcrumbs, currentNode }: ResourceEx
                 <div className="p-6 flex justify-center bg-black">
                   <video src={currentNode.publicUrl} controls className="max-w-full rounded-xl max-h-[70vh]" />
                 </div>
-              )}
-              {['docx', 'doc'].includes(currentNode.ext ?? '') && (
-                <DocxViewer url={currentNode.publicUrl} />
               )}
             </div>
           ) : (
