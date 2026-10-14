@@ -4,17 +4,68 @@ import fs from 'fs';
 import path from 'path';
 import { auth } from '@/auth';
 import { revalidatePath } from 'next/cache';
+import { ResourceNode } from '@/lib/resources';
+import { uploadFile } from '@/lib/supabase/storage/upload';
+import { createClient } from '@/lib/supabase/server';
 
-const RESOURCES_BASE = path.join(process.cwd(), 'public', 'resources');
+const TREE_JSON_PATH = path.join(process.cwd(), 'content', 'data', 'resources-tree.json');
 
-function getSafePath(relativePath: string): string {
-  // Normalize and prevent directory traversal
-  const normalized = path.normalize(relativePath).replace(/^(\.\.[\/\\])+/, '');
-  const resolved = path.join(RESOURCES_BASE, normalized);
-  if (!resolved.startsWith(RESOURCES_BASE)) {
-    throw new Error('Invalid path traversal attempt');
+function loadTree(): ResourceNode[] {
+  try {
+    if (fs.existsSync(TREE_JSON_PATH)) {
+      const data = fs.readFileSync(TREE_JSON_PATH, 'utf-8');
+      return JSON.parse(data);
+    }
+  } catch (err) {
+    console.error('[loadTree] Error reading tree JSON:', err);
   }
-  return resolved;
+  return [];
+}
+
+function saveTree(tree: ResourceNode[]) {
+  try {
+    fs.writeFileSync(TREE_JSON_PATH, JSON.stringify(tree, null, 2), 'utf-8');
+  } catch (err) {
+    console.error('[saveTree] Error saving tree JSON:', err);
+  }
+}
+
+function addNodeToFolder(tree: ResourceNode[], targetFolderPath: string, nodeToAdd: ResourceNode): boolean {
+  if (!targetFolderPath) {
+    tree.push(nodeToAdd);
+    return true;
+  }
+
+  for (const node of tree) {
+    if (node.type === 'folder') {
+      if (node.path === targetFolderPath) {
+        if (!node.children) node.children = [];
+        node.children.push(nodeToAdd);
+        return true;
+      }
+      if (node.children && addNodeToFolder(node.children, targetFolderPath, nodeToAdd)) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+function removeNodeFromTree(tree: ResourceNode[], targetPath: string): boolean {
+  const idx = tree.findIndex(n => n.path === targetPath);
+  if (idx !== -1) {
+    tree.splice(idx, 1);
+    return true;
+  }
+
+  for (const node of tree) {
+    if (node.type === 'folder' && node.children) {
+      if (removeNodeFromTree(node.children, targetPath)) {
+        return true;
+      }
+    }
+  }
+  return false;
 }
 
 export async function uploadResourceFile(formData: FormData): Promise<{ success: boolean; error?: string }> {
@@ -31,16 +82,45 @@ export async function uploadResourceFile(formData: FormData): Promise<{ success:
   }
 
   try {
-    const destDir = getSafePath(folder);
-    if (!fs.existsSync(destDir)) {
-      fs.mkdirSync(destDir, { recursive: true });
+    const safeName = file.name.replace(/[^\w\s\.-]/gi, '_');
+    const ext = safeName.split('.').pop()?.toLowerCase() || '';
+
+    // Upload to Supabase Storage
+    let publicUrl = '';
+    try {
+      const timestamp = Date.now();
+      const storagePath = `masterdrive/${timestamp}-${safeName}`;
+      const uploaded = await uploadFile({
+        bucket: 'opportunity-jds',
+        path: storagePath,
+        file: file,
+        contentType: file.type || undefined,
+        admin: true,
+      });
+
+      const supabase = await createClient();
+      const { data } = supabase.storage
+        .from('opportunity-jds')
+        .getPublicUrl(uploaded.path);
+
+      publicUrl = data.publicUrl;
+    } catch (uploadErr) {
+      console.warn('[uploadResourceFile] Supabase upload failed, falling back:', uploadErr);
+      // Fallback relative URL
+      publicUrl = `/resources/${folder ? `${folder}/` : ''}${encodeURIComponent(safeName)}`;
     }
 
-    const safeName = file.name.replace(/[^\w\s\.-]/gi, '_');
-    const destFile = path.join(destDir, safeName);
+    const newNode: ResourceNode = {
+      name: file.name,
+      type: 'file',
+      path: folder ? `${folder}/${file.name}` : file.name,
+      publicUrl: publicUrl,
+      ext: ext,
+    };
 
-    const buffer = Buffer.from(await file.arrayBuffer());
-    fs.writeFileSync(destFile, buffer);
+    const tree = loadTree();
+    addNodeToFolder(tree, folder, newNode);
+    saveTree(tree);
 
     revalidatePath('/resources');
     revalidatePath('/admin/resources');
@@ -65,14 +145,20 @@ export async function createResourceFolder(formData: FormData): Promise<{ succes
   }
 
   try {
-    const safeFolderName = folderName.trim().replace(/[^\w\s\.-]/gi, '_');
-    const targetDir = getSafePath(path.join(parentFolder, safeFolderName));
+    const cleanName = folderName.trim().replace(/[^\w\s\.-]/gi, '_');
+    const folderPath = parentFolder ? `${parentFolder}/${cleanName}` : cleanName;
 
-    if (fs.existsSync(targetDir)) {
-      return { success: false, error: 'A folder with this name already exists.' };
-    }
+    const newFolderNode: ResourceNode = {
+      name: cleanName,
+      type: 'folder',
+      path: folderPath,
+      publicUrl: `/resources/${folderPath.split('/').map(encodeURIComponent).join('/')}`,
+      children: [],
+    };
 
-    fs.mkdirSync(targetDir, { recursive: true });
+    const tree = loadTree();
+    addNodeToFolder(tree, parentFolder, newFolderNode);
+    saveTree(tree);
 
     revalidatePath('/resources');
     revalidatePath('/admin/resources');
@@ -94,18 +180,9 @@ export async function deleteResourceItem(itemPath: string): Promise<{ success: b
   }
 
   try {
-    const target = getSafePath(itemPath);
-
-    if (!fs.existsSync(target)) {
-      return { success: false, error: 'Item not found.' };
-    }
-
-    const stat = fs.statSync(target);
-    if (stat.isDirectory()) {
-      fs.rmSync(target, { recursive: true, force: true });
-    } else {
-      fs.unlinkSync(target);
-    }
+    const tree = loadTree();
+    removeNodeFromTree(tree, itemPath);
+    saveTree(tree);
 
     revalidatePath('/resources');
     revalidatePath('/admin/resources');

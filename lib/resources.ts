@@ -66,7 +66,17 @@ function encodeURIPath(p: string): string {
   return p.split('/').map(segment => encodeURIComponent(segment)).join('/');
 }
 
+const TREE_JSON_PATH = path.join(process.cwd(), 'content', 'data', 'resources-tree.json');
+
 export function getResourceTree(): ResourceNode[] {
+  try {
+    if (fs.existsSync(TREE_JSON_PATH)) {
+      const data = fs.readFileSync(TREE_JSON_PATH, 'utf-8');
+      return JSON.parse(data);
+    }
+  } catch (e) {
+    console.error('Failed to read resources-tree.json:', e);
+  }
   return buildTree(RESOURCES_DIR, '');
 }
 

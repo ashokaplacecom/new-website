@@ -6,6 +6,14 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
   serverExternalPackages: ["@prisma/client", "prisma"],
+  outputFileTracingExcludes: {
+    '*': [
+      './public/resources/**',
+      './public/resources/**/*',
+      'public/resources/**',
+      'public/resources/**/*',
+    ],
+  },
   experimental: {
     serverActions: {
       bodySizeLimit: '50mb',
